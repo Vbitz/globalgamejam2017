@@ -17,6 +17,11 @@ class Vector2 {
         this.X = x;
         this.Y = y;
     }
+
+    public hash(): string {
+        // TODO: Better hashing method if this turns out to be a problem
+        return this.X.toString(10) + ":" + this.Y.toString(10);
+    }
 }
 
 class Color {
@@ -174,6 +179,10 @@ class Map implements Renderable {
         };
     }
 
+    public createPathfindingMap() {
+        
+    }
+
     public loadFromDocument(documentStr: string) {
 
     }
@@ -182,14 +191,17 @@ class Map implements Renderable {
 class DijkstraMap {
     private MapData: TwoDMap<number>;
     private Owner: Map;
+    private Inverse: boolean;
 
-    constructor(owner: Map) {
+    constructor(owner: Map, inverse: boolean) {
         this.Owner = owner;
+        this.Inverse = inverse;
+
         this.MapData = [];
         for (var x: number = 0; x < this.Owner.Width; x++) {
             this.MapData.push([]);
             for (var y: number = 0; y < this.Owner.Height; y++) {
-                this.MapData[x].push(0);
+                this.MapData[x].push(inverse ? Number.MAX_VALUE : 0);
             }
         }
     }
@@ -204,6 +216,7 @@ class DijkstraMap {
     
     public drawDebug(ctx: CanvasRenderingContext2D) {
         var self = this;
+
         forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x: number, y: number, value: number) {
             var rect: Rectangle = self.Owner.levelToScreen(new Vector2(x, y));
             ctx.fillStyle = "black";

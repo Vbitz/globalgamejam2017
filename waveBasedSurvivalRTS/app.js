@@ -6,6 +6,10 @@ var Vector2 = (function () {
         this.X = x;
         this.Y = y;
     }
+    Vector2.prototype.hash = function () {
+        // TODO: Better hashing method if this turns out to be a problem
+        return this.X.toString(10) + ":" + this.Y.toString(10);
+    };
     return Vector2;
 }());
 var Color = (function () {
@@ -119,18 +123,21 @@ var Map = (function () {
             type: type
         };
     };
+    Map.prototype.createPathfindingMap = function () {
+    };
     Map.prototype.loadFromDocument = function (documentStr) {
     };
     return Map;
 }());
 var DijkstraMap = (function () {
-    function DijkstraMap(owner) {
+    function DijkstraMap(owner, inverse) {
         this.Owner = owner;
+        this.Inverse = inverse;
         this.MapData = [];
         for (var x = 0; x < this.Owner.Width; x++) {
             this.MapData.push([]);
             for (var y = 0; y < this.Owner.Height; y++) {
-                this.MapData[x].push(0);
+                this.MapData[x].push(inverse ? Number.MAX_VALUE : 0);
             }
         }
     }
