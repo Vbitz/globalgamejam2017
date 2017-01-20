@@ -227,6 +227,8 @@ class DijkstraMap {
     private Inverse: boolean;
     private InitalValue: number;
 
+    private PropigateTileList: Vector2[];
+
     constructor(w: number, h: number, inverse: boolean) {
         this.Width = w;
         this.Height = h;
@@ -249,10 +251,10 @@ class DijkstraMap {
         });
     }
 
-    public propigateMap() {
+    public propigateMap(maxSteps: number = Number.MAX_VALUE) {
         var self = this;
-
-        var tileList: Vector2[] = [];
+        
+        this.PropigateTileList = [];
 
         forEach(this.Width, this.Height, this.MapData, (x, y, currentValue) => {
             if (currentValue == this.InitalValue) {
@@ -260,13 +262,15 @@ class DijkstraMap {
                     !self.isTileInital(x + 1, y    ) ||
                     !self.isTileInital(x    , y - 1) ||
                     !self.isTileInital(x    , y + 1)) {
-                    tileList.push(new Vector2(x, y));
+                    this.PropigateTileList.push(new Vector2(x, y));
                 }
             }
         });
 
-        while (tileList.length > 0) {
-            var nextTile: Vector2 = tileList.shift();
+        var currentSteps = 0;
+
+        while (this.PropigateTileList.length > 0 && currentSteps < maxSteps) {
+            var nextTile: Vector2 = this.PropigateTileList.shift();
             var nextTileX = nextTile.X;
             var nextTileY = nextTile.Y;
             if (!this.isTileInital(nextTileX, nextTileY)) {
@@ -286,19 +290,29 @@ class DijkstraMap {
                     this.getValueAtPoint(nextTileX    , nextTileY - 1),
                     this.getValueAtPoint(nextTileX    , nextTileY + 1));
             }
+
             if (lowestValue == this.InitalValue) {
-                tileList.push(nextTile);
+                this.PropigateTileList.push(nextTile);
             } else {
                 this.setTileAtPoint(nextTileX, nextTileY, lowestValue);
-                tileList.push()
+                this.PropigateTileList.push(new Vector2(nextTileX - 1, nextTileY    ));
+                this.PropigateTileList.push(new Vector2(nextTileX + 1, nextTileY    ));
+                this.PropigateTileList.push(new Vector2(nextTileX    , nextTileY - 1));
+                this.PropigateTileList.push(new Vector2(nextTileX    , nextTileY + 1));
             }
+            currentSteps++;
         }
     }
 
     public getValueAtPoint(x: number, y: number): number {
+        if (x < 0 || x > this.Width - 1 || y < 0 || y < this.Height - 1) {
+            return this.InitalValue;
+        }
+
         if (this.MapData[x][y] < 0) {
             return this.InitalValue;
         }
+        
         return this.MapData[x][y];
     }
 
