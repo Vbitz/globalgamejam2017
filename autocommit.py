@@ -19,5 +19,6 @@ if __name__ == "__main__":
             b = s2 % (str(300 - x).zfill(3), )
             print (b, end="\r")
             time.sleep(1)
-            
+
         print(s1)
+        print("")
