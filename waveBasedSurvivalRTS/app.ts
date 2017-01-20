@@ -285,16 +285,16 @@ class DijkstraMap {
             
             var valuesToCheck = [];
 
-            if (this.getValueAtPoint(nextTileX - 1, nextTileY    ) > 0) {
+            if (this.getValueAtPoint(nextTileX - 1, nextTileY    ) >= 0) {
                 valuesToCheck.push(this.getValueAtPoint(nextTileX - 1, nextTileY    ));
             }
-            if (this.getValueAtPoint(nextTileX + 1, nextTileY    ) > 0) {
+            if (this.getValueAtPoint(nextTileX + 1, nextTileY    ) >= 0) {
                 valuesToCheck.push(this.getValueAtPoint(nextTileX + 1, nextTileY    ));
             }
-            if (this.getValueAtPoint(nextTileX    , nextTileY - 1) > 0) {
+            if (this.getValueAtPoint(nextTileX    , nextTileY - 1) >= 0) {
                 valuesToCheck.push(this.getValueAtPoint(nextTileX    , nextTileY - 1));
             }
-            if (this.getValueAtPoint(nextTileX    , nextTileY + 1) > 0) {
+            if (this.getValueAtPoint(nextTileX    , nextTileY + 1) >= 0) {
                 valuesToCheck.push(this.getValueAtPoint(nextTileX    , nextTileY + 1));
             }
 
@@ -389,15 +389,7 @@ function main(): void {
 
     renderableList.push(map);
 
-    var pathFindingMap: DijkstraMap = map.createPathfindingMap(5, 5, 1);
-
-    setTimeout(function propigateMapAgain () {
-        if (!pathFindingMap.propigateMap(1)) {
-            setTimeout(propigateMapAgain, 1000);
-        } else {
-            console.log("Finished");
-        }
-    }, 1000);
+    var pathFindingMap: DijkstraMap = map.createPathfindingMap(5, 5);
 
     function update() {
         ctx.fillStyle = "cornflowerBlue";
