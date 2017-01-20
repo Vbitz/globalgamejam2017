@@ -3,7 +3,9 @@ from subprocess import check_call, CalledProcessError
 
 if __name__ == "__main__":
     while True:
-        print "======================================================================================================"
+        s1 = "======================================================================================================"
+        s2 = "===== NEXT COMMIT IN %s SECONDS ====================================================================="
+        print s1
         dateString = str(datetime.datetime.now())
         check_call(["git", "add", "."])
         try:
@@ -12,7 +14,8 @@ if __name__ == "__main__":
         except (CalledProcessError):
             pass
 
-        print "Sleeping for 5 minutes"
-        print "======================================================================================================"
-        print ""
+        for x in range (0,300):
+            b = s2 % (str(x).zfill(3), )
+            print (b, end="\r")
+            time.sleep(1)
         time.sleep(300)
