@@ -262,7 +262,7 @@ class DijkstraMap {
     public propigateMap() {
         var self = this;
 
-        while (this.getTilesLeftToUpdate() > 0) {
+        while (this.getTilesLeftToPropigate() > 0) {
 
         }
     }

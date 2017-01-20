@@ -183,7 +183,7 @@ var DijkstraMap = (function () {
     };
     DijkstraMap.prototype.propigateMap = function () {
         var self = this;
-        while (this.getTilesLeftToUpdate() > 0) {
+        while (this.getTilesLeftToPropigate() > 0) {
         }
     };
     DijkstraMap.prototype.getValueAtPoint = function (x, y) {
