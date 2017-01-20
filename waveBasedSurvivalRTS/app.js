@@ -347,6 +347,29 @@ var DijkstraMap = (function () {
     DijkstraMap.prototype.forEach = function (cb) {
         forEach(this.Width, this.Height, this.MapData, cb);
     };
+    DijkstraMap.prototype.findNextStepForPoint = function (currentLocation) {
+        var currentDistance = this.getValueAtPoint(currentLocation.X, currentLocation.Y);
+        var nextTileX = currentLocation.X;
+        var nextTileY = currentLocation.Y;
+        var valuesToCheck = [];
+        if (this.getValueAtPoint(nextTileX - 1, nextTileY) >= 0) {
+            valuesToCheck.push(this.getValueAtPoint(nextTileX - 1, nextTileY));
+        }
+        if (this.getValueAtPoint(nextTileX + 1, nextTileY) >= 0) {
+            valuesToCheck.push(this.getValueAtPoint(nextTileX + 1, nextTileY));
+        }
+        if (this.getValueAtPoint(nextTileX, nextTileY - 1) >= 0) {
+            valuesToCheck.push(this.getValueAtPoint(nextTileX, nextTileY - 1));
+        }
+        if (this.getValueAtPoint(nextTileX, nextTileY + 1) >= 0) {
+            valuesToCheck.push(this.getValueAtPoint(nextTileX, nextTileY + 1));
+        }
+        var bestPoint = Math.min.apply(Math, valuesToCheck);
+        if (this.getValueAtPoint(nextTileX - 1, nextTileY) == bestPoint) {
+            return new Vector2(nextTileX - 1, nextTileY);
+        }
+        return null;
+    };
     DijkstraMap.prototype.draw = function (ctx, transformCallback) {
         var self = this;
         this.forEach(function (x, y, value) {
@@ -492,6 +515,9 @@ var BasicAIEntity = (function (_super) {
     };
     BasicAIEntity.prototype.stepPathfinding = function () {
         while (this.getCurrentActions() > 0) {
+            if (!this.moveToPoint(this.PathfindingMap.findNextStepForPoint(this.getLocation()))) {
+                throw new Error("Bad Movement");
+            }
         }
         this.getOwner().scheduleForNextTurn(this.stepPathfinding.bind(this));
     };

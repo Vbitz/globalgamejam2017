@@ -465,6 +465,36 @@ class DijkstraMap {
     public forEach(cb: MapForEachCallback<number, void>) {
         forEach(this.Width, this.Height, this.MapData, cb);
     }
+
+    public findNextStepForPoint(currentLocation: Vector2): Vector2 {
+        var currentDistance = this.getValueAtPoint(currentLocation.X, currentLocation.Y);
+
+        var nextTileX = currentLocation.X;
+        var nextTileY = currentLocation.Y;
+
+        var valuesToCheck: number[] = [];
+
+        if (this.getValueAtPoint(nextTileX - 1, nextTileY    ) >= 0) {
+            valuesToCheck.push(this.getValueAtPoint(nextTileX - 1, nextTileY    ));
+        }
+        if (this.getValueAtPoint(nextTileX + 1, nextTileY    ) >= 0) {
+            valuesToCheck.push(this.getValueAtPoint(nextTileX + 1, nextTileY    ));
+        }
+        if (this.getValueAtPoint(nextTileX    , nextTileY - 1) >= 0) {
+            valuesToCheck.push(this.getValueAtPoint(nextTileX    , nextTileY - 1));
+        }
+        if (this.getValueAtPoint(nextTileX    , nextTileY + 1) >= 0) {
+            valuesToCheck.push(this.getValueAtPoint(nextTileX    , nextTileY + 1));
+        }
+
+        var bestPoint: number = Math.min.apply(Math, valuesToCheck);
+
+        if (this.getValueAtPoint(nextTileX - 1, nextTileY    ) == bestPoint) {
+            return new Vector2(nextTileX - 1, nextTileY);
+        }
+
+        return null;
+    }
     
     public draw(ctx: CanvasRenderingContext2D, transformCallback: TransformCallback) {
         var self = this;
@@ -644,7 +674,9 @@ class BasicAIEntity extends CharacterEntity {
 
     private stepPathfinding() {
         while (this.getCurrentActions() > 0) {
-            
+            if (!this.moveToPoint(this.PathfindingMap.findNextStepForPoint(this.getLocation()))) {
+                throw new Error("Bad Movement");
+            }
         }
 
         this.getOwner().scheduleForNextTurn(this.stepPathfinding.bind(this));
