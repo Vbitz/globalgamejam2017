@@ -6,8 +6,12 @@ var Vector2 = (function () {
     return Vector2;
 }());
 var Color = (function () {
-    function Color() {
+    function Color(color) {
+        this.Color = color;
     }
+    Color.fromRGB = function (r, g, b) {
+        return new Color("rgb(" + r.toString(10) + ", " + g.toString(10) + ", " + b.toString(10) + ")");
+    };
     return Color;
 }());
 var Rectangle = (function () {

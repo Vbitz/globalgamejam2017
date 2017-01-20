@@ -18,6 +18,14 @@ class Vector2 {
 
 class Color {
     public Color: string;
+
+    constructor(color: string) {
+        this.Color = color;
+    }
+
+    public static fromRGB(r: number, g: number, b: number): Color {
+        return new Color("rgb(" + r.toString(10) + ", " + g.toString(10) + ", " + b.toString(10) + ")");
+    }
 }
 
 class Rectangle {
