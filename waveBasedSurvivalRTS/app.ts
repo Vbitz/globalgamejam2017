@@ -626,8 +626,29 @@ class PlayerEntity extends CharacterEntity {
     }
 }
 
-class BasicAIEntity extends TileEntity {
-        
+class BasicAIEntity extends CharacterEntity {
+    private Target: Vector2;
+    private PathfindingMap: DijkstraMap;
+
+    constructor(owner: Map, spawnLocation: Vector2, initalTarget: Vector2) {
+        super(owner, spawnLocation);
+        this.Target = initalTarget;
+        this.PathfindingMap = this.getOwner().createPathfindingMap(initalTarget.X, initalTarget.Y);
+        this.getOwner().scheduleForNextTurn(this.stepPathfinding.bind(this));
+    }
+
+    private setTarget(target: Vector2) {
+        this.Target = target;
+        this.PathfindingMap = this.getOwner().createPathfindingMap(target.X, target.Y);
+    }
+
+    private stepPathfinding() {
+        while (this.getCurrentActions() > 0) {
+            
+        }
+
+        this.getOwner().scheduleForNextTurn(this.stepPathfinding.bind(this));
+    } 
 }
 
 class UIElement implements Renderable {

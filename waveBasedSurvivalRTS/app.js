@@ -479,11 +479,24 @@ var PlayerEntity = (function (_super) {
 }(CharacterEntity));
 var BasicAIEntity = (function (_super) {
     __extends(BasicAIEntity, _super);
-    function BasicAIEntity() {
-        return _super.apply(this, arguments) || this;
+    function BasicAIEntity(owner, spawnLocation, initalTarget) {
+        var _this = _super.call(this, owner, spawnLocation) || this;
+        _this.Target = initalTarget;
+        _this.PathfindingMap = _this.getOwner().createPathfindingMap(initalTarget.X, initalTarget.Y);
+        _this.getOwner().scheduleForNextTurn(_this.stepPathfinding.bind(_this));
+        return _this;
     }
+    BasicAIEntity.prototype.setTarget = function (target) {
+        this.Target = target;
+        this.PathfindingMap = this.getOwner().createPathfindingMap(target.X, target.Y);
+    };
+    BasicAIEntity.prototype.stepPathfinding = function () {
+        while (this.getCurrentActions() > 0) {
+        }
+        this.getOwner().scheduleForNextTurn(this.stepPathfinding.bind(this));
+    };
     return BasicAIEntity;
-}(TileEntity));
+}(CharacterEntity));
 var UIElement = (function () {
     function UIElement() {
     }
