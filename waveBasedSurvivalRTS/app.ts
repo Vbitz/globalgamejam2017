@@ -60,6 +60,13 @@ type MapTile = {
 }
 
 class Map implements Renderable {
+    public Width: number;
+    public Height: number;
+    private mapData: MapTile[][];
+
+    constructor(width: number, height: number, startTileType: TileType) {
+        
+    }
 
     /*
         I don't have any clue what the map save format will look like but for now I will just

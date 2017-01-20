@@ -33,7 +33,7 @@ var TileInfo = (function () {
 }());
 var allTiles = [];
 var Map = (function () {
-    function Map() {
+    function Map(width, height, startTileType) {
     }
     /*
         I don't have any clue what the map save format will look like but for now I will just
