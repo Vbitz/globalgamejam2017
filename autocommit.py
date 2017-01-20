@@ -3,6 +3,7 @@ from subprocess import check_call, CalledProcessError
 
 if __name__ == "__main__":
     while True:
+        print "===================================================================================================================================="
         dateString = str(datetime.datetime.now())
         check_call(["git", "add", "."])
         try:
@@ -12,4 +13,6 @@ if __name__ == "__main__":
             pass
 
         print "Sleeping for 5 minutes"
+        print "===================================================================================================================================="
+        print ""
         time.sleep(300)
