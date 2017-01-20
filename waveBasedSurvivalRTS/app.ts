@@ -36,7 +36,10 @@ class Rectangle {
     public Height: number;
 
     constructor(x: number, y: number, w: number, h: number) {
-
+        this.X = x;
+        this.Y = y;
+        this.Width = w;
+        this.Height = h;
     }
 }
 
@@ -97,7 +100,12 @@ var allTiles: TileInfo[] = [
 ];
 
 function getTileInfoByType(type: TileType) {
-
+    var ret = allTiles.filter((value: TileInfo) => { return value.getType() == type; });
+    if (ret.length == 1) {
+        return ret[0];
+    } else {
+        throw new Error("Bad Tile Type");
+    }
 }
 
 type MapTile = {
@@ -141,8 +149,9 @@ class Map implements Renderable {
         declare it staticly or even use csv
     */
     public draw(ctx: CanvasRenderingContext2D) {
+        var self = this;
         Map.forEach(this.Width, this.Height, this.mapData, function (x: number, y: number, tile: MapTile) {
-            getTileInfoByType(tile.type).;
+            getTileInfoByType(tile.type).draw(ctx, self.levelToScreen(new Vector2(x, y)));
         });
     }
 
@@ -178,7 +187,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
     var renderableList: Renderable[] = [];
 
-    var map: Map = new Map();
+    var map: Map = new Map(32, 32, TileType.Floor);
 
     renderableList.push(map);
 

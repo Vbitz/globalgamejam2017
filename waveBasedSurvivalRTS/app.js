@@ -16,6 +16,10 @@ var Color = (function () {
 }());
 var Rectangle = (function () {
     function Rectangle(x, y, w, h) {
+        this.X = x;
+        this.Y = y;
+        this.Width = w;
+        this.Height = h;
     }
     return Rectangle;
 }());
@@ -60,6 +64,13 @@ var allTiles = [
     new TileInfo(TileType.Wall, 1, false, true).setColor(new Color("grey"))
 ];
 function getTileInfoByType(type) {
+    var ret = allTiles.filter(function (value) { return value.getType() == type; });
+    if (ret.length == 1) {
+        return ret[0];
+    }
+    else {
+        throw new Error("Bad Tile Type");
+    }
 }
 var TILE_SIZE = 32;
 var Map = (function () {
@@ -88,8 +99,9 @@ var Map = (function () {
         declare it staticly or even use csv
     */
     Map.prototype.draw = function (ctx) {
+        var self = this;
         Map.forEach(this.Width, this.Height, this.mapData, function (x, y, tile) {
-            getTileInfoByType(tile.type).;
+            getTileInfoByType(tile.type).draw(ctx, self.levelToScreen(new Vector2(x, y)));
         });
     };
     Map.prototype.levelToScreen = function (localLocation) {
@@ -115,7 +127,7 @@ window.addEventListener("DOMContentLoaded", function () {
     mainCanvas.height = window.innerHeight;
     var ctx = mainCanvas.getContext("2d");
     var renderableList = [];
-    var map = new Map();
+    var map = new Map(32, 32, TileType.Floor);
     renderableList.push(map);
     function update() {
         ctx.fillStyle = "cornflowerBlue";
