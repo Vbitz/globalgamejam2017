@@ -132,7 +132,8 @@ var Map = (function () {
             type: type
         };
     };
-    Map.prototype.createPathfindingMap = function (xL, yL) {
+    Map.prototype.createPathfindingMap = function (xL, yL, maxSteps) {
+        if (maxSteps === void 0) { maxSteps = Number.MAX_VALUE; }
         var self = this;
         var map = new DijkstraMap(this.Width, this.Height, true);
         map.updateWithCallback(function (x, y, initalValue) {
@@ -146,7 +147,7 @@ var Map = (function () {
                 return initalValue;
             }
         });
-        map.propigateMap();
+        map.propigateMap(maxSteps);
         return map;
     };
     Map.prototype.loadFromDocument = function (documentStr) {
@@ -215,12 +216,10 @@ var DijkstraMap = (function () {
             }
             currentSteps++;
         }
+        return this.PropigateTileList.length == 0;
     };
     DijkstraMap.prototype.getValueAtPoint = function (x, y) {
         if (x < 0 || x > this.Width - 1 || y < 0 || y < this.Height - 1) {
-            return this.InitalValue;
-        }
-        if (this.MapData[x][y] < 0) {
             return this.InitalValue;
         }
         return this.MapData[x][y];
@@ -275,7 +274,11 @@ function main() {
         }
     }
     renderableList.push(map);
-    var pathFindingMap = map.createPathfindingMap(5, 5);
+    var pathFindingMap = map.createPathfindingMap(5, 5, 1);
+    setTimeout(function () {
+        if (pathFindingMap.propigateMap(1)) {
+        }
+    }, 1000);
     function update() {
         ctx.fillStyle = "cornflowerBlue";
         ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);

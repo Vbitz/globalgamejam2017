@@ -193,7 +193,7 @@ class Map implements Renderable {
         };
     }
 
-    public createPathfindingMap(xL: number, yL: number): DijkstraMap {
+    public createPathfindingMap(xL: number, yL: number, maxSteps: number = Number.MAX_VALUE): DijkstraMap {
         var self = this;
         var map: DijkstraMap = new DijkstraMap(this.Width, this.Height, true);
         map.updateWithCallback((x, y, initalValue) => {
@@ -208,7 +208,7 @@ class Map implements Renderable {
             }
         });
 
-        map.propigateMap();
+        map.propigateMap(maxSteps);
         
         return map;
     }
@@ -251,9 +251,9 @@ class DijkstraMap {
         });
     }
 
-    public propigateMap(maxSteps: number = Number.MAX_VALUE) {
+    public propigateMap(maxSteps: number = Number.MAX_VALUE): boolean {
         var self = this;
-        
+
         this.PropigateTileList = [];
 
         forEach(this.Width, this.Height, this.MapData, (x, y, currentValue) => {
@@ -302,14 +302,12 @@ class DijkstraMap {
             }
             currentSteps++;
         }
+
+        return this.PropigateTileList.length == 0;
     }
 
     public getValueAtPoint(x: number, y: number): number {
         if (x < 0 || x > this.Width - 1 || y < 0 || y < this.Height - 1) {
-            return this.InitalValue;
-        }
-
-        if (this.MapData[x][y] < 0) {
             return this.InitalValue;
         }
         
@@ -377,7 +375,13 @@ function main(): void {
 
     renderableList.push(map);
 
-    var pathFindingMap: DijkstraMap = map.createPathfindingMap(5, 5);
+    var pathFindingMap: DijkstraMap = map.createPathfindingMap(5, 5, 1);
+
+    setTimeout(function () {
+        if (pathFindingMap.propigateMap(1)) {
+            
+        }
+    }, 1000);
 
     function update() {
         ctx.fillStyle = "cornflowerBlue";
