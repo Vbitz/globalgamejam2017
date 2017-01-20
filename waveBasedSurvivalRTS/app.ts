@@ -254,7 +254,20 @@ class DijkstraMap {
 
         var tileList: Vector2[] = [];
 
+        forEach(this.Width, this.Height, this.MapData, (x, y, currentValue) => {
+            if (currentValue == this.InitalValue) {
+                if (!self.isTileInital(x - 1, y    ) ||
+                    !self.isTileInital(x + 1, y    ) ||
+                    !self.isTileInital(x    , y - 1) ||
+                    !self.isTileInital(x    , y + 1)) {
+                    tileList.push(new Vector2(x, y));
+                }
+            }
+        });
+
         while (tileList.length > 0) {
+            var nextTile: Vector2 = tileList.shift();
+            
         }
     }
 
@@ -264,6 +277,11 @@ class DijkstraMap {
 
     private isTileInital(x: number, y: number): boolean {
         return this.getValueAtPoint(x, y) == this.InitalValue;
+    }
+
+
+    private setTileAtPoint(x: number, y: number, value: number) {
+        this.MapData[x][y] = value;
     }
     
     public draw(ctx: CanvasRenderingContext2D, transformCallback: TransformCallback) {

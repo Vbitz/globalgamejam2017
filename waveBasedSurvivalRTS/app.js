@@ -174,9 +174,21 @@ var DijkstraMap = (function () {
         });
     };
     DijkstraMap.prototype.propigateMap = function () {
+        var _this = this;
         var self = this;
         var tileList = [];
+        forEach(this.Width, this.Height, this.MapData, function (x, y, currentValue) {
+            if (currentValue == _this.InitalValue) {
+                if (!self.isTileInital(x - 1, y) ||
+                    !self.isTileInital(x + 1, y) ||
+                    !self.isTileInital(x, y - 1) ||
+                    !self.isTileInital(x, y + 1)) {
+                    tileList.push(new Vector2(x, y));
+                }
+            }
+        });
         while (tileList.length > 0) {
+            var nextTile = tileList.shift();
         }
     };
     DijkstraMap.prototype.getValueAtPoint = function (x, y) {
@@ -184,6 +196,9 @@ var DijkstraMap = (function () {
     };
     DijkstraMap.prototype.isTileInital = function (x, y) {
         return this.getValueAtPoint(x, y) == this.InitalValue;
+    };
+    DijkstraMap.prototype.setTileAtPoint = function (x, y, value) {
+        this.MapData[x][y] = value;
     };
     DijkstraMap.prototype.draw = function (ctx, transformCallback) {
         var self = this;
