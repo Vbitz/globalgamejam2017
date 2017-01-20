@@ -2,6 +2,18 @@ interface Renderable {
     draw(ctx: CanvasRenderingContext2D);
 }
 
+enum TileType {
+    Grass
+}
+
+class TileInfo {
+    private type: TileType;
+}
+
+type MapTile = {
+    type: TileType;
+}
+
 class Map implements Renderable {
 
     /*

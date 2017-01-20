@@ -1,3 +1,12 @@
+var TileType;
+(function (TileType) {
+    TileType[TileType["Grass"] = 0] = "Grass";
+})(TileType || (TileType = {}));
+var TileInfo = (function () {
+    function TileInfo() {
+    }
+    return TileInfo;
+}());
 var Map = (function () {
     function Map() {
     }
