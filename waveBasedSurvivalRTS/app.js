@@ -2,6 +2,9 @@ var Map = (function () {
     function Map() {
     }
     Map.prototype.draw = function (ctx) {
+        ctx.font = "72px sans-serif";
+        ctx.fillStyle = "black";
+        ctx.fillText("Hello, World", 100, 100);
     };
     return Map;
 }());
