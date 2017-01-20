@@ -107,7 +107,7 @@ var Map = (function () {
     */
     Map.prototype.draw = function (ctx) {
         var self = this;
-        forEach(this.Width, this.Height, this.mapData, function (x, y, tile) {
+        forEach(this.Width, this.Height, this.MapData, function (x, y, tile) {
             getTileInfoByType(tile.type).draw(ctx, self.levelToScreen(new Vector2(x, y)));
         });
     };
@@ -115,7 +115,7 @@ var Map = (function () {
         return new Rectangle(localLocation.X * TILE_SIZE, localLocation.Y * TILE_SIZE, TILE_SIZE, TILE_SIZE).add(new Vector2(60, 60));
     };
     Map.prototype.setTile = function (x, y, type) {
-        this.mapData[x][y] = {
+        this.MapData[x][y] = {
             type: type
         };
     };
@@ -134,9 +134,12 @@ var DijkstraMap = (function () {
             }
         }
     }
+    DijkstraMap.prototype.initWithCallback = function (cb) {
+    };
     DijkstraMap.prototype.drawDebug = function (ctx) {
         var self = this;
         forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x, y, value) {
+            var ret = self.Owner.levelToScreen(new Vector2(x, y));
         });
     };
     return DijkstraMap;

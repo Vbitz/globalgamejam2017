@@ -159,7 +159,7 @@ class Map implements Renderable {
     */
     public draw(ctx: CanvasRenderingContext2D) {
         var self = this;
-        forEach(this.Width, this.Height, this.mapData, function (x: number, y: number, tile: MapTile) {
+        forEach(this.Width, this.Height, this.MapData, function (x: number, y: number, tile: MapTile) {
             getTileInfoByType(tile.type).draw(ctx, self.levelToScreen(new Vector2(x, y)));
         });
     }
@@ -169,7 +169,7 @@ class Map implements Renderable {
     }
 
     public setTile(x: number, y: number, type: TileType) {
-        this.mapData[x][y] = {
+        this.MapData[x][y] = {
             type: type
         };
     }
@@ -194,11 +194,15 @@ class DijkstraMap {
         }
     }
 
+    public initWithCallback(cb: MapForEachCallback<number>) {
+
+    }
     
     public drawDebug(ctx: CanvasRenderingContext2D) {
         var self = this;
         forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x: number, y: number, value: number) {
-            
+            var ret: Rectangle = self.Owner.levelToScreen(new Vector2(x, y));
+
         });
     }
 }
