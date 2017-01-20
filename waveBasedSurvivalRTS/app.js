@@ -7,6 +7,7 @@
 // TODO: Wave spawning system
 // TODO: Item and Stat Modifyers
 // TODO: Additional Levels
+// TODO: Additional Player Units
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -493,7 +494,7 @@ var PlayerEntity = (function (_super) {
     __extends(PlayerEntity, _super);
     function PlayerEntity(owner) {
         var _this = _super.call(this, owner, owner.getRandomValidSpawnLocation()) || this;
-        _this.setMovesPerTurn(10);
+        _this.setMovesPerTurn(5);
         _this.StatsUI = new Label(new Rectangle(100, 15, 150, 28), "Current Actions: " + _this.getCurrentActions());
         return _this;
     }

@@ -7,8 +7,9 @@
 // TODO: Wave spawning system
 // TODO: Item and Stat Modifyers
 // TODO: Additional Levels
+// TODO: Additional Player Units
 
-// TODO: Add camera support (maybe?)
+// TODO: Add Camera Support (maybe?)
 
 interface Renderable {
     // TODO: Add keypress handler
@@ -643,7 +644,7 @@ class PlayerEntity extends CharacterEntity {
     constructor(owner: Map) {
         super(owner, owner.getRandomValidSpawnLocation());
 
-        this.setMovesPerTurn(10);
+        this.setMovesPerTurn(5);
 
         this.StatsUI = new Label(new Rectangle(100, 15, 150, 28), "Current Actions: " + this.getCurrentActions());
     }
