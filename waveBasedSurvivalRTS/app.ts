@@ -259,18 +259,15 @@ class DijkstraMap {
         if (this.PropigateTileList.length == 0) {
             forEach(this.Width, this.Height, this.MapData, (x, y, currentValue) => {
                 if (currentValue == this.InitalValue) {
-                    if ((!self.isTileInital(  x - 1, y    ) &&
-                        self.getValueAtPoint(x - 1, y    ) > 0) ||
-                        (!self.isTileInital(  x + 1, y    ) &&
-                        self.getValueAtPoint(x + 1, y    ) > 0) ||
-                        (!self.isTileInital(  x    , y - 1) &&
-                        self.getValueAtPoint(x    , y - 1) > 0) ||
-                        (!self.isTileInital(  x    , y + 1) &&
-                        self.getValueAtPoint(x    , y + 1) > 0)) {
+                    if (self.isTileValid(x - 1, y    ) ||
+                        self.isTileValid(x + 1, y    ) ||
+                        self.isTileValid(x    , y - 1) ||
+                        self.isTileValid(x    , y + 1)) {
                         this.PropigateTileList.push(new Vector2(x, y));
                     }
                 }
             });
+            console.log(this.PropigateTileList);
         }
 
         var currentSteps = 0;
@@ -329,6 +326,10 @@ class DijkstraMap {
 
     private isTileInital(x: number, y: number): boolean {
         return this.getValueAtPoint(x, y) == this.InitalValue;
+    }
+
+    private isTileValid(x: number, y: number): boolean {
+        return (this.getValueAtPoint(x, y) >= 0) && !this.isTileInital(x, y);
     }
 
     private setTileAtPoint(x: number, y: number, value: number) {
@@ -391,7 +392,7 @@ function main(): void {
     var pathFindingMap: DijkstraMap = map.createPathfindingMap(5, 5, 1);
 
     setTimeout(function propigateMapAgain () {
-        if (!pathFindingMap.propigateMap(100)) {
+        if (!pathFindingMap.propigateMap(1)) {
             setTimeout(propigateMapAgain, 1000);
         } else {
             console.log("Finished");

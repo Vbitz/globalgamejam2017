@@ -182,18 +182,15 @@ var DijkstraMap = (function () {
         if (this.PropigateTileList.length == 0) {
             forEach(this.Width, this.Height, this.MapData, function (x, y, currentValue) {
                 if (currentValue == _this.InitalValue) {
-                    if ((!self.isTileInital(x - 1, y) &&
-                        self.getValueAtPoint(x - 1, y) > 0) ||
-                        (!self.isTileInital(x + 1, y) &&
-                            self.getValueAtPoint(x + 1, y) > 0) ||
-                        (!self.isTileInital(x, y - 1) &&
-                            self.getValueAtPoint(x, y - 1) > 0) ||
-                        (!self.isTileInital(x, y + 1) &&
-                            self.getValueAtPoint(x, y + 1) > 0)) {
+                    if (self.isTileValid(x - 1, y) ||
+                        self.isTileValid(x + 1, y) ||
+                        self.isTileValid(x, y - 1) ||
+                        self.isTileValid(x, y + 1)) {
                         _this.PropigateTileList.push(new Vector2(x, y));
                     }
                 }
             });
+            console.log(this.PropigateTileList);
         }
         var currentSteps = 0;
         while (this.PropigateTileList.length > 0 && currentSteps < maxSteps) {
@@ -242,6 +239,9 @@ var DijkstraMap = (function () {
     };
     DijkstraMap.prototype.isTileInital = function (x, y) {
         return this.getValueAtPoint(x, y) == this.InitalValue;
+    };
+    DijkstraMap.prototype.isTileValid = function (x, y) {
+        return (this.getValueAtPoint(x, y) >= 0) && !this.isTileInital(x, y);
     };
     DijkstraMap.prototype.setTileAtPoint = function (x, y, value) {
         this.MapData[x][y] = value;
@@ -292,7 +292,7 @@ function main() {
     renderableList.push(map);
     var pathFindingMap = map.createPathfindingMap(5, 5, 1);
     setTimeout(function propigateMapAgain() {
-        if (!pathFindingMap.propigateMap(100)) {
+        if (!pathFindingMap.propigateMap(1)) {
             setTimeout(propigateMapAgain, 1000);
         }
         else {
