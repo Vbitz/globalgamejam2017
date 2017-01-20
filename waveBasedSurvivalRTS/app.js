@@ -433,9 +433,22 @@ var UIElement = (function () {
 }());
 var Button = (function (_super) {
     __extends(Button, _super);
-    function Button() {
-        return _super.apply(this, arguments) || this;
+    function Button(rect, text, cb) {
+        var _this = _super.call(this) || this;
+        _this.Bounds = rect;
+        _this.Text = text;
+        _this.OnClick = cb;
+        return _this;
     }
+    Button.prototype.draw = function (ctx) {
+        _super.prototype.draw.call(this, ctx);
+    };
+    Button.prototype.mouseLeftClick = function (x, y) {
+        _super.prototype.mouseLeftClick.call(this, x, y);
+        if (this.Bounds.contains(new Vector2(x, y))) {
+            this.OnClick();
+        }
+    };
     return Button;
 }(UIElement));
 function main() {
@@ -459,6 +472,9 @@ function main() {
     }
     map.addTileEntity(new PlayerEntity(map));
     renderableList.push(map);
+    renderableList.push(new Button(new Rectangle(10, 10, 150, 45), "End Turn", function () {
+        map.advanceTurn();
+    }));
     mainCanvas.addEventListener("click", function (ev) {
         renderableList.forEach(function (render) {
             render.mouseLeftClick(ev.clientX, ev.clientY);

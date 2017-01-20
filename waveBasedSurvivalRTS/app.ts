@@ -553,7 +553,7 @@ class PlayerEntity extends CharacterEntity {
 
 class UIElement implements Renderable {
     public draw(ctx: CanvasRenderingContext2D) {
-
+        
     }
 
     public mouseLeftClick(x: number, y: number) {
@@ -561,8 +561,30 @@ class UIElement implements Renderable {
     }
 }
 
-class Button extends UIElement {
+type OnClickCallback = () => void;
 
+class Button extends UIElement {
+    private Bounds: Rectangle;
+    private Text: string;
+    private OnClick: OnClickCallback;
+
+    constructor(rect: Rectangle, text: string, cb: OnClickCallback) {
+        super();
+        this.Bounds = rect;
+        this.Text = text;
+        this.OnClick = cb;
+    }
+
+    public draw(ctx: CanvasRenderingContext2D) {
+        super.draw(ctx);   
+    }
+
+    public mouseLeftClick(x: number, y: number) {
+        super.mouseLeftClick(x, y);
+        if (this.Bounds.contains(new Vector2(x, y))) {
+            this.OnClick();
+        }
+    }
 }
 
 function main(): void {
@@ -589,6 +611,10 @@ function main(): void {
     map.addTileEntity(new PlayerEntity(map));
 
     renderableList.push(map);
+
+    renderableList.push(new Button(new Rectangle(10, 10, 150, 45), "End Turn", () => {
+        map.advanceTurn();
+    }));
 
     mainCanvas.addEventListener("click", function (ev: MouseEvent) {
         renderableList.forEach(function (render: Renderable) {
