@@ -64,6 +64,12 @@ var TileInfo = (function () {
     TileInfo.prototype.getType = function () {
         return this.Type;
     };
+    TileInfo.prototype.getIsSolid = function () {
+        return this.IsSolid;
+    };
+    TileInfo.prototype.getIsPassable = function () {
+        return this.IsPassable;
+    };
     TileInfo.prototype.draw = function (ctx, rect) {
         this.Render.draw(ctx, rect);
     };
@@ -123,7 +129,11 @@ var Map = (function () {
             type: type
         };
     };
-    Map.prototype.createPathfindingMap = function () {
+    Map.prototype.createPathfindingMap = function (initalLocation) {
+        var map = new DijkstraMap(this);
+        map.initWithCallback(function (x, y, initalValue) {
+            return initalValue;
+        });
     };
     Map.prototype.loadFromDocument = function (documentStr) {
     };
@@ -141,11 +151,16 @@ var DijkstraMap = (function () {
             }
         }
     }
-    DijkstraMap.prototype.initWithCallback = function (cb) {
+    DijkstraMap.prototype.updateWithCallback = function (cb) {
         var _this = this;
         forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x, y, currentValue) {
             _this.MapData[x][y] = cb(x, y, currentValue);
         });
+    };
+    DijkstraMap.prototype.propigateMap = function () {
+    };
+    DijkstraMap.prototype.getValueAtPoint = function (x, y) {
+        return this.MapData[x][y];
     };
     DijkstraMap.prototype.drawDebug = function (ctx) {
         var self = this;

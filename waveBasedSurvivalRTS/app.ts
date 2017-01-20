@@ -100,6 +100,14 @@ class TileInfo {
         return this.Type;
     }
 
+    public getIsSolid(): boolean {
+        return this.IsSolid;
+    }
+
+    public getIsPassable(): boolean {
+        return this.IsPassable;
+    }
+
     public draw(ctx: CanvasRenderingContext2D, rect: Rectangle) {
         this.Render.draw(ctx, rect);
     }
@@ -179,8 +187,11 @@ class Map implements Renderable {
         };
     }
 
-    public createPathfindingMap() {
-        
+    public createPathfindingMap(initalLocation: Vector2) {
+        var map: DijkstraMap = new DijkstraMap(this, );
+        map.initWithCallback((x, y, initalValue) => {
+            return initalValue;
+        });
     }
 
     public loadFromDocument(documentStr: string) {
@@ -206,12 +217,18 @@ class DijkstraMap {
         }
     }
 
-    public initWithCallback(cb: MapForEachCallback<number, number>) {
+    public updateWithCallback(cb: MapForEachCallback<number, number>) {
         forEach(this.Owner.Width, this.Owner.Height, this.MapData, (x, y, currentValue) => {
             this.MapData[x][y] = cb(x, y, currentValue);
         });
+    }
 
-        
+    public propigateMap() {
+
+    }
+
+    public getValueAtPoint(x: number, y: number): number {
+        return this.MapData[x][y];
     }
     
     public drawDebug(ctx: CanvasRenderingContext2D) {
