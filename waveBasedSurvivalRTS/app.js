@@ -170,6 +170,11 @@ var Map = (function () {
             }
         }
     };
+    Map.prototype.advanceTurn = function () {
+        this.NextTurnActionList.forEach(function (cb) {
+            cb();
+        });
+    };
     Map.prototype.loadFromDocument = function (documentStr) {
     };
     return Map;
@@ -301,7 +306,9 @@ var TileEntity = (function () {
 var CharacterEntity = (function (_super) {
     __extends(CharacterEntity, _super);
     function CharacterEntity(owner, spawnLocation) {
-        return _super.call(this, owner, spawnLocation) || this;
+        var _this = _super.call(this, owner, spawnLocation) || this;
+        _this.CanMove = true;
+        return _this;
     }
     return CharacterEntity;
 }(TileEntity));

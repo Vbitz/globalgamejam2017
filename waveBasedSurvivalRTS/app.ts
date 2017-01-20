@@ -152,12 +152,15 @@ function forEach<TileType>(width: number, height: number, mapData: TwoDMap<TileT
     }
 }
 
+type NextTurnCallback = () => void;
+
 // The turn based method is going to be implemented as runNextTurn(cb)
 class Map implements Renderable {
     public Width: number;
     public Height: number;
     private MapData: TwoDMap<MapTile>;
     private TileEntityList: TileEntity[];
+    private NextTurnActionList: NextTurnCallback[];
 
     constructor(width: number, height: number, startTileType: TileType) {
         this.Width = width;
@@ -230,6 +233,12 @@ class Map implements Renderable {
                 return newLocation;
             }
         }
+    }
+
+    public advanceTurn() {
+        this.NextTurnActionList.forEach(function (cb: NextTurnCallback) {
+            cb();
+        });
     }
 
     public loadFromDocument(documentStr: string) {
@@ -396,11 +405,15 @@ class TileEntity implements Renderable {
 }
 
 class CharacterEntity extends TileEntity {
+    private CanMove: boolean;
+
     constructor(owner: Map, spawnLocation: Vector2) {
         super(owner, spawnLocation);
+
+        this.CanMove = true;
     }
 
-    
+
 }
 
 class PlayerEntity extends CharacterEntity {
