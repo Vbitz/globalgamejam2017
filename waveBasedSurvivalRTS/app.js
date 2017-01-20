@@ -1,6 +1,9 @@
 var Map = (function () {
     function Map() {
     }
+    /*
+        Same
+    */
     Map.prototype.draw = function (ctx) {
         ctx.font = "72px sans-serif";
         ctx.fillStyle = "black";

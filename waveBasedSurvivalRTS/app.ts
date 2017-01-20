@@ -3,6 +3,10 @@ interface Renderable {
 }
 
 class Map implements Renderable {
+
+    /*
+        Same
+    */
     public draw(ctx:CanvasRenderingContext2D) {
         ctx.font = "72px sans-serif";
         ctx.fillStyle = "black";
