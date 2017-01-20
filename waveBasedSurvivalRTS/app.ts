@@ -53,6 +53,10 @@ class Vector2 {
         return Math.sqrt(Math.pow(val.Y - this.Y, 2) + Math.pow(val.X - this.X, 2));
     }
 
+    public equals(val: Vector2): boolean {
+        return this.X == val.X && this.Y == val.Y;
+    }
+
     public hash(): string {
         // TODO: Better hashing method if this turns out to be a problem
         return this.X.toString(10) + ":" + this.Y.toString(10);
@@ -574,6 +578,7 @@ class CharacterEntity extends TileEntity {
         this.MovesPerTurn = 5;
         this.CurrentActions = this.MovesPerTurn;
         this.CurrentActionMap = null;
+        this.recalculateCurrentActionMap();
     }
 
     protected setMovesPerTurn(movesPerTurn: number) {
@@ -676,6 +681,9 @@ class BasicAIEntity extends CharacterEntity {
         super(owner, spawnLocation);
         this.Target = initalTarget;
         this.PathfindingMap = this.getOwner().createPathfindingMap(initalTarget.X, initalTarget.Y);
+
+        this.setMovesPerTurn(1);
+
         this.getOwner().scheduleForNextTurn(this.stepPathfinding.bind(this));
         this.IsPathfinding = true;
     }
@@ -683,8 +691,9 @@ class BasicAIEntity extends CharacterEntity {
     private setTarget(target: Vector2) {
         this.Target = target;
         this.PathfindingMap = this.getOwner().createPathfindingMap(target.X, target.Y);
+
         if (!this.IsPathfinding) {
-            
+            this.getOwner().scheduleForNextTurn(this.stepPathfinding.bind(this));
         }
     }
 
@@ -711,9 +720,10 @@ class BasicAIEntity extends CharacterEntity {
     public draw(ctx: CanvasRenderingContext2D) {
         super.draw(ctx);
         
-        ctx.fillStyle = "red";
         var rect = this.getOwner().levelToScreen(this.Target);
-        ctx.fillRect(rect.X, rect.Y, )
+
+        ctx.fillStyle = "red";
+        ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
     }
 }
 
@@ -789,9 +799,9 @@ function main(): void {
             if (x == 0 || x == 47 || y == 0 || y == 23) {
                 map.setTile(x, y, TileType.Wall);
             } else {
-                if (Math.random() > 0.8) {
-                    map.setTile(x, y, TileType.Wall);
-                }
+                // if (Math.random() > 0.8) {
+                //     map.setTile(x, y, TileType.Wall);
+                // }
             }
         }
     }
@@ -799,6 +809,10 @@ function main(): void {
     var player = new PlayerEntity(map);
 
     map.addTileEntity(player);
+
+    for (var i = 0; i < 5; i++) {
+        map.addTileEntity(new BasicAIEntity(map, map.getRandomValidSpawnLocation(), map.getRandomValidSpawnLocation()));    
+    }
 
     renderableList.push(map);
 

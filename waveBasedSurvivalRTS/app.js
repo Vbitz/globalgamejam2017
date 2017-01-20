@@ -35,6 +35,9 @@ var Vector2 = (function () {
     Vector2.prototype.distance = function (val) {
         return Math.sqrt(Math.pow(val.Y - this.Y, 2) + Math.pow(val.X - this.X, 2));
     };
+    Vector2.prototype.equals = function (val) {
+        return this.X == val.X && this.Y == val.Y;
+    };
     Vector2.prototype.hash = function () {
         // TODO: Better hashing method if this turns out to be a problem
         return this.X.toString(10) + ":" + this.Y.toString(10);
@@ -433,6 +436,7 @@ var CharacterEntity = (function (_super) {
         _this.MovesPerTurn = 5;
         _this.CurrentActions = _this.MovesPerTurn;
         _this.CurrentActionMap = null;
+        _this.recalculateCurrentActionMap();
         return _this;
     }
     CharacterEntity.prototype.setMovesPerTurn = function (movesPerTurn) {
@@ -521,6 +525,7 @@ var BasicAIEntity = (function (_super) {
         var _this = _super.call(this, owner, spawnLocation) || this;
         _this.Target = initalTarget;
         _this.PathfindingMap = _this.getOwner().createPathfindingMap(initalTarget.X, initalTarget.Y);
+        _this.setMovesPerTurn(1);
         _this.getOwner().scheduleForNextTurn(_this.stepPathfinding.bind(_this));
         _this.IsPathfinding = true;
         return _this;
@@ -529,6 +534,7 @@ var BasicAIEntity = (function (_super) {
         this.Target = target;
         this.PathfindingMap = this.getOwner().createPathfindingMap(target.X, target.Y);
         if (!this.IsPathfinding) {
+            this.getOwner().scheduleForNextTurn(this.stepPathfinding.bind(this));
         }
     };
     BasicAIEntity.prototype.stepPathfinding = function () {
@@ -551,9 +557,9 @@ var BasicAIEntity = (function (_super) {
     };
     BasicAIEntity.prototype.draw = function (ctx) {
         _super.prototype.draw.call(this, ctx);
-        ctx.fillStyle = "red";
         var rect = this.getOwner().levelToScreen(this.Target);
-        ctx.fillRect(rect.X, rect.Y);
+        ctx.fillStyle = "red";
+        ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
     };
     return BasicAIEntity;
 }(CharacterEntity));
@@ -618,14 +624,14 @@ function main() {
                 map.setTile(x, y, TileType.Wall);
             }
             else {
-                if (Math.random() > 0.8) {
-                    map.setTile(x, y, TileType.Wall);
-                }
             }
         }
     }
     var player = new PlayerEntity(map);
     map.addTileEntity(player);
+    for (var i = 0; i < 5; i++) {
+        map.addTileEntity(new BasicAIEntity(map, map.getRandomValidSpawnLocation(), map.getRandomValidSpawnLocation()));
+    }
     renderableList.push(map);
     renderableList.push(new Button(new Rectangle(15, 15, 80, 28), "End Turn", function () {
         map.advanceTurn();
