@@ -11,6 +11,24 @@ var Vector2 = (function () {
         this.X = x;
         this.Y = y;
     }
+    Vector2.prototype.add = function (val) {
+        return new Vector2(this.X + val.X, this.Y + val.Y);
+    };
+    Vector2.prototype.sub = function (val) {
+        return new Vector2(this.X - val.X, this.Y - val.Y);
+    };
+    Vector2.prototype.mul = function (val) {
+        return new Vector2(this.X * val.X, this.Y * val.Y);
+    };
+    Vector2.prototype.div = function (val) {
+        return new Vector2(this.X / val.X, this.Y / val.Y);
+    };
+    Vector2.prototype.round = function (val) {
+        return new Vector2(Math.round(this.X), Math.round(this.Y));
+    };
+    Vector2.prototype.clone = function () {
+        return new Vector2(this.X, this.Y);
+    };
     Vector2.prototype.hash = function () {
         // TODO: Better hashing method if this turns out to be a problem
         return this.X.toString(10) + ":" + this.Y.toString(10);
@@ -138,6 +156,13 @@ var Map = (function () {
     };
     Map.prototype.levelToScreen = function (localLocation) {
         return new Rectangle(localLocation.X * TILE_SIZE, localLocation.Y * TILE_SIZE, TILE_SIZE, TILE_SIZE).add(new Vector2(60, 60));
+    };
+    Map.prototype.screenToLevel = function (screenLocation) {
+        var ret = screenLocation.clone();
+        ret = ret.sub(new Vector2(60, 60));
+        ret = ret.div(new Vector2(TILE_SIZE, TILE_SIZE));
+        ret = ret.round();
+        return ret;
     };
     Map.prototype.setTile = function (x, y, type) {
         this.MapData[x][y] = {

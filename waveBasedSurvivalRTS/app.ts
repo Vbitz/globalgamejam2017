@@ -18,6 +18,30 @@ class Vector2 {
         this.Y = y;
     }
 
+    public add(val: Vector2): Vector2 {
+        return new Vector2(this.X + val.X, this.Y + val.Y);
+    }
+
+    public sub(val: Vector2): Vector2 {
+        return new Vector2(this.X - val.X, this.Y - val.Y);
+    }
+
+    public mul(val: Vector2): Vector2 {
+        return new Vector2(this.X * val.X, this.Y * val.Y);
+    }
+
+    public div(val: Vector2): Vector2 {
+        return new Vector2(this.X / val.X, this.Y / val.Y);
+    }
+
+    public round(val: Vector2): Vector2 {
+        return new Vector2(Math.round(this.X), Math.round(this.Y));
+    }
+
+    public clone(): Vector2 {
+        return new Vector2(this.X, this.Y);
+    }
+
     public hash(): string {
         // TODO: Better hashing method if this turns out to be a problem
         return this.X.toString(10) + ":" + this.Y.toString(10);
@@ -198,6 +222,14 @@ class Map implements Renderable {
 
     public levelToScreen(localLocation: Vector2): Rectangle {
         return new Rectangle(localLocation.X * TILE_SIZE, localLocation.Y * TILE_SIZE, TILE_SIZE, TILE_SIZE).add(new Vector2(60, 60));
+    }
+
+    public screenToLevel(screenLocation: Vector2): Vector2 {
+        var ret = screenLocation.clone();
+        ret = ret.sub(new Vector2(60, 60));
+        ret = ret.div(new Vector2(TILE_SIZE, TILE_SIZE));
+        ret = ret.round();
+        return ret;
     }
 
     public setTile(x: number, y: number, type: TileType) {
@@ -425,7 +457,7 @@ class CharacterEntity extends TileEntity {
     }
 
     public MoveToPoint(newLocation: Vector2): boolean {
-        
+
     }
 }
 
