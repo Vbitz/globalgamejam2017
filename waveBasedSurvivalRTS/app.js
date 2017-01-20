@@ -118,9 +118,13 @@ var Map = (function () {
                 });
             }
         }
+        this.TileEntityList = [];
     }
     Map.prototype.getTileWithInfo = function (x, y) {
         return getTileInfoByType(this.MapData[x][y].type);
+    };
+    Map.prototype.addTileEntity = function (ent) {
+        this.TileEntityList.push(ent);
     };
     /*
         I don't have any clue what the map save format will look like but for now I will just
@@ -291,13 +295,20 @@ var TileEntity = (function () {
     };
     return TileEntity;
 }());
+var CharacterEntity = (function (_super) {
+    __extends(CharacterEntity, _super);
+    function CharacterEntity() {
+        return _super.apply(this, arguments) || this;
+    }
+    return CharacterEntity;
+}(TileEntity));
 var PlayerEntity = (function (_super) {
     __extends(PlayerEntity, _super);
     function PlayerEntity(owner) {
         return _super.call(this, owner, owner.getRandomValidSpawnLocation()) || this;
     }
     return PlayerEntity;
-}(TileEntity));
+}(CharacterEntity));
 function main() {
     var mainCanvas = document.querySelector("#mainCanvas");
     mainCanvas.width = window.innerWidth;

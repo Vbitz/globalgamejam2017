@@ -157,6 +157,7 @@ class Map implements Renderable {
     public Width: number;
     public Height: number;
     private MapData: TwoDMap<MapTile>;
+    private TileEntityList: TileEntity[];
 
     constructor(width: number, height: number, startTileType: TileType) {
         this.Width = width;
@@ -170,10 +171,15 @@ class Map implements Renderable {
                 });
             }
         }
+        this.TileEntityList = [];
     }
 
     public getTileWithInfo(x: number, y: number): TileInfo {
         return getTileInfoByType(this.MapData[x][y].type);
+    }
+
+    public addTileEntity(ent: TileEntity) {
+        this.TileEntityList.push(ent);
     }
 
     /*
@@ -385,7 +391,11 @@ class TileEntity implements Renderable {
     }
 }
 
-class PlayerEntity extends TileEntity {
+class CharacterEntity extends TileEntity {
+
+}
+
+class PlayerEntity extends CharacterEntity {
     constructor(owner: Map) {
         super(owner, owner.getRandomValidSpawnLocation());
     }
