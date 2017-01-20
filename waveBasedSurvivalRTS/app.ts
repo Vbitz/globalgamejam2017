@@ -530,6 +530,7 @@ class CharacterEntity extends TileEntity {
 
     protected subtractActions(actions: number) {
         this.CurrentActions -= actions;
+        this.onUpdateActions();
     }
 
     public moveToPoint(newLocation: Vector2): boolean {
@@ -537,7 +538,7 @@ class CharacterEntity extends TileEntity {
         if (!this.getOwner().getTileWithInfo(newLocation.X, newLocation.Y).getIsPassable()) {
             return false;
         }
-        if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) < this.CurrentActions) {
+        if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) <= this.CurrentActions) {
             var actionsLost = this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
             this.getOwner().scheduleForNextTurn(function () {
                 self.addActions(actionsLost);
@@ -578,7 +579,7 @@ class PlayerEntity extends CharacterEntity {
     public draw(ctx: CanvasRenderingContext2D) {
         super.draw(ctx);
         this.CurrentActionMap.forEach((x, y, currentValue) => {
-            if (currentValue > 0 && currentValue < this.getCurrentActions()) {
+            if (currentValue > 0 && currentValue <= this.getCurrentActions()) {
                 var rect = this.getOwner().levelToScreen(new Vector2(x, y)).shrink(8);
                 ctx.fillStyle = "red";
                 ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);

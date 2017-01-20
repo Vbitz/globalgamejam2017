@@ -396,13 +396,14 @@ var CharacterEntity = (function (_super) {
     };
     CharacterEntity.prototype.subtractActions = function (actions) {
         this.CurrentActions -= actions;
+        this.onUpdateActions();
     };
     CharacterEntity.prototype.moveToPoint = function (newLocation) {
         var self = this;
         if (!this.getOwner().getTileWithInfo(newLocation.X, newLocation.Y).getIsPassable()) {
             return false;
         }
-        if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) < this.CurrentActions) {
+        if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) <= this.CurrentActions) {
             var actionsLost = this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
             this.getOwner().scheduleForNextTurn(function () {
                 self.addActions(actionsLost);
@@ -440,7 +441,7 @@ var PlayerEntity = (function (_super) {
         var _this = this;
         _super.prototype.draw.call(this, ctx);
         this.CurrentActionMap.forEach(function (x, y, currentValue) {
-            if (currentValue > 0 && currentValue < _this.getCurrentActions()) {
+            if (currentValue > 0 && currentValue <= _this.getCurrentActions()) {
                 var rect = _this.getOwner().levelToScreen(new Vector2(x, y)).shrink(8);
                 ctx.fillStyle = "red";
                 ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
