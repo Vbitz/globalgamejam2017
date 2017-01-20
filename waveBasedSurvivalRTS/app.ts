@@ -6,6 +6,9 @@
 
 interface Renderable {
     // TODO: Add keypress handler
+
+    mouseLeftClick(x: number, y: number);
+
     draw(ctx: CanvasRenderingContext2D);
 }
 
@@ -223,6 +226,10 @@ class Map implements Renderable {
         });
     }
 
+    public mouseLeftClick(x: number, y: number) {
+
+    }
+
     public levelToScreen(localLocation: Vector2): Rectangle {
         return new Rectangle(localLocation.X * TILE_SIZE, localLocation.Y * TILE_SIZE, TILE_SIZE, TILE_SIZE).add(new Vector2(60, 60));
     }
@@ -430,6 +437,7 @@ class TileEntity implements Renderable {
     constructor(owner: Map, spawnLocation: Vector2) {
         this.Owner = owner;
         this.Location = spawnLocation;
+        this.RenderColor = new Color("deepPink");
     }
 
     protected setLocation(newLocation: Vector2) {
@@ -448,6 +456,10 @@ class TileEntity implements Renderable {
         var baseRect: Rectangle = this.Owner.levelToScreen(this.Location);
         ctx.fillStyle = this.RenderColor.Color;
         ctx.fillRect(baseRect.X, baseRect.Y, baseRect.Width, baseRect.Height);
+    }
+
+    public mouseLeftClick(x: number, y: number) {
+
     }
 }
 
@@ -491,6 +503,10 @@ class PlayerEntity extends CharacterEntity {
 
         this.setMovesPerTurn(10);
     }
+
+    public mouseLeftClick(x: number, y: number) {
+        var tileUnderClick: Vector2 = this.getOwner().screenToLevel(new Vector2(x, y));
+    }
 }
 
 function main(): void {
@@ -517,6 +533,12 @@ function main(): void {
     map.addTileEntity(new PlayerEntity(map));
 
     renderableList.push(map);
+
+    mainCanvas.addEventListener("click", function (ev: MouseEvent) {
+        renderableList.forEach(function (render: Renderable) {
+            render.mouseLeftClick(ev.clientX, ev.clientY);
+        });
+    });
 
     function update() {
         ctx.fillStyle = "cornflowerBlue";

@@ -157,6 +157,8 @@ var Map = (function () {
             te.draw(ctx);
         });
     };
+    Map.prototype.mouseLeftClick = function (x, y) {
+    };
     Map.prototype.levelToScreen = function (localLocation) {
         return new Rectangle(localLocation.X * TILE_SIZE, localLocation.Y * TILE_SIZE, TILE_SIZE, TILE_SIZE).add(new Vector2(60, 60));
     };
@@ -323,6 +325,7 @@ var TileEntity = (function () {
     function TileEntity(owner, spawnLocation) {
         this.Owner = owner;
         this.Location = spawnLocation;
+        this.RenderColor = new Color("deepPink");
     }
     TileEntity.prototype.setLocation = function (newLocation) {
         this.Location = newLocation;
@@ -337,6 +340,8 @@ var TileEntity = (function () {
         var baseRect = this.Owner.levelToScreen(this.Location);
         ctx.fillStyle = this.RenderColor.Color;
         ctx.fillRect(baseRect.X, baseRect.Y, baseRect.Width, baseRect.Height);
+    };
+    TileEntity.prototype.mouseLeftClick = function (x, y) {
     };
     return TileEntity;
 }());
@@ -373,6 +378,9 @@ var PlayerEntity = (function (_super) {
         _this.setMovesPerTurn(10);
         return _this;
     }
+    PlayerEntity.prototype.mouseLeftClick = function (x, y) {
+        var tileUnderClick = this.getOwner().screenToLevel(new Vector2(x, y));
+    };
     return PlayerEntity;
 }(CharacterEntity));
 function main() {
@@ -396,6 +404,11 @@ function main() {
     }
     map.addTileEntity(new PlayerEntity(map));
     renderableList.push(map);
+    mainCanvas.addEventListener("click", function (ev) {
+        renderableList.forEach(function (render) {
+            render.mouseLeftClick(ev.clientX, ev.clientY);
+        });
+    });
     function update() {
         ctx.fillStyle = "cornflowerBlue";
         ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
