@@ -79,6 +79,10 @@ class Rectangle {
     public add(vec: Vector2): Rectangle {
         return new Rectangle(this.X + vec.X, this.Y + vec.Y, this.Width, this.Height);
     }
+
+    public shrink(val: number): Rectangle {
+        return new Rectangle(this.X + val, this.Y + val, this.Width - (val * 2), this.Height - (val * 2));
+    }
 }
 
 function rand(min: number, max: number): number {
@@ -341,7 +345,6 @@ class DijkstraMap {
                     }
                 }
             });
-            console.log(this.PropigateTileList);
         }
 
         var currentSteps = 0;
@@ -489,6 +492,10 @@ class CharacterEntity extends TileEntity {
         this.recalculateCurrentActionMap();
     }
 
+    protected getCurrentActions(): number {
+        return this.CurrentActions;
+    }
+
     protected recalculateCurrentActionMap() {
         var currentLocation = this.getLocation();
         this.CurrentActionMap = this.getOwner().createPathfindingMap(currentLocation.X, currentLocation.Y);
@@ -526,7 +533,9 @@ class PlayerEntity extends CharacterEntity {
         super.draw(ctx);
         this.CurrentActionMap.forEach((x, y, currentValue) => {
             if (currentValue > 0 && currentValue < this.getCurrentActions()) {
-                
+                var rect = this.getOwner().levelToScreen(new Vector2(x, y)).shrink(8);
+                ctx.fillStyle = "red";
+                ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
             }
         });
     }

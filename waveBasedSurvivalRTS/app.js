@@ -54,6 +54,9 @@ var Rectangle = (function () {
     Rectangle.prototype.add = function (vec) {
         return new Rectangle(this.X + vec.X, this.Y + vec.Y, this.Width, this.Height);
     };
+    Rectangle.prototype.shrink = function (val) {
+        return new Rectangle(this.X + val, this.Y + val, this.Width - (val * 2), this.Height - (val * 2));
+    };
     return Rectangle;
 }());
 function rand(min, max) {
@@ -248,7 +251,6 @@ var DijkstraMap = (function () {
                     }
                 }
             });
-            console.log(this.PropigateTileList);
         }
         var currentSteps = 0;
         while (this.PropigateTileList.length > 0 && currentSteps < maxSteps) {
@@ -362,6 +364,9 @@ var CharacterEntity = (function (_super) {
         this.MovesPerTurn = movesPerTurn;
         this.recalculateCurrentActionMap();
     };
+    CharacterEntity.prototype.getCurrentActions = function () {
+        return this.CurrentActions;
+    };
     CharacterEntity.prototype.recalculateCurrentActionMap = function () {
         var currentLocation = this.getLocation();
         this.CurrentActionMap = this.getOwner().createPathfindingMap(currentLocation.X, currentLocation.Y);
@@ -398,8 +403,11 @@ var PlayerEntity = (function (_super) {
         var _this = this;
         _super.prototype.draw.call(this, ctx);
         this.CurrentActionMap.forEach(function (x, y, currentValue) {
-            if (currentValue > 0 && currentValue < _this.getCurrentActions())
-                ;
+            if (currentValue > 0 && currentValue < _this.getCurrentActions()) {
+                var rect = _this.getOwner().levelToScreen(new Vector2(x, y)).shrink(8);
+                ctx.fillStyle = "red";
+                ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
+            }
         });
     };
     return PlayerEntity;
