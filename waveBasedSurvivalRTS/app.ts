@@ -269,39 +269,42 @@ class DijkstraMap {
             var nextTile: Vector2 = tileList.shift();
             var nextTileX = nextTile.X;
             var nextTileY = nextTile.Y;
-            if (this.isTileInital(nextTileX, nextTileY)) {
+            if (!this.isTileInital(nextTileX, nextTileY)) {
                 continue;
             }
+            var lowestValue: number = 0;
             if (this.Inverse) {
                 lowestValue = Math.min(
-                this.getValueAtPoint(nextTileX - 1, nextTileY    ),
-                this.getValueAtPoint(nextTileX + 1, nextTileY    ),
-                this.getValueAtPoint(nextTileX    , nextTileY - 1),
-                this.getValueAtPoint(nextTileX    , nextTileY + 1));
+                    this.getValueAtPoint(nextTileX - 1, nextTileY    ),
+                    this.getValueAtPoint(nextTileX + 1, nextTileY    ),
+                    this.getValueAtPoint(nextTileX    , nextTileY - 1),
+                    this.getValueAtPoint(nextTileX    , nextTileY + 1));
             } else {
                 lowestValue = Math.max(
-                this.getValueAtPoint(nextTileX - 1, nextTileY    ),
-                this.getValueAtPoint(nextTileX + 1, nextTileY    ),
-                this.getValueAtPoint(nextTileX    , nextTileY - 1),
-                this.getValueAtPoint(nextTileX    , nextTileY + 1));
+                    this.getValueAtPoint(nextTileX - 1, nextTileY    ),
+                    this.getValueAtPoint(nextTileX + 1, nextTileY    ),
+                    this.getValueAtPoint(nextTileX    , nextTileY - 1),
+                    this.getValueAtPoint(nextTileX    , nextTileY + 1));
             }
-            var lowestValue: number = 
             if (lowestValue == this.InitalValue) {
-                
+                tileList.push(nextTile);
             } else {
-                this.setTileAtPoint(nextTileX, nextTileY, lowestValue )
+                this.setTileAtPoint(nextTileX, nextTileY, lowestValue);
+                tileList.push()
             }
         }
     }
 
     public getValueAtPoint(x: number, y: number): number {
+        if (this.MapData[x][y] < 0) {
+            return this.InitalValue;
+        }
         return this.MapData[x][y];
     }
 
     private isTileInital(x: number, y: number): boolean {
         return this.getValueAtPoint(x, y) == this.InitalValue;
     }
-
 
     private setTileAtPoint(x: number, y: number, value: number) {
         this.MapData[x][y] = value;

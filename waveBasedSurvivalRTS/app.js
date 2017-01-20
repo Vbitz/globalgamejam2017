@@ -191,24 +191,29 @@ var DijkstraMap = (function () {
             var nextTile = tileList.shift();
             var nextTileX = nextTile.X;
             var nextTileY = nextTile.Y;
-            if (this.isTileInital(nextTileX, nextTileY)) {
+            if (!this.isTileInital(nextTileX, nextTileY)) {
                 continue;
             }
+            var lowestValue = 0;
             if (this.Inverse) {
                 lowestValue = Math.min(this.getValueAtPoint(nextTileX - 1, nextTileY), this.getValueAtPoint(nextTileX + 1, nextTileY), this.getValueAtPoint(nextTileX, nextTileY - 1), this.getValueAtPoint(nextTileX, nextTileY + 1));
             }
             else {
                 lowestValue = Math.max(this.getValueAtPoint(nextTileX - 1, nextTileY), this.getValueAtPoint(nextTileX + 1, nextTileY), this.getValueAtPoint(nextTileX, nextTileY - 1), this.getValueAtPoint(nextTileX, nextTileY + 1));
             }
-            var lowestValue = ;
             if (lowestValue == this.InitalValue) {
+                tileList.push(nextTile);
             }
             else {
                 this.setTileAtPoint(nextTileX, nextTileY, lowestValue);
+                tileList.push();
             }
         }
     };
     DijkstraMap.prototype.getValueAtPoint = function (x, y) {
+        if (this.MapData[x][y] < 0) {
+            return this.InitalValue;
+        }
         return this.MapData[x][y];
     };
     DijkstraMap.prototype.isTileInital = function (x, y) {
