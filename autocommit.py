@@ -16,6 +16,6 @@ if __name__ == "__main__":
             pass
 
         for x in range (0,300):
-            b = s2 % (str(x).zfill(3), )
+            b = s2 % (str(300 - x).zfill(3), )
             print (b, end="\r")
             time.sleep(1)
