@@ -77,7 +77,7 @@ var TileInfo = (function () {
 }());
 var allTiles = [
     new TileInfo(TileType.Floor, 0, false, true).setColor(new Color("white")),
-    new TileInfo(TileType.Wall, 1, false, true).setColor(new Color("grey"))
+    new TileInfo(TileType.Wall, 1, false, false).setColor(new Color("grey"))
 ];
 function getTileInfoByType(type) {
     var ret = allTiles.filter(function (value) { return value.getType() == type; });
@@ -136,7 +136,7 @@ var Map = (function () {
         var self = this;
         var map = new DijkstraMap(this, true);
         map.updateWithCallback(function (x, y, initalValue) {
-            if (self.getTileWithInfo(x, y).getIsPassable()) {
+            if (!self.getTileWithInfo(x, y).getIsPassable()) {
                 return -1;
             }
             if (x == xL && y == yL) {
@@ -157,11 +157,12 @@ var DijkstraMap = (function () {
     function DijkstraMap(owner, inverse) {
         this.Owner = owner;
         this.Inverse = inverse;
+        this.InitalValue = inverse ? Number.MAX_VALUE : 0;
         this.MapData = [];
         for (var x = 0; x < this.Owner.Width; x++) {
             this.MapData.push([]);
             for (var y = 0; y < this.Owner.Height; y++) {
-                this.MapData[x].push(inverse ? Number.MAX_VALUE : 0);
+                this.MapData[x].push(this.InitalValue);
             }
         }
     }
@@ -172,6 +173,10 @@ var DijkstraMap = (function () {
         });
     };
     DijkstraMap.prototype.propigateMap = function (startX, startY) {
+        // Start with a list of tiles that need to be updated
+        var valueAtStart = this.getValueAtPoint(startX, startY);
+        var tilesToUpdate = forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x, y, value) {
+        });
     };
     DijkstraMap.prototype.getValueAtPoint = function (x, y) {
         return this.MapData[x][y];
@@ -182,7 +187,10 @@ var DijkstraMap = (function () {
             var rect = self.Owner.levelToScreen(new Vector2(x, y));
             ctx.fillStyle = "black";
             ctx.font = "12px sans-serif";
-            ctx.fillText(self.MapData[x][y].toString(10), rect.X + 16, rect.Y + 16);
+            var value = self.getValueAtPoint(x, y);
+            if (value != self.InitalValue) {
+                ctx.fillText(value.toString(10), rect.X + 16, rect.Y + 16);
+            }
         });
     };
     return DijkstraMap;
@@ -218,6 +226,7 @@ function main() {
     }
     renderableList.push(map);
     var pathFindingMap = map.createPathfindingMap(5, 5);
+    renderableList.push(pathFindingMap);
     function update() {
         ctx.fillStyle = "cornflowerBlue";
         ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);

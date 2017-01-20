@@ -115,7 +115,7 @@ class TileInfo {
 
 var allTiles: TileInfo[] = [
     new TileInfo(TileType.Floor, 0, false, true).setColor(new Color("white")),
-    new TileInfo(TileType.Wall, 1, false, true).setColor(new Color("grey"))
+    new TileInfo(TileType.Wall, 1, false, false).setColor(new Color("grey"))
 ];
 
 function getTileInfoByType(type: TileType) {
@@ -195,7 +195,7 @@ class Map implements Renderable {
         var self = this;
         var map: DijkstraMap = new DijkstraMap(this, true);
         map.updateWithCallback((x, y, initalValue) => {
-            if (self.getTileWithInfo(x, y).getIsPassable()) {
+            if (!self.getTileWithInfo(x, y).getIsPassable()) {
                 return -1;
             }
             if (x == xL && y == yL) {
@@ -217,16 +217,18 @@ class DijkstraMap implements Renderable {
     private MapData: TwoDMap<number>;
     private Owner: Map;
     private Inverse: boolean;
+    private InitalValue: number;
 
     constructor(owner: Map, inverse: boolean) {
         this.Owner = owner;
         this.Inverse = inverse;
+        this.InitalValue = inverse ? Number.MAX_VALUE : 0;
 
         this.MapData = [];
         for (var x: number = 0; x < this.Owner.Width; x++) {
             this.MapData.push([]);
             for (var y: number = 0; y < this.Owner.Height; y++) {
-                this.MapData[x].push(inverse ? Number.MAX_VALUE : 0);
+                this.MapData[x].push(this.InitalValue);
             }
         }
     }
@@ -238,7 +240,11 @@ class DijkstraMap implements Renderable {
     }
 
     public propigateMap(startX: number, startY: number) {
-
+        // Start with a list of tiles that need to be updated
+        var valueAtStart = this.getValueAtPoint(startX, startY);
+        var tilesToUpdate = forEach(this.Owner.Width, this.Owner.Height, this.MapData, (x, y, value) => {
+            
+        });
     }
 
     public getValueAtPoint(x: number, y: number): number {
@@ -252,7 +258,10 @@ class DijkstraMap implements Renderable {
             var rect: Rectangle = self.Owner.levelToScreen(new Vector2(x, y));
             ctx.fillStyle = "black";
             ctx.font = "12px sans-serif";
-            ctx.fillText(self.MapData[x][y].toString(10), rect.X + 16, rect.Y + 16);
+            var value = self.getValueAtPoint(x, y);
+            if (value != self.InitalValue) {
+                ctx.fillText(value.toString(10), rect.X + 16, rect.Y + 16);
+            }
         });
     }
 }
@@ -296,6 +305,8 @@ function main(): void {
     renderableList.push(map);
 
     var pathFindingMap: DijkstraMap = map.createPathfindingMap(5, 5);
+
+    renderableList.push(pathFindingMap);
 
     function update() {
         ctx.fillStyle = "cornflowerBlue";
