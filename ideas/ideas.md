@@ -10,3 +10,11 @@
     - Like a RTS where you nuke the water to create attacks.
     - It would be pretty diffacult to implament and I'm concirned the ballence would be diffacult
     - It would also take too much time compared to what's avalible during the weekend.
+    - It would look pretty awesome but doing accurate fluid simulation is diffacult.
+- Bullet hell shooter is an option.
+    - That's basicly just a particle engine but it's not very interesting and the waves don't add a useful mechanic.
+- A survival game is possible.
+    - Say a big wave happens every x turns and you have to defend agenist it.
+    - It could be made in the context of a city building game like SimCity.
+    - That would be pretty easy to implament but would still require fluid simulation.
+    
