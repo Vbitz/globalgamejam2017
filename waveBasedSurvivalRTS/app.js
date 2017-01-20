@@ -21,28 +21,48 @@ var Rectangle = (function () {
 }());
 var TileType;
 (function (TileType) {
-    TileType[TileType["Grass"] = 0] = "Grass";
+    TileType[TileType["Floor"] = 0] = "Floor";
     TileType[TileType["Wall"] = 1] = "Wall";
-    TileType[TileType["Floor"] = 2] = "Floor";
 })(TileType || (TileType = {}));
 var TileInfo = (function () {
-    function TileInfo(type, loadTileId) {
+    function TileInfo(type, loadTileId, isSolid, isPassable) {
         this.Type = type;
+        this.LoadTileID = loadTileId;
+        this.IsSolid = isSolid;
+        this.IsPassable = isPassable;
     }
     return TileInfo;
 }());
-var allTiles = [];
+var allTiles = [
+    new TileInfo(TileType.Floor, 0),
+    new TileInfo(TileType.Wall, 1)
+];
 var Map = (function () {
     function Map(width, height, startTileType) {
+        this.Width = width;
+        this.Height = height;
+        this.mapData = [];
+        for (var x = 0; x < width; x++) {
+            this.mapData.push([]);
+            for (var y = 0; y < height; y++) {
+                this.mapData[x].push({
+                    type: startTileType
+                });
+            }
+        }
     }
+    Map.forEach = function (width, height, mapData, cb) {
+        for (var x = 0; x < width; x++) {
+            for (var y = 0; y < height; y++) {
+                cb(x, y, mapData[x][y]);
+            }
+        }
+    };
     /*
         I don't have any clue what the map save format will look like but for now I will just
         declare it staticly or even use csv
     */
     Map.prototype.draw = function (ctx) {
-        ctx.font = "72px sans-serif";
-        ctx.fillStyle = "black";
-        ctx.fillText("Hello, World", 100, 100);
     };
     Map.prototype.loadFromDocument = function (documentStr) {
     };

@@ -36,22 +36,27 @@ class Rectangle {
 }
 
 enum TileType { 
-    Grass,
-    Wall,
-    Floor
+    Floor,
+    Wall
 }
 
 class TileInfo {
     private Type: TileType;
     private LoadTileID: number;
+    private IsSolid: boolean;
+    private IsPassable: boolean;
 
-    constructor(type: TileType, loadTileId: number) {
+    constructor(type: TileType, loadTileId: number, isSolid: boolean, isPassable: boolean) {
         this.Type = type;
+        this.LoadTileID = loadTileId;
+        this.IsSolid = isSolid;
+        this.IsPassable = isPassable;
     }
 }
 
 var allTiles: TileInfo[] = [
-
+    new TileInfo(TileType.Floor, 0),
+    new TileInfo(TileType.Wall, 1)
 ];
 
 type MapTile = {
@@ -59,13 +64,33 @@ type MapTile = {
     
 }
 
+type MapData = MapTile[][];
+
 class Map implements Renderable {
     public Width: number;
     public Height: number;
-    private mapData: MapTile[][];
+    private mapData: MapData;
+
+    private static forEach(width: number, height: number, mapData: MapData, cb: (x: number, y: number, tile: MapTile) => void) {
+        for (var x: number = 0; x < width; x++) {
+            for (var y: number = 0; y < height; y++) {
+                cb(x, y, mapData[x][y]);
+            }
+        }
+    }
 
     constructor(width: number, height: number, startTileType: TileType) {
-        
+        this.Width = width;
+        this.Height = height;
+        this.mapData = [];
+        for (var x: number = 0; x < width; x++) {
+            this.mapData.push([]);
+            for (var y: number = 0; y < height; y++) {
+                this.mapData[x].push({
+                    type: startTileType
+                });
+            }
+        }
     }
 
     /*
@@ -73,9 +98,7 @@ class Map implements Renderable {
         declare it staticly or even use csv
     */
     public draw(ctx: CanvasRenderingContext2D) {
-        ctx.font = "72px sans-serif";
-        ctx.fillStyle = "black";
-        ctx.fillText("Hello, World", 100, 100);
+
     }
 
     public loadFromDocument(documentStr: string) {
