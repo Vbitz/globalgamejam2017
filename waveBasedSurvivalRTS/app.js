@@ -244,10 +244,11 @@ var Map = (function () {
         }
     };
     Map.prototype.advanceTurn = function () {
-        this.NextTurnActionList.forEach(function (cb) {
+        var currentTurnActions = this.NextTurnActionList;
+        this.NextTurnActionList = [];
+        currentTurnActions.forEach(function (cb) {
             cb();
         });
-        this.NextTurnActionList = [];
     };
     Map.prototype.scheduleForNextTurn = function (cb) {
         this.NextTurnActionList.push(cb);
@@ -525,7 +526,8 @@ var BasicAIEntity = (function (_super) {
         var _this = _super.call(this, owner, spawnLocation) || this;
         _this.Target = initalTarget;
         _this.PathfindingMap = _this.getOwner().createPathfindingMap(initalTarget.X, initalTarget.Y);
-        _this.setMovesPerTurn(1);
+        _this.setMovesPerTurn(3);
+        _this.setColor(new Color("orange"));
         _this.getOwner().scheduleForNextTurn(_this.stepPathfinding.bind(_this));
         _this.IsPathfinding = true;
         return _this;
@@ -557,7 +559,7 @@ var BasicAIEntity = (function (_super) {
     };
     BasicAIEntity.prototype.draw = function (ctx) {
         _super.prototype.draw.call(this, ctx);
-        var rect = this.getOwner().levelToScreen(this.Target);
+        var rect = this.getOwner().levelToScreen(this.Target).shrink(8);
         ctx.fillStyle = "red";
         ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
     };
@@ -624,12 +626,15 @@ function main() {
                 map.setTile(x, y, TileType.Wall);
             }
             else {
+                if (Math.random() > 0.8) {
+                    map.setTile(x, y, TileType.Wall);
+                }
             }
         }
     }
     var player = new PlayerEntity(map);
     map.addTileEntity(player);
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < 10; i++) {
         map.addTileEntity(new BasicAIEntity(map, map.getRandomValidSpawnLocation(), map.getRandomValidSpawnLocation()));
     }
     renderableList.push(map);

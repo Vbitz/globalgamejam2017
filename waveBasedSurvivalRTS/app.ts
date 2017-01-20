@@ -334,10 +334,11 @@ class Map implements Renderable {
     }
 
     public advanceTurn() {
-        this.NextTurnActionList.forEach(function (cb: NextTurnCallback) {
+        var currentTurnActions = this.NextTurnActionList;
+        this.NextTurnActionList = [];
+        currentTurnActions.forEach(function (cb: NextTurnCallback) {
             cb();
         });
-        this.NextTurnActionList = [];
     }
 
     public scheduleForNextTurn(cb: NextTurnCallback) {
@@ -682,7 +683,8 @@ class BasicAIEntity extends CharacterEntity {
         this.Target = initalTarget;
         this.PathfindingMap = this.getOwner().createPathfindingMap(initalTarget.X, initalTarget.Y);
 
-        this.setMovesPerTurn(1);
+        this.setMovesPerTurn(3);
+        this.setColor(new Color("orange"));
 
         this.getOwner().scheduleForNextTurn(this.stepPathfinding.bind(this));
         this.IsPathfinding = true;
@@ -720,7 +722,7 @@ class BasicAIEntity extends CharacterEntity {
     public draw(ctx: CanvasRenderingContext2D) {
         super.draw(ctx);
         
-        var rect = this.getOwner().levelToScreen(this.Target);
+        var rect = this.getOwner().levelToScreen(this.Target).shrink(8);
 
         ctx.fillStyle = "red";
         ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
@@ -799,9 +801,9 @@ function main(): void {
             if (x == 0 || x == 47 || y == 0 || y == 23) {
                 map.setTile(x, y, TileType.Wall);
             } else {
-                // if (Math.random() > 0.8) {
-                //     map.setTile(x, y, TileType.Wall);
-                // }
+                if (Math.random() > 0.8) {
+                    map.setTile(x, y, TileType.Wall);
+                }
             }
         }
     }
@@ -810,7 +812,7 @@ function main(): void {
 
     map.addTileEntity(player);
 
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < 10; i++) {
         map.addTileEntity(new BasicAIEntity(map, map.getRandomValidSpawnLocation(), map.getRandomValidSpawnLocation()));    
     }
 
