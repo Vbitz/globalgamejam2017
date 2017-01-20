@@ -134,7 +134,7 @@ var Map = (function () {
     };
     Map.prototype.createPathfindingMap = function (xL, yL) {
         var self = this;
-        var map = new DijkstraMap(this, true);
+        var map = new DijkstraMap(this.Width, this.Height, true);
         map.updateWithCallback(function (x, y, initalValue) {
             if (!self.getTileWithInfo(x, y).getIsPassable()) {
                 return -1;
@@ -146,7 +146,7 @@ var Map = (function () {
                 return initalValue;
             }
         });
-        map.propigateMap(xL, yL);
+        map.propigateMap();
         return map;
     };
     Map.prototype.loadFromDocument = function (documentStr) {
@@ -154,40 +154,38 @@ var Map = (function () {
     return Map;
 }());
 var DijkstraMap = (function () {
-    function DijkstraMap(owner, inverse) {
-        this.Owner = owner;
+    function DijkstraMap(w, h, inverse) {
         this.Inverse = inverse;
         this.InitalValue = inverse ? Number.MAX_VALUE : 0;
         this.MapData = [];
-        for (var x = 0; x < this.Owner.Width; x++) {
+        for (var x = 0; x < this.Width; x++) {
             this.MapData.push([]);
-            for (var y = 0; y < this.Owner.Height; y++) {
+            for (var y = 0; y < this.Height; y++) {
                 this.MapData[x].push(this.InitalValue);
             }
         }
     }
     DijkstraMap.prototype.updateWithCallback = function (cb) {
         var _this = this;
-        forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x, y, currentValue) {
+        forEach(this.Width, this.Height, this.MapData, function (x, y, currentValue) {
             _this.MapData[x][y] = cb(x, y, currentValue);
         });
     };
-    DijkstraMap.prototype.propigateMap = function (startX, startY) {
+    DijkstraMap.prototype.propigateMap = function () {
         var self = this;
         // Start with a list of tiles that need to be updated
-        var valueAtStart = this.getValueAtPoint(startX, startY);
         var tilesToUpdate = {};
-        forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x, y, value) {
+        forEach(this.Width, this.Height, this.MapData, function (x, y, value) {
             tilesToUpdate[new Vector2(x, y).hash()] = value == self.InitalValue;
         });
     };
     DijkstraMap.prototype.getValueAtPoint = function (x, y) {
         return this.MapData[x][y];
     };
-    DijkstraMap.prototype.draw = function (ctx) {
+    DijkstraMap.prototype.draw = function (ctx, transformCallback) {
         var self = this;
-        forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x, y, value) {
-            var rect = self.Owner.levelToScreen(new Vector2(x, y));
+        forEach(this.Width, this.Height, this.MapData, function (x, y, value) {
+            var rect = transformCallback(new Vector2(x, y));
             ctx.fillStyle = "black";
             ctx.font = "12px sans-serif";
             var value = self.getValueAtPoint(x, y);

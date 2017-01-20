@@ -134,6 +134,8 @@ type MapTile = {
 
 type TwoDMap<TileType> = TileType[][];
 
+type TransformCallback = (point: Vector2) => Rectangle;
+
 const TILE_SIZE: number = 32;
 
 type MapForEachCallback<TileType, ReturnValue> = (x: number, y: number, tile: TileType) => ReturnValue;
@@ -193,18 +195,21 @@ class Map implements Renderable {
 
     public createPathfindingMap(xL: number, yL: number): DijkstraMap {
         var self = this;
-        var map: DijkstraMap = new DijkstraMap(this, true);
+        var map: DijkstraMap = new DijkstraMap(this.Width, this.Height, true);
         map.updateWithCallback((x, y, initalValue) => {
             if (!self.getTileWithInfo(x, y).getIsPassable()) {
                 return -1;
             }
+
             if (x == xL && y == yL) {
                 return 0;
             } else {
                 return initalValue;
             }
         });
-        map.propigateMap(xL, yL);
+
+        map.propigateMap();
+        
         return map;
     }
 
@@ -213,39 +218,40 @@ class Map implements Renderable {
     }
 }
 
-class DijkstraMap implements Renderable {
+class DijkstraMap {
     private MapData: TwoDMap<number>;
-    private Owner: Map;
+
+    private Width: number;
+    private Height: number;
+    
     private Inverse: boolean;
     private InitalValue: number;
 
-    constructor(owner: Map, inverse: boolean) {
-        this.Owner = owner;
+    constructor(w: number, h: number, inverse: boolean) {
         this.Inverse = inverse;
         this.InitalValue = inverse ? Number.MAX_VALUE : 0;
 
         this.MapData = [];
-        for (var x: number = 0; x < this.Owner.Width; x++) {
+        for (var x: number = 0; x < this.Width; x++) {
             this.MapData.push([]);
-            for (var y: number = 0; y < this.Owner.Height; y++) {
+            for (var y: number = 0; y < this.Height; y++) {
                 this.MapData[x].push(this.InitalValue);
             }
         }
     }
 
     public updateWithCallback(cb: MapForEachCallback<number, number>) {
-        forEach(this.Owner.Width, this.Owner.Height, this.MapData, (x, y, currentValue) => {
+        forEach(this.Width, this.Height, this.MapData, (x, y, currentValue) => {
             this.MapData[x][y] = cb(x, y, currentValue);
         });
     }
 
-    public propigateMap(startX: number, startY: number) {
+    public propigateMap() {
         var self = this;
 
         // Start with a list of tiles that need to be updated
-        var valueAtStart = this.getValueAtPoint(startX, startY);
         var tilesToUpdate: {[k: string]: boolean} = {};
-        forEach(this.Owner.Width, this.Owner.Height, this.MapData, (x, y, value) => {
+        forEach(this.Width, this.Height, this.MapData, (x, y, value) => {
             tilesToUpdate[new Vector2(x, y).hash()] = value == self.InitalValue;
         });
 
@@ -255,11 +261,11 @@ class DijkstraMap implements Renderable {
         return this.MapData[x][y];
     }
     
-    public draw(ctx: CanvasRenderingContext2D) {
+    public draw(ctx: CanvasRenderingContext2D, transformCallback: TransformCallback) {
         var self = this;
 
-        forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x: number, y: number, value: number) {
-            var rect: Rectangle = self.Owner.levelToScreen(new Vector2(x, y));
+        forEach(this.Width, this.Height, this.MapData, function (x: number, y: number, value: number) {
+            var rect: Rectangle = transformCallback(new Vector2(x, y));
             ctx.fillStyle = "black";
             ctx.font = "12px sans-serif";
             var value = self.getValueAtPoint(x, y);
