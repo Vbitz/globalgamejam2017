@@ -1,4 +1,4 @@
-// TODO: Basic system with nothing on the level
+// TODO: Basic system with nothing on the level (DONE)
 // TODO: Player charactor with non-turn based movement.
 
 // TODO: Add camera support (maybe?)
@@ -13,7 +13,8 @@ class Vector2 {
     public Y: number;
 
     constructor(x: number, y: number) {
-
+        this.X = x;
+        this.Y = y;
     }
 }
 
@@ -40,6 +41,10 @@ class Rectangle {
         this.Y = y;
         this.Width = w;
         this.Height = h;
+    }
+
+    public add(vec: Vector2): Rectangle {
+        return new Rectangle(this.X + vec.X, this.Y + vec.Y, this.Width, this.Height);
     }
 }
 
@@ -156,7 +161,13 @@ class Map implements Renderable {
     }
 
     public levelToScreen(localLocation: Vector2): Rectangle {
-        return new Rectangle(localLocation.X * TILE_SIZE, localLocation.Y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        return new Rectangle(localLocation.X * TILE_SIZE, localLocation.Y * TILE_SIZE, TILE_SIZE, TILE_SIZE).add(new Vector2(60, 60));
+    }
+
+    public setTile(x: number, y: number, type: TileType) {
+        this.mapData[x][y] = {
+            type: type
+        };
     }
 
     public loadFromDocument(documentStr: string) {
@@ -187,7 +198,14 @@ window.addEventListener("DOMContentLoaded", function () {
 
     var renderableList: Renderable[] = [];
 
-    var map: Map = new Map(32, 32, TileType.Floor);
+    var map: Map = new Map(48, 24, TileType.Floor);
+    for (var x: number = 0; x < 48; x++) {
+        for (var y: number = 0; y < 24; y++) {
+            if (x == 0 || x == 47 || y == 0 || y == 23) {
+                map.setTile(x, y, TileType.Wall);
+            }
+        }
+    }
 
     renderableList.push(map);
 

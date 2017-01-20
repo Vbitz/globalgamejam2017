@@ -1,7 +1,9 @@
-// TODO: Basic system with nothing on the level
+// TODO: Basic system with nothing on the level (DONE)
 // TODO: Player charactor with non-turn based movement.
 var Vector2 = (function () {
     function Vector2(x, y) {
+        this.X = x;
+        this.Y = y;
     }
     return Vector2;
 }());
@@ -21,6 +23,9 @@ var Rectangle = (function () {
         this.Width = w;
         this.Height = h;
     }
+    Rectangle.prototype.add = function (vec) {
+        return new Rectangle(this.X + vec.X, this.Y + vec.Y, this.Width, this.Height);
+    };
     return Rectangle;
 }());
 var TileType;
@@ -105,7 +110,12 @@ var Map = (function () {
         });
     };
     Map.prototype.levelToScreen = function (localLocation) {
-        return new Rectangle(localLocation.X * TILE_SIZE, localLocation.Y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        return new Rectangle(localLocation.X * TILE_SIZE, localLocation.Y * TILE_SIZE, TILE_SIZE, TILE_SIZE).add(new Vector2(60, 60));
+    };
+    Map.prototype.setTile = function (x, y, type) {
+        this.mapData[x][y] = {
+            type: type
+        };
     };
     Map.prototype.loadFromDocument = function (documentStr) {
     };
@@ -127,7 +137,14 @@ window.addEventListener("DOMContentLoaded", function () {
     mainCanvas.height = window.innerHeight;
     var ctx = mainCanvas.getContext("2d");
     var renderableList = [];
-    var map = new Map(32, 32, TileType.Floor);
+    var map = new Map(48, 24, TileType.Floor);
+    for (var x = 0; x < 48; x++) {
+        for (var y = 0; y < 24; y++) {
+            if (x == 0 || x == 47 || y == 0 || y == 23) {
+                map.setTile(x, y, TileType.Wall);
+            }
+        }
+    }
     renderableList.push(map);
     function update() {
         ctx.fillStyle = "cornflowerBlue";
