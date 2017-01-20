@@ -98,7 +98,11 @@ var SolidRenderBrush = (function () {
 var TileMapRenderBrush = (function () {
     function TileMapRenderBrush(img, subRect) {
         this.Image = img;
+        this.Rect = subRect;
     }
+    TileMapRenderBrush.prototype.draw = function (ctx, rect) {
+        ctx.drawImage(this.Image, this.Rect.X, this.Rect.Y, this.Rect.Width, this.Rect.Height, rect.X, rect.Y, rect.Width, rect.Height);
+    };
     return TileMapRenderBrush;
 }());
 var TileInfo = (function () {
@@ -110,6 +114,10 @@ var TileInfo = (function () {
     }
     TileInfo.prototype.setColor = function (col) {
         this.Render = new SolidRenderBrush(col);
+        return this;
+    };
+    TileInfo.prototype.setRender = function (render) {
+        this.Render = render;
         return this;
     };
     TileInfo.prototype.getType = function () {
@@ -469,6 +477,13 @@ var PlayerEntity = (function (_super) {
     };
     return PlayerEntity;
 }(CharacterEntity));
+var BasicAIEntity = (function (_super) {
+    __extends(BasicAIEntity, _super);
+    function BasicAIEntity() {
+        return _super.apply(this, arguments) || this;
+    }
+    return BasicAIEntity;
+}(TileEntity));
 var UIElement = (function () {
     function UIElement() {
     }

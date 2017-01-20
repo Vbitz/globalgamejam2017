@@ -134,9 +134,18 @@ class SolidRenderBrush implements RenderBrush {
 };
 
 class TileMapRenderBrush implements RenderBrush {
-    private img: HTMLImageElement;
+    private Image: HTMLImageElement;
+    private Rect: Rectangle;
+
     constructor(img: HTMLImageElement, subRect: Rectangle) {
         this.Image = img;
+        this.Rect = subRect;
+    }
+
+    public draw(ctx: CanvasRenderingContext2D, rect: Rectangle) {
+        ctx.drawImage(this.Image,
+            this.Rect.X, this.Rect.Y, this.Rect.Width, this.Rect.Height,
+            rect.X, rect.Y, rect.Width, rect.Height);
     }
 }
 
@@ -157,6 +166,11 @@ class TileInfo {
 
     public setColor(col: Color): TileInfo {
         this.Render = new SolidRenderBrush(col);
+        return this;
+    }
+
+    public setRender(render: RenderBrush): TileInfo {
+        this.Render = render;
         return this;
     }
 
@@ -612,6 +626,10 @@ class PlayerEntity extends CharacterEntity {
     }
 }
 
+class BasicAIEntity extends TileEntity {
+        
+}
+
 class UIElement implements Renderable {
     public draw(ctx: CanvasRenderingContext2D) {
         
@@ -642,8 +660,10 @@ class Label extends UIElement {
     
     public draw(ctx: CanvasRenderingContext2D) {
         super.draw(ctx);
+        
         ctx.fillStyle = "white";
         ctx.fillRect(this.Bounds.X, this.Bounds.Y, this.Bounds.Width, this.Bounds.Height);
+
         ctx.fillStyle = "black";
         ctx.font = "16px sans-serif";
         ctx.fillText(this.Text, this.Bounds.X + 5, this.Bounds.Y + 20);
