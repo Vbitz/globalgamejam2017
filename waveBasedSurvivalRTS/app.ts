@@ -508,7 +508,7 @@ class DijkstraMap {
         } else if (this.getValueAtPoint(nextTileX    , nextTileY + 1) == bestPoint) {
             return new Vector2(         nextTileX    , nextTileY + 1);
         } else {
-            throw new Error("Unreachable");
+            return null;
         }
     }
     
@@ -812,7 +812,7 @@ function main(): void {
 
     map.addTileEntity(player);
 
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 20; i++) {
         map.addTileEntity(new BasicAIEntity(map, map.getRandomValidSpawnLocation(), map.getRandomValidSpawnLocation()));    
     }
 

@@ -386,7 +386,7 @@ var DijkstraMap = (function () {
             return new Vector2(nextTileX, nextTileY + 1);
         }
         else {
-            throw new Error("Unreachable");
+            return null;
         }
     };
     DijkstraMap.prototype.draw = function (ctx, transformCallback) {
@@ -634,7 +634,7 @@ function main() {
     }
     var player = new PlayerEntity(map);
     map.addTileEntity(player);
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 20; i++) {
         map.addTileEntity(new BasicAIEntity(map, map.getRandomValidSpawnLocation(), map.getRandomValidSpawnLocation()));
     }
     renderableList.push(map);
