@@ -1,6 +1,6 @@
-// TODO: Basic system with nothing on the level (DONE)
-// TODO: Flood fill map support (DONE)
-// TODO: Player charactor with turn based movement.
+// TODO: Basic system with nothing on the level. (DONE)
+// TODO: Flood fill map support. (DONE)
+// TODO: Player charactor with turn based movement. (DONE)
 
 // TODO: Add camera support (maybe?)
 
@@ -39,6 +39,10 @@ class Vector2 {
 
     public round(): Vector2 {
         return new Vector2(Math.round(this.X), Math.round(this.Y));
+    }
+
+    public floor(): Vector2 {
+        return new Vector2(Math.floor(this.X), Math.floor(this.Y));
     }
 
     public clone(): Vector2 {
@@ -206,6 +210,7 @@ class Map implements Renderable {
             }
         }
         this.TileEntityList = [];
+        this.NextTurnActionList = [];
     }
 
     public getTileWithInfo(x: number, y: number): TileInfo {
@@ -231,7 +236,9 @@ class Map implements Renderable {
     }
 
     public mouseLeftClick(x: number, y: number) {
-
+        this.TileEntityList.forEach(function (te: TileEntity) {
+            te.mouseLeftClick(x, y);
+        });
     }
 
     public levelToScreen(localLocation: Vector2): Rectangle {
@@ -240,9 +247,7 @@ class Map implements Renderable {
 
     public screenToLevel(screenLocation: Vector2): Vector2 {
         var ret = screenLocation.clone();
-        ret = ret.sub(new Vector2(60, 60));
-        ret = ret.div(new Vector2(TILE_SIZE, TILE_SIZE));
-        ret = ret.round();
+        ret = ret.sub(new Vector2(60, 60)).div(new Vector2(TILE_SIZE, TILE_SIZE)).floor();
         return ret;
     }
 
@@ -503,6 +508,9 @@ class CharacterEntity extends TileEntity {
 
     public moveToPoint(newLocation: Vector2): boolean {
         var self = this;
+        if (!this.getOwner().getTileWithInfo(newLocation.X, newLocation.Y).getIsPassable()) {
+            return false;
+        }
         if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) <= this.CurrentActions) {
             var actionsLost = this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
             this.getOwner().scheduleForNextTurn(function () {
@@ -511,6 +519,7 @@ class CharacterEntity extends TileEntity {
             this.CurrentActions -= actionsLost;
             self.setLocation(newLocation);
             this.recalculateCurrentActionMap();
+            return true;
         } else {
             return false;
         }
@@ -526,7 +535,8 @@ class PlayerEntity extends CharacterEntity {
 
     public mouseLeftClick(x: number, y: number) {
         var tileUnderClick: Vector2 = this.getOwner().screenToLevel(new Vector2(x, y));
-        console.log(tileUnderClick.X, tileUnderClick.Y, this.getLocation().X, this.getLocation().Y);
+        this.moveToPoint(tileUnderClick);
+        // console.log(tileUnderClick.X, tileUnderClick.Y, this.getLocation().X, this.getLocation().Y);
     }
 
     public draw(ctx: CanvasRenderingContext2D) {

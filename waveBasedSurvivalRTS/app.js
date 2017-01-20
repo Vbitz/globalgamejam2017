@@ -1,6 +1,6 @@
-// TODO: Basic system with nothing on the level (DONE)
-// TODO: Flood fill map support (DONE)
-// TODO: Player charactor with turn based movement.
+// TODO: Basic system with nothing on the level. (DONE)
+// TODO: Flood fill map support. (DONE)
+// TODO: Player charactor with turn based movement. (DONE)
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -25,6 +25,9 @@ var Vector2 = (function () {
     };
     Vector2.prototype.round = function () {
         return new Vector2(Math.round(this.X), Math.round(this.Y));
+    };
+    Vector2.prototype.floor = function () {
+        return new Vector2(Math.floor(this.X), Math.floor(this.Y));
     };
     Vector2.prototype.clone = function () {
         return new Vector2(this.X, this.Y);
@@ -140,6 +143,7 @@ var Map = (function () {
             }
         }
         this.TileEntityList = [];
+        this.NextTurnActionList = [];
     }
     Map.prototype.getTileWithInfo = function (x, y) {
         return getTileInfoByType(this.MapData[x][y].type);
@@ -161,15 +165,16 @@ var Map = (function () {
         });
     };
     Map.prototype.mouseLeftClick = function (x, y) {
+        this.TileEntityList.forEach(function (te) {
+            te.mouseLeftClick(x, y);
+        });
     };
     Map.prototype.levelToScreen = function (localLocation) {
         return new Rectangle(localLocation.X * TILE_SIZE, localLocation.Y * TILE_SIZE, TILE_SIZE, TILE_SIZE).add(new Vector2(60, 60));
     };
     Map.prototype.screenToLevel = function (screenLocation) {
         var ret = screenLocation.clone();
-        ret = ret.sub(new Vector2(60, 60));
-        ret = ret.div(new Vector2(TILE_SIZE, TILE_SIZE));
-        ret = ret.round();
+        ret = ret.sub(new Vector2(60, 60)).div(new Vector2(TILE_SIZE, TILE_SIZE)).floor();
         return ret;
     };
     Map.prototype.setTile = function (x, y, type) {
@@ -373,6 +378,9 @@ var CharacterEntity = (function (_super) {
     };
     CharacterEntity.prototype.moveToPoint = function (newLocation) {
         var self = this;
+        if (!this.getOwner().getTileWithInfo(newLocation.X, newLocation.Y).getIsPassable()) {
+            return false;
+        }
         if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) <= this.CurrentActions) {
             var actionsLost = this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
             this.getOwner().scheduleForNextTurn(function () {
@@ -381,6 +389,7 @@ var CharacterEntity = (function (_super) {
             this.CurrentActions -= actionsLost;
             self.setLocation(newLocation);
             this.recalculateCurrentActionMap();
+            return true;
         }
         else {
             return false;
@@ -397,7 +406,8 @@ var PlayerEntity = (function (_super) {
     }
     PlayerEntity.prototype.mouseLeftClick = function (x, y) {
         var tileUnderClick = this.getOwner().screenToLevel(new Vector2(x, y));
-        console.log(tileUnderClick.X, tileUnderClick.Y, this.getLocation().X, this.getLocation().Y);
+        this.moveToPoint(tileUnderClick);
+        // console.log(tileUnderClick.X, tileUnderClick.Y, this.getLocation().X, this.getLocation().Y);
     };
     PlayerEntity.prototype.draw = function (ctx) {
         var _this = this;
