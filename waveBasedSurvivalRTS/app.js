@@ -182,10 +182,14 @@ var DijkstraMap = (function () {
         if (this.PropigateTileList.length == 0) {
             forEach(this.Width, this.Height, this.MapData, function (x, y, currentValue) {
                 if (currentValue == _this.InitalValue) {
-                    if (!self.isTileInital(x - 1, y) ||
-                        !self.isTileInital(x + 1, y) ||
-                        !self.isTileInital(x, y - 1) ||
-                        !self.isTileInital(x, y + 1)) {
+                    if ((!self.isTileInital(x - 1, y) &&
+                        self.getValueAtPoint(x - 1, y) > 0) ||
+                        (!self.isTileInital(x + 1, y) &&
+                            self.getValueAtPoint(x + 1, y) > 0) ||
+                        (!self.isTileInital(x, y - 1) &&
+                            self.getValueAtPoint(x, y - 1) > 0) ||
+                        (!self.isTileInital(x, y + 1) &&
+                            self.getValueAtPoint(x, y + 1) > 0)) {
                         _this.PropigateTileList.push(new Vector2(x, y));
                     }
                 }
@@ -223,7 +227,7 @@ var DijkstraMap = (function () {
                 this.PropigateTileList.push(nextTile);
             }
             else {
-                this.setTileAtPoint(nextTileX, nextTileY, lowestValue);
+                this.setTileAtPoint(nextTileX, nextTileY, lowestValue + (this.Inverse ? 1 : -1));
                 this.PropigateTileList.push(new Vector2(nextTileX - 1, nextTileY));
                 this.PropigateTileList.push(new Vector2(nextTileX + 1, nextTileY));
                 this.PropigateTileList.push(new Vector2(nextTileX, nextTileY - 1));
@@ -251,9 +255,6 @@ var DijkstraMap = (function () {
             var value = self.getValueAtPoint(x, y);
             if (value != self.InitalValue) {
                 ctx.fillText(value.toString(10), rect.X + 16, rect.Y + 16);
-            }
-            if (self.PropigateTileList.indexOf(new Vector2(x, y)) != -1) {
-                ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
             }
         });
     };
@@ -291,7 +292,7 @@ function main() {
     renderableList.push(map);
     var pathFindingMap = map.createPathfindingMap(5, 5, 1);
     setTimeout(function propigateMapAgain() {
-        if (!pathFindingMap.propigateMap(1)) {
+        if (!pathFindingMap.propigateMap(100)) {
             setTimeout(propigateMapAgain, 1000);
         }
         else {
