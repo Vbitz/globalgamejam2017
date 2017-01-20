@@ -123,28 +123,30 @@ type TwoDMap<T> = T[][];
 
 const TILE_SIZE: number = 32;
 
+type MapForEachCallback<T> = (x: number, y: number, tile: T) => void;
+
+function forEach<T>(width: number, height: number, mapData: TwoDMap<T>, cb: MapForEachCallback<T>) {
+    for (var x: number = 0; x < width; x++) {
+        for (var y: number = 0; y < height; y++) {
+            cb(x, y, mapData[x][y]);
+        }
+    }
+}
+
 // The turn based method is going to be implemented as runNextTurn(cb)
 class Map implements Renderable {
     public Width: number;
     public Height: number;
-    private mapData: TwoDMap<MapTile>;
-
-    private static forEach(width: number, height: number, mapData: TwoDMap<MapTile>, cb: (x: number, y: number, tile: MapTile) => void) {
-        for (var x: number = 0; x < width; x++) {
-            for (var y: number = 0; y < height; y++) {
-                cb(x, y, mapData[x][y]);
-            }
-        }
-    }
+    private MapData: TwoDMap<MapTile>;
 
     constructor(width: number, height: number, startTileType: TileType) {
         this.Width = width;
         this.Height = height;
-        this.mapData = [];
+        this.MapData = [];
         for (var x: number = 0; x < width; x++) {
-            this.mapData.push([]);
+            this.MapData.push([]);
             for (var y: number = 0; y < height; y++) {
-                this.mapData[x].push({
+                this.MapData[x].push({
                     type: startTileType
                 });
             }
@@ -157,7 +159,7 @@ class Map implements Renderable {
     */
     public draw(ctx: CanvasRenderingContext2D) {
         var self = this;
-        Map.forEach(this.Width, this.Height, this.mapData, function (x: number, y: number, tile: MapTile) {
+        forEach(this.Width, this.Height, this.mapData, function (x: number, y: number, tile: MapTile) {
             getTileInfoByType(tile.type).draw(ctx, self.levelToScreen(new Vector2(x, y)));
         });
     }
@@ -183,6 +185,21 @@ class DijkstraMap {
 
     constructor(owner: Map) {
         this.Owner = owner;
+        this.MapData = [];
+        for (var x: number = 0; x < this.Owner.Width; x++) {
+            this.MapData.push([]);
+            for (var y: number = 0; y < this.Owner.Height; y++) {
+                this.MapData[x].push(0);
+            }
+        }
+    }
+
+    
+    public drawDebug(ctx: CanvasRenderingContext2D) {
+        var self = this;
+        forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x: number, y: number, value: number) {
+            
+        });
     }
 }
 

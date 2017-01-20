@@ -79,35 +79,35 @@ function getTileInfoByType(type) {
     }
 }
 var TILE_SIZE = 32;
+function forEach(width, height, mapData, cb) {
+    for (var x = 0; x < width; x++) {
+        for (var y = 0; y < height; y++) {
+            cb(x, y, mapData[x][y]);
+        }
+    }
+}
 // The turn based method is going to be implemented as runNextTurn(cb)
 var Map = (function () {
     function Map(width, height, startTileType) {
         this.Width = width;
         this.Height = height;
-        this.mapData = [];
+        this.MapData = [];
         for (var x = 0; x < width; x++) {
-            this.mapData.push([]);
+            this.MapData.push([]);
             for (var y = 0; y < height; y++) {
-                this.mapData[x].push({
+                this.MapData[x].push({
                     type: startTileType
                 });
             }
         }
     }
-    Map.forEach = function (width, height, mapData, cb) {
-        for (var x = 0; x < width; x++) {
-            for (var y = 0; y < height; y++) {
-                cb(x, y, mapData[x][y]);
-            }
-        }
-    };
     /*
         I don't have any clue what the map save format will look like but for now I will just
         declare it staticly or even use csv
     */
     Map.prototype.draw = function (ctx) {
         var self = this;
-        Map.forEach(this.Width, this.Height, this.mapData, function (x, y, tile) {
+        forEach(this.Width, this.Height, this.mapData, function (x, y, tile) {
             getTileInfoByType(tile.type).draw(ctx, self.levelToScreen(new Vector2(x, y)));
         });
     };
@@ -126,7 +126,19 @@ var Map = (function () {
 var DijkstraMap = (function () {
     function DijkstraMap(owner) {
         this.Owner = owner;
+        this.MapData = [];
+        for (var x = 0; x < this.Owner.Width; x++) {
+            this.MapData.push([]);
+            for (var y = 0; y < this.Owner.Height; y++) {
+                this.MapData[x].push(0);
+            }
+        }
     }
+    DijkstraMap.prototype.drawDebug = function (ctx) {
+        var self = this;
+        forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x, y, value) {
+        });
+    };
     return DijkstraMap;
 }());
 var TileEntity = (function () {
