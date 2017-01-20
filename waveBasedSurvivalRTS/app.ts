@@ -34,7 +34,7 @@ class Vector2 {
         return new Vector2(this.X / val.X, this.Y / val.Y);
     }
 
-    public round(val: Vector2): Vector2 {
+    public round(): Vector2 {
         return new Vector2(Math.round(this.X), Math.round(this.Y));
     }
 
@@ -429,6 +429,10 @@ class TileEntity implements Renderable {
         this.RenderColor = newColor;
     }
 
+    protected getOwner(): Map {
+        return this.Owner;
+    }
+
     public draw(ctx: CanvasRenderingContext2D) {
         var baseRect: Rectangle = this.Owner.levelToScreen(this.Location);
         ctx.fillStyle = this.RenderColor.Color;
@@ -443,6 +447,8 @@ class CharacterEntity extends TileEntity {
 
     private CurrentActions: number;
 
+    private CurrentActionMap: DijkstraMap;
+
     constructor(owner: Map, spawnLocation: Vector2) {
         super(owner, spawnLocation);
 
@@ -451,19 +457,25 @@ class CharacterEntity extends TileEntity {
         this.CurrentActions = this.MovesPerTurn;
     }
 
-    protected SetMoveSpeed(movesPerTurn: number) {
+    protected setMovesPerTurn(movesPerTurn: number) {
         this.CurrentActions = this.CurrentActions + (movesPerTurn - this.MovesPerTurn);
         this.MovesPerTurn = movesPerTurn;
     }
 
-    public MoveToPoint(newLocation: Vector2): boolean {
-
+    public moveToPoint(newLocation: Vector2): boolean {
+        if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) <= this.CurrentActions) {
+            this.
+        } else {
+            return false;
+        }
     }
 }
 
 class PlayerEntity extends CharacterEntity {
     constructor(owner: Map) {
         super(owner, owner.getRandomValidSpawnLocation());
+
+        this.setMovesPerTurn(10);
     }
 }
 

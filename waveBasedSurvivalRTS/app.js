@@ -23,7 +23,7 @@ var Vector2 = (function () {
     Vector2.prototype.div = function (val) {
         return new Vector2(this.X / val.X, this.Y / val.Y);
     };
-    Vector2.prototype.round = function (val) {
+    Vector2.prototype.round = function () {
         return new Vector2(Math.round(this.X), Math.round(this.Y));
     };
     Vector2.prototype.clone = function () {
@@ -337,18 +337,27 @@ var CharacterEntity = (function (_super) {
         _this.CurrentActions = _this.MovesPerTurn;
         return _this;
     }
-    CharacterEntity.prototype.SetMoveSpeed = function (movesPerTurn) {
+    CharacterEntity.prototype.setMovesPerTurn = function (movesPerTurn) {
         this.CurrentActions = this.CurrentActions + (movesPerTurn - this.MovesPerTurn);
         this.MovesPerTurn = movesPerTurn;
     };
-    CharacterEntity.prototype.MoveToPoint = function (newLocation) {
+    CharacterEntity.prototype.moveToPoint = function (newLocation) {
+        if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) <= this.CurrentActions) {
+            this.
+            ;
+        }
+        else {
+            return false;
+        }
     };
     return CharacterEntity;
 }(TileEntity));
 var PlayerEntity = (function (_super) {
     __extends(PlayerEntity, _super);
     function PlayerEntity(owner) {
-        return _super.call(this, owner, owner.getRandomValidSpawnLocation()) || this;
+        var _this = _super.call(this, owner, owner.getRandomValidSpawnLocation()) || this;
+        _this.setMovesPerTurn(10);
+        return _this;
     }
     return PlayerEntity;
 }(CharacterEntity));
