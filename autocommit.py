@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os, sys, datetime, time
 from subprocess import check_call, CalledProcessError
 
@@ -5,7 +6,7 @@ if __name__ == "__main__":
     while True:
         s1 = "======================================================================================================"
         s2 = "===== NEXT COMMIT IN %s SECONDS ====================================================================="
-        print s1
+        print(s1)
         dateString = str(datetime.datetime.now())
         check_call(["git", "add", "."])
         try:
@@ -18,4 +19,3 @@ if __name__ == "__main__":
             b = s2 % (str(x).zfill(3), )
             print (b, end="\r")
             time.sleep(1)
-        time.sleep(300)
