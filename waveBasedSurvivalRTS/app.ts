@@ -166,6 +166,10 @@ class Map implements Renderable {
         }
     }
 
+    public getTileWithInfo(x: number, y: number): TileInfo {
+        return getTileInfoByType(this.MapData[x][y].type);
+    }
+
     /*
         I don't have any clue what the map save format will look like but for now I will just
         declare it staticly or even use csv
@@ -187,11 +191,21 @@ class Map implements Renderable {
         };
     }
 
-    public createPathfindingMap(initalLocation: Vector2) {
-        var map: DijkstraMap = new DijkstraMap(this, );
-        map.initWithCallback((x, y, initalValue) => {
-            return initalValue;
+    public createPathfindingMap(xL: number, yL: number): DijkstraMap {
+        var self = this;
+        var map: DijkstraMap = new DijkstraMap(this, true);
+        map.updateWithCallback((x, y, initalValue) => {
+            if (self.getTileWithInfo(x, y).getIsPassable()) {
+                return -1;
+            }
+            if (x == xL && y == yL) {
+                return 0;
+            } else {
+                return initalValue;
+            }
         });
+        map.propigateMap(xL, yL);
+        return map;
     }
 
     public loadFromDocument(documentStr: string) {
@@ -199,7 +213,7 @@ class Map implements Renderable {
     }
 }
 
-class DijkstraMap {
+class DijkstraMap implements Renderable {
     private MapData: TwoDMap<number>;
     private Owner: Map;
     private Inverse: boolean;
@@ -223,7 +237,7 @@ class DijkstraMap {
         });
     }
 
-    public propigateMap() {
+    public propigateMap(startX: number, startY: number) {
 
     }
 
@@ -231,7 +245,7 @@ class DijkstraMap {
         return this.MapData[x][y];
     }
     
-    public drawDebug(ctx: CanvasRenderingContext2D) {
+    public draw(ctx: CanvasRenderingContext2D) {
         var self = this;
 
         forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x: number, y: number, value: number) {
@@ -280,6 +294,8 @@ function main(): void {
     }
 
     renderableList.push(map);
+
+    var pathFindingMap: DijkstraMap = map.createPathfindingMap(5, 5);
 
     function update() {
         ctx.fillStyle = "cornflowerBlue";

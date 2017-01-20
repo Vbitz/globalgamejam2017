@@ -111,6 +111,9 @@ var Map = (function () {
             }
         }
     }
+    Map.prototype.getTileWithInfo = function (x, y) {
+        return getTileInfoByType(this.MapData[x][y].type);
+    };
     /*
         I don't have any clue what the map save format will look like but for now I will just
         declare it staticly or even use csv
@@ -129,11 +132,22 @@ var Map = (function () {
             type: type
         };
     };
-    Map.prototype.createPathfindingMap = function (initalLocation) {
-        var map = new DijkstraMap(this);
-        map.initWithCallback(function (x, y, initalValue) {
-            return initalValue;
+    Map.prototype.createPathfindingMap = function (xL, yL) {
+        var self = this;
+        var map = new DijkstraMap(this, true);
+        map.updateWithCallback(function (x, y, initalValue) {
+            if (self.getTileWithInfo(x, y).getIsPassable()) {
+                return -1;
+            }
+            if (x == xL && y == yL) {
+                return 0;
+            }
+            else {
+                return initalValue;
+            }
         });
+        map.propigateMap(xL, yL);
+        return map;
     };
     Map.prototype.loadFromDocument = function (documentStr) {
     };
@@ -157,12 +171,12 @@ var DijkstraMap = (function () {
             _this.MapData[x][y] = cb(x, y, currentValue);
         });
     };
-    DijkstraMap.prototype.propigateMap = function () {
+    DijkstraMap.prototype.propigateMap = function (startX, startY) {
     };
     DijkstraMap.prototype.getValueAtPoint = function (x, y) {
         return this.MapData[x][y];
     };
-    DijkstraMap.prototype.drawDebug = function (ctx) {
+    DijkstraMap.prototype.draw = function (ctx) {
         var self = this;
         forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x, y, value) {
             var rect = self.Owner.levelToScreen(new Vector2(x, y));
@@ -203,6 +217,7 @@ function main() {
         }
     }
     renderableList.push(map);
+    var pathFindingMap = map.createPathfindingMap(5, 5);
     function update() {
         ctx.fillStyle = "cornflowerBlue";
         ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
