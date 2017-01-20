@@ -443,7 +443,10 @@ var PlayerEntity = (function (_super) {
         this.CurrentActionMap.forEach(function (x, y, currentValue) {
             if (currentValue > 0 && currentValue <= _this.getCurrentActions()) {
                 var rect = _this.getOwner().levelToScreen(new Vector2(x, y)).shrink(8);
-                ctx.fillStyle = "red";
+                ctx.fillStyle = Color.fromRGB(100, 200, 200).Color;
+                ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
+                rect = rect.shrink(4);
+                ctx.fillStyle = Color.fromRGB(50, 100, 100).Color;
                 ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
             }
         });
