@@ -49,6 +49,10 @@ class Vector2 {
         return new Vector2(this.X, this.Y);
     }
 
+    public distance(val: Vector2): number {
+        return Math.sqrt(Math.pow(val.Y - this.Y, 2) + Math.pow(val.X - this.X, 2));
+    }
+
     public hash(): string {
         // TODO: Better hashing method if this turns out to be a problem
         return this.X.toString(10) + ":" + this.Y.toString(10);
@@ -86,6 +90,10 @@ class Rectangle {
 
     public shrink(val: number): Rectangle {
         return new Rectangle(this.X + val, this.Y + val, this.Width - (val * 2), this.Height - (val * 2));
+    }
+
+    public contains(point: Vector2): boolean {
+        return point.X > this.X && point.X < (this.X + this.Width) && point.Y > this.Y && point.Y < (this.Y + this.Height);
     }
 }
 
@@ -248,7 +256,11 @@ class Map implements Renderable {
     public screenToLevel(screenLocation: Vector2): Vector2 {
         var ret = screenLocation.clone();
         ret = ret.sub(new Vector2(60, 60)).div(new Vector2(TILE_SIZE, TILE_SIZE)).floor();
-        return ret;
+        if (ret.X < 0 || ret.Y < 0 || ret.X > this.Width - 1 || ret.Y > this.Height - 1) {
+            return null;
+        } else {
+            return ret;
+        }
     }
 
     public setTile(x: number, y: number, type: TileType) {
@@ -535,7 +547,9 @@ class PlayerEntity extends CharacterEntity {
 
     public mouseLeftClick(x: number, y: number) {
         var tileUnderClick: Vector2 = this.getOwner().screenToLevel(new Vector2(x, y));
-        this.moveToPoint(tileUnderClick);
+        if (tileUnderClick != null) {
+            this.moveToPoint(tileUnderClick);
+        }
         // console.log(tileUnderClick.X, tileUnderClick.Y, this.getLocation().X, this.getLocation().Y);
     }
 
@@ -576,7 +590,12 @@ class Button extends UIElement {
     }
 
     public draw(ctx: CanvasRenderingContext2D) {
-        super.draw(ctx);   
+        super.draw(ctx);
+        ctx.fillStyle = "white";
+        ctx.fillRect(this.Bounds.X, this.Bounds.Y, this.Bounds.Width, this.Bounds.Height);
+        ctx.fillStyle = "black";
+        ctx.font = "16px sans-serif";
+        ctx.fillText(this.Text, this.Bounds.X + 5, this.Bounds.Y + 20);
     }
 
     public mouseLeftClick(x: number, y: number) {

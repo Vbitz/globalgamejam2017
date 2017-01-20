@@ -32,6 +32,9 @@ var Vector2 = (function () {
     Vector2.prototype.clone = function () {
         return new Vector2(this.X, this.Y);
     };
+    Vector2.prototype.distance = function (val) {
+        return Math.sqrt(Math.pow(val.Y - this.Y, 2) + Math.pow(val.X - this.X, 2));
+    };
     Vector2.prototype.hash = function () {
         // TODO: Better hashing method if this turns out to be a problem
         return this.X.toString(10) + ":" + this.Y.toString(10);
@@ -59,6 +62,9 @@ var Rectangle = (function () {
     };
     Rectangle.prototype.shrink = function (val) {
         return new Rectangle(this.X + val, this.Y + val, this.Width - (val * 2), this.Height - (val * 2));
+    };
+    Rectangle.prototype.contains = function (point) {
+        return point.X > this.X && point.X < (this.X + this.Width) && point.Y > this.Y && point.Y < (this.Y + this.Height);
     };
     return Rectangle;
 }());
@@ -175,7 +181,12 @@ var Map = (function () {
     Map.prototype.screenToLevel = function (screenLocation) {
         var ret = screenLocation.clone();
         ret = ret.sub(new Vector2(60, 60)).div(new Vector2(TILE_SIZE, TILE_SIZE)).floor();
-        return ret;
+        if (ret.X < 0 || ret.Y < 0 || ret.X > this.Width - 1 || ret.Y > this.Height - 1) {
+            return null;
+        }
+        else {
+            return ret;
+        }
     };
     Map.prototype.setTile = function (x, y, type) {
         this.MapData[x][y] = {
@@ -406,7 +417,9 @@ var PlayerEntity = (function (_super) {
     }
     PlayerEntity.prototype.mouseLeftClick = function (x, y) {
         var tileUnderClick = this.getOwner().screenToLevel(new Vector2(x, y));
-        this.moveToPoint(tileUnderClick);
+        if (tileUnderClick != null) {
+            this.moveToPoint(tileUnderClick);
+        }
         // console.log(tileUnderClick.X, tileUnderClick.Y, this.getLocation().X, this.getLocation().Y);
     };
     PlayerEntity.prototype.draw = function (ctx) {
@@ -442,6 +455,11 @@ var Button = (function (_super) {
     }
     Button.prototype.draw = function (ctx) {
         _super.prototype.draw.call(this, ctx);
+        ctx.fillStyle = "white";
+        ctx.fillRect(this.Bounds.X, this.Bounds.Y, this.Bounds.Width, this.Bounds.Height);
+        ctx.fillStyle = "black";
+        ctx.font = "16px sans-serif";
+        ctx.fillText(this.Text, this.Bounds.X + 5, this.Bounds.Y + 20);
     };
     Button.prototype.mouseLeftClick = function (x, y) {
         _super.prototype.mouseLeftClick.call(this, x, y);
