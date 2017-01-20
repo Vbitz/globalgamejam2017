@@ -200,6 +200,9 @@ var Map = (function () {
             cb();
         });
     };
+    Map.prototype.scheduleForNextTurn = function (cb) {
+        this.NextTurnActionList.push(cb);
+    };
     Map.prototype.loadFromDocument = function (documentStr) {
     };
     return Map;
@@ -318,8 +321,14 @@ var TileEntity = (function () {
         this.Owner = owner;
         this.Location = spawnLocation;
     }
+    TileEntity.prototype.setLocation = function (newLocation) {
+        this.Location = newLocation;
+    };
     TileEntity.prototype.setColor = function (newColor) {
         this.RenderColor = newColor;
+    };
+    TileEntity.prototype.getOwner = function () {
+        return this.Owner;
     };
     TileEntity.prototype.draw = function (ctx) {
         var baseRect = this.Owner.levelToScreen(this.Location);
@@ -332,7 +341,6 @@ var CharacterEntity = (function (_super) {
     __extends(CharacterEntity, _super);
     function CharacterEntity(owner, spawnLocation) {
         var _this = _super.call(this, owner, spawnLocation) || this;
-        _this.CanMove = true;
         _this.MovesPerTurn = 5;
         _this.CurrentActions = _this.MovesPerTurn;
         return _this;
@@ -342,9 +350,12 @@ var CharacterEntity = (function (_super) {
         this.MovesPerTurn = movesPerTurn;
     };
     CharacterEntity.prototype.moveToPoint = function (newLocation) {
+        var self = this;
         if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) <= this.CurrentActions) {
-            this.
-            ;
+            this.getOwner().scheduleForNextTurn(function () {
+                self.setLocation(newLocation);
+            });
+            this.CurrentActions -= this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
         }
         else {
             return false;

@@ -273,6 +273,10 @@ class Map implements Renderable {
         });
     }
 
+    public scheduleForNextTurn(cb: NextTurnCallback) {
+        this.NextTurnActionList.push(cb);
+    }
+
     public loadFromDocument(documentStr: string) {
 
     }
@@ -425,6 +429,10 @@ class TileEntity implements Renderable {
         this.Location = spawnLocation;
     }
 
+    protected setLocation(newLocation: Vector2) {
+        this.Location = newLocation;
+    }
+
     protected setColor(newColor: Color) {
         this.RenderColor = newColor;
     }
@@ -441,7 +449,6 @@ class TileEntity implements Renderable {
 }
 
 class CharacterEntity extends TileEntity {
-    private CanMove: boolean;
     private MovesPerTurn: number;
     private RenderMoveMap: number;
 
@@ -452,7 +459,6 @@ class CharacterEntity extends TileEntity {
     constructor(owner: Map, spawnLocation: Vector2) {
         super(owner, spawnLocation);
 
-        this.CanMove = true;
         this.MovesPerTurn = 5;
         this.CurrentActions = this.MovesPerTurn;
     }
@@ -463,8 +469,13 @@ class CharacterEntity extends TileEntity {
     }
 
     public moveToPoint(newLocation: Vector2): boolean {
+        var self = this;
         if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) <= this.CurrentActions) {
-            this.
+            this.getOwner().scheduleForNextTurn(function () {
+                self.setLocation(newLocation);
+            });
+            this.CurrentActions -= this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
+
         } else {
             return false;
         }
