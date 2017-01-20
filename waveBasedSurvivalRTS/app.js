@@ -96,7 +96,7 @@ var SolidRenderBrush = (function () {
 }());
 ;
 var TileMapRenderBrush = (function () {
-    function TileMapRenderBrush(img) {
+    function TileMapRenderBrush(img, subRect) {
         this.Image = img;
     }
     return TileMapRenderBrush;

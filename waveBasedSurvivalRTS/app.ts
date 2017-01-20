@@ -134,7 +134,8 @@ class SolidRenderBrush implements RenderBrush {
 };
 
 class TileMapRenderBrush implements RenderBrush {
-    constructor(img: HTMLImageElement) {
+    private img: HTMLImageElement;
+    constructor(img: HTMLImageElement, subRect: Rectangle) {
         this.Image = img;
     }
 }
