@@ -476,6 +476,7 @@ class CharacterEntity extends TileEntity {
 
         this.MovesPerTurn = 5;
         this.CurrentActions = this.MovesPerTurn;
+        this.CurrentActionMap = null;
     }
 
     protected setMovesPerTurn(movesPerTurn: number) {
@@ -490,7 +491,7 @@ class CharacterEntity extends TileEntity {
                 self.setLocation(newLocation);
             });
             this.CurrentActions -= this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
-
+            this.CurrentActionMap = this.getOwner().createPathfindingMap(newLocation.X, newLocation.Y);
         } else {
             return false;
         }

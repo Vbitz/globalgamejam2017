@@ -351,6 +351,7 @@ var CharacterEntity = (function (_super) {
         var _this = _super.call(this, owner, spawnLocation) || this;
         _this.MovesPerTurn = 5;
         _this.CurrentActions = _this.MovesPerTurn;
+        _this.CurrentActionMap = null;
         return _this;
     }
     CharacterEntity.prototype.setMovesPerTurn = function (movesPerTurn) {
@@ -364,6 +365,7 @@ var CharacterEntity = (function (_super) {
                 self.setLocation(newLocation);
             });
             this.CurrentActions -= this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
+            this.CurrentActionMap = this.getOwner().createPathfindingMap(newLocation.X, newLocation.Y);
         }
         else {
             return false;
