@@ -200,11 +200,24 @@ var DijkstraMap = (function () {
                 continue;
             }
             var lowestValue = 0;
+            var valuesToCheck = [];
+            if (this.getValueAtPoint(nextTileX - 1, nextTileY) > 0) {
+                valuesToCheck.push(this.getValueAtPoint(nextTileX - 1, nextTileY));
+            }
+            if (this.getValueAtPoint(nextTileX + 1, nextTileY) > 0) {
+                valuesToCheck.push(this.getValueAtPoint(nextTileX + 1, nextTileY));
+            }
+            if (this.getValueAtPoint(nextTileX, nextTileY - 1) > 0) {
+                valuesToCheck.push(this.getValueAtPoint(nextTileX, nextTileY - 1));
+            }
+            if (this.getValueAtPoint(nextTileX, nextTileY + 1) > 0) {
+                valuesToCheck.push(this.getValueAtPoint(nextTileX, nextTileY + 1));
+            }
             if (this.Inverse) {
-                lowestValue = Math.min(this.getValueAtPoint(nextTileX - 1, nextTileY), this.getValueAtPoint(nextTileX + 1, nextTileY), this.getValueAtPoint(nextTileX, nextTileY - 1), this.getValueAtPoint(nextTileX, nextTileY + 1));
+                lowestValue = Math.min.apply(Math, valuesToCheck);
             }
             else {
-                lowestValue = Math.max(this.getValueAtPoint(nextTileX - 1, nextTileY), this.getValueAtPoint(nextTileX + 1, nextTileY), this.getValueAtPoint(nextTileX, nextTileY - 1), this.getValueAtPoint(nextTileX, nextTileY + 1));
+                lowestValue = Math.max.apply(Math, valuesToCheck);
             }
             if (lowestValue == this.InitalValue) {
                 this.PropigateTileList.push(nextTile);
@@ -238,6 +251,9 @@ var DijkstraMap = (function () {
             var value = self.getValueAtPoint(x, y);
             if (value != self.InitalValue) {
                 ctx.fillText(value.toString(10), rect.X + 16, rect.Y + 16);
+            }
+            if (self.PropigateTileList.indexOf(new Vector2(x, y)) != -1) {
+                ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
             }
         });
     };
@@ -277,6 +293,9 @@ function main() {
     setTimeout(function propigateMapAgain() {
         if (!pathFindingMap.propigateMap(1)) {
             setTimeout(propigateMapAgain, 1000);
+        }
+        else {
+            console.log("Finished");
         }
     }, 1000);
     function update() {
