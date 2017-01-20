@@ -119,13 +119,13 @@ type MapTile = {
     
 }
 
-type TwoDMap<T> = T[][];
+type TwoDMap<TileType> = TileType[][];
 
 const TILE_SIZE: number = 32;
 
-type MapForEachCallback<T> = (x: number, y: number, tile: T) => void;
+type MapForEachCallback<TileType, ReturnValue> = (x: number, y: number, tile: TileType) => ReturnValue;
 
-function forEach<T>(width: number, height: number, mapData: TwoDMap<T>, cb: MapForEachCallback<T>) {
+function forEach<TileType>(width: number, height: number, mapData: TwoDMap<TileType>, cb: MapForEachCallback<TileType, void>) {
     for (var x: number = 0; x < width; x++) {
         for (var y: number = 0; y < height; y++) {
             cb(x, y, mapData[x][y]);
@@ -194,15 +194,21 @@ class DijkstraMap {
         }
     }
 
-    public initWithCallback(cb: MapForEachCallback<number>) {
+    public initWithCallback(cb: MapForEachCallback<number, number>) {
+        forEach(this.Owner.Width, this.Owner.Height, this.MapData, (x, y, currentValue) => {
+            this.MapData[x][y] = cb(x, y, currentValue);
+        });
 
+        
     }
     
     public drawDebug(ctx: CanvasRenderingContext2D) {
         var self = this;
         forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x: number, y: number, value: number) {
-            var ret: Rectangle = self.Owner.levelToScreen(new Vector2(x, y));
-
+            var rect: Rectangle = self.Owner.levelToScreen(new Vector2(x, y));
+            ctx.fillStyle = "black";
+            ctx.font = "12px sans-serif";
+            ctx.fillText(self.MapData[x][y].toString(10), rect.X + 16, rect.Y + 16);
         });
     }
 }
@@ -235,6 +241,10 @@ function main(): void {
         for (var y: number = 0; y < 24; y++) {
             if (x == 0 || x == 47 || y == 0 || y == 23) {
                 map.setTile(x, y, TileType.Wall);
+            } else {
+                if (Math.random() > 0.8) {
+                    map.setTile(x, y, TileType.Wall);
+                }
             }
         }
     }

@@ -135,11 +135,18 @@ var DijkstraMap = (function () {
         }
     }
     DijkstraMap.prototype.initWithCallback = function (cb) {
+        var _this = this;
+        forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x, y, currentValue) {
+            _this.MapData[x][y] = cb(x, y, currentValue);
+        });
     };
     DijkstraMap.prototype.drawDebug = function (ctx) {
         var self = this;
         forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x, y, value) {
-            var ret = self.Owner.levelToScreen(new Vector2(x, y));
+            var rect = self.Owner.levelToScreen(new Vector2(x, y));
+            ctx.fillStyle = "black";
+            ctx.font = "12px sans-serif";
+            ctx.fillText(self.MapData[x][y].toString(10), rect.X + 16, rect.Y + 16);
         });
     };
     return DijkstraMap;
@@ -165,6 +172,11 @@ function main() {
         for (var y = 0; y < 24; y++) {
             if (x == 0 || x == 47 || y == 0 || y == 23) {
                 map.setTile(x, y, TileType.Wall);
+            }
+            else {
+                if (Math.random() > 0.8) {
+                    map.setTile(x, y, TileType.Wall);
+                }
             }
         }
     }
