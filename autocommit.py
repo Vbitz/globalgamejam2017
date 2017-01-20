@@ -11,4 +11,5 @@ if __name__ == "__main__":
         except (CalledProcessError, e):
             pass
 
-        time.sleep(60)
+        print "Sleeping for 5 minutes"
+        time.sleep(300)
