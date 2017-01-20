@@ -249,21 +249,12 @@ class DijkstraMap {
         });
     }
 
-    private getTilesLeftToPropigate(): number {
-        var self = this;
-
-        var ret = 0;
-        forEach(this.Width, this.Height, this.MapData, (x, y, value) => {
-            ret += (value == self.InitalValue) ? 1 : 0;
-        });
-        return ret;
-    }
-
     public propigateMap() {
         var self = this;
 
-        while (this.getTilesLeftToPropigate() > 0) {
+        var tileList: Vector2[] = [];
 
+        while (tileList.length > 0) {
         }
     }
 

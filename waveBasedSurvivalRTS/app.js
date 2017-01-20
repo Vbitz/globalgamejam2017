@@ -173,17 +173,10 @@ var DijkstraMap = (function () {
             _this.MapData[x][y] = cb(x, y, currentValue);
         });
     };
-    DijkstraMap.prototype.getTilesLeftToPropigate = function () {
-        var self = this;
-        var ret = 0;
-        forEach(this.Width, this.Height, this.MapData, function (x, y, value) {
-            ret += (value == self.InitalValue) ? 1 : 0;
-        });
-        return ret;
-    };
     DijkstraMap.prototype.propigateMap = function () {
         var self = this;
-        while (this.getTilesLeftToPropigate() > 0) {
+        var tileList = [];
+        while (tileList.length > 0) {
         }
     };
     DijkstraMap.prototype.getValueAtPoint = function (x, y) {
