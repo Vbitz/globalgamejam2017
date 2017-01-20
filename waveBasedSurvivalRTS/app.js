@@ -47,12 +47,21 @@ var TileInfo = (function () {
         this.Render = new SolidRenderBrush(col);
         return this;
     };
+    TileInfo.prototype.getType = function () {
+        return this.Type;
+    };
+    TileInfo.prototype.draw = function (ctx, rect) {
+        this.Render.draw(ctx, rect);
+    };
     return TileInfo;
 }());
 var allTiles = [
-    new TileInfo(TileType.Floor, 0, false, true).setColor,
-    new TileInfo(TileType.Wall, 1, false, true)
+    new TileInfo(TileType.Floor, 0, false, true).setColor(new Color("white")),
+    new TileInfo(TileType.Wall, 1, false, true).setColor(new Color("grey"))
 ];
+function getTileInfoByType(type) {
+}
+var TILE_SIZE = 32;
 var Map = (function () {
     function Map(width, height, startTileType) {
         this.Width = width;
@@ -79,9 +88,12 @@ var Map = (function () {
         declare it staticly or even use csv
     */
     Map.prototype.draw = function (ctx) {
+        Map.forEach(this.Width, this.Height, this.mapData, function (x, y, tile) {
+            getTileInfoByType(tile.type).;
+        });
     };
     Map.prototype.levelToScreen = function (localLocation) {
-        return new Rectangle();
+        return new Rectangle(localLocation.X * TILE_SIZE, localLocation.Y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     };
     Map.prototype.loadFromDocument = function (documentStr) {
     };

@@ -1,6 +1,7 @@
 // TODO: Basic system with nothing on the level
 // TODO: Player charactor with non-turn based movement.
 
+// TODO: Add camera support (maybe?)
 
 interface Renderable {
     // TODO: Add keypress handler
@@ -80,12 +81,24 @@ class TileInfo {
         this.Render = new SolidRenderBrush(col);
         return this;
     }
+
+    public getType(): TileType {
+        return this.Type;
+    }
+
+    public draw(ctx: CanvasRenderingContext2D, rect: Rectangle) {
+        this.Render.draw(ctx, rect);
+    }
 }
 
 var allTiles: TileInfo[] = [
-    new TileInfo(TileType.Floor, 0, false, true).setColor,
-    new TileInfo(TileType.Wall, 1, false, true)
+    new TileInfo(TileType.Floor, 0, false, true).setColor(new Color("white")),
+    new TileInfo(TileType.Wall, 1, false, true).setColor(new Color("grey"))
 ];
+
+function getTileInfoByType(type: TileType) {
+
+}
 
 type MapTile = {
     type: TileType;
@@ -93,6 +106,8 @@ type MapTile = {
 }
 
 type MapData = MapTile[][];
+
+const TILE_SIZE: number = 32;
 
 class Map implements Renderable {
     public Width: number;
@@ -126,11 +141,13 @@ class Map implements Renderable {
         declare it staticly or even use csv
     */
     public draw(ctx: CanvasRenderingContext2D) {
-
+        Map.forEach(this.Width, this.Height, this.mapData, function (x: number, y: number, tile: MapTile) {
+            getTileInfoByType(tile.type).;
+        });
     }
 
     public levelToScreen(localLocation: Vector2): Rectangle {
-        return new Rectangle()
+        return new Rectangle(localLocation.X * TILE_SIZE, localLocation.Y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     }
 
     public loadFromDocument(documentStr: string) {
