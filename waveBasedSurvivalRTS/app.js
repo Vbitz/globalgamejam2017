@@ -153,6 +153,9 @@ var Map = (function () {
         forEach(this.Width, this.Height, this.MapData, function (x, y, tile) {
             getTileInfoByType(tile.type).draw(ctx, self.levelToScreen(new Vector2(x, y)));
         });
+        this.TileEntityList.forEach(function (te) {
+            te.draw(ctx);
+        });
     };
     Map.prototype.levelToScreen = function (localLocation) {
         return new Rectangle(localLocation.X * TILE_SIZE, localLocation.Y * TILE_SIZE, TILE_SIZE, TILE_SIZE).add(new Vector2(60, 60));
@@ -391,6 +394,7 @@ function main() {
             }
         }
     }
+    map.addTileEntity(new PlayerEntity(map));
     renderableList.push(map);
     function update() {
         ctx.fillStyle = "cornflowerBlue";

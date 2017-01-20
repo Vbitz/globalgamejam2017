@@ -218,6 +218,9 @@ class Map implements Renderable {
         forEach(this.Width, this.Height, this.MapData, function (x: number, y: number, tile: MapTile) {
             getTileInfoByType(tile.type).draw(ctx, self.levelToScreen(new Vector2(x, y)));
         });
+        this.TileEntityList.forEach(function (te: TileEntity) {
+            te.draw(ctx);
+        });
     }
 
     public levelToScreen(localLocation: Vector2): Rectangle {
@@ -510,6 +513,8 @@ function main(): void {
             }
         }
     }
+
+    map.addTileEntity(new PlayerEntity(map));
 
     renderableList.push(map);
 
