@@ -388,6 +388,15 @@ var CharacterEntity = (function (_super) {
         var currentLocation = this.getLocation();
         this.CurrentActionMap = this.getOwner().createPathfindingMap(currentLocation.X, currentLocation.Y);
     };
+    CharacterEntity.prototype.addActions = function (actions) {
+        this.CurrentActions += actions;
+        this.onUpdateActions();
+    };
+    CharacterEntity.prototype.onUpdateActions = function () {
+    };
+    CharacterEntity.prototype.subtractActions = function (actions) {
+        this.CurrentActions -= actions;
+    };
     CharacterEntity.prototype.moveToPoint = function (newLocation) {
         var self = this;
         if (!this.getOwner().getTileWithInfo(newLocation.X, newLocation.Y).getIsPassable()) {
@@ -396,9 +405,9 @@ var CharacterEntity = (function (_super) {
         if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) < this.CurrentActions) {
             var actionsLost = this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
             this.getOwner().scheduleForNextTurn(function () {
-                self.CurrentActions += actionsLost;
+                self.addActions(actionsLost);
             });
-            this.CurrentActions -= actionsLost;
+            self.subtractActions(actionsLost);
             self.setLocation(newLocation);
             this.recalculateCurrentActionMap();
             return true;
@@ -414,8 +423,12 @@ var PlayerEntity = (function (_super) {
     function PlayerEntity(owner) {
         var _this = _super.call(this, owner, owner.getRandomValidSpawnLocation()) || this;
         _this.setMovesPerTurn(10);
+        _this.StatsUI = new Label(new Rectangle(100, 15, 150, 28), "Current Actions: " + _this.getCurrentActions());
         return _this;
     }
+    PlayerEntity.prototype.onUpdateActions = function () {
+        this.StatsUI.setText("Current Actions: " + this.getCurrentActions());
+    };
     PlayerEntity.prototype.mouseLeftClick = function (x, y) {
         var tileUnderClick = this.getOwner().screenToLevel(new Vector2(x, y));
         if (tileUnderClick != null) {
@@ -458,6 +471,9 @@ var Label = (function (_super) {
     }
     Label.prototype.getBounds = function () {
         return this.Bounds;
+    };
+    Label.prototype.setText = function (str) {
+        this.Text = str;
     };
     Label.prototype.draw = function (ctx) {
         _super.prototype.draw.call(this, ctx);
@@ -503,11 +519,13 @@ function main() {
             }
         }
     }
-    map.addTileEntity(new PlayerEntity(map));
+    var player = new PlayerEntity(map);
+    map.addTileEntity(player);
     renderableList.push(map);
     renderableList.push(new Button(new Rectangle(15, 15, 80, 28), "End Turn", function () {
         map.advanceTurn();
     }));
+    renderableList.push(player.getStatsUI());
     mainCanvas.addEventListener("click", function (ev) {
         renderableList.forEach(function (render) {
             render.mouseLeftClick(ev.clientX, ev.clientY);

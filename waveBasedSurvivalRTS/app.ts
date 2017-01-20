@@ -519,6 +519,19 @@ class CharacterEntity extends TileEntity {
         this.CurrentActionMap = this.getOwner().createPathfindingMap(currentLocation.X, currentLocation.Y);
     }
 
+    protected addActions(actions: number) {
+        this.CurrentActions += actions;
+        this.onUpdateActions();
+    }
+
+    protected onUpdateActions() {
+
+    }
+
+    protected subtractActions(actions: number) {
+        this.CurrentActions -= actions;
+    }
+
     public moveToPoint(newLocation: Vector2): boolean {
         var self = this;
         if (!this.getOwner().getTileWithInfo(newLocation.X, newLocation.Y).getIsPassable()) {
@@ -527,9 +540,9 @@ class CharacterEntity extends TileEntity {
         if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) < this.CurrentActions) {
             var actionsLost = this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
             this.getOwner().scheduleForNextTurn(function () {
-                self.CurrentActions += actionsLost;
+                self.addActions(actionsLost);
             });
-            this.CurrentActions -= actionsLost;
+            self.subtractActions(actionsLost);
             self.setLocation(newLocation);
             this.recalculateCurrentActionMap();
             return true;
@@ -540,10 +553,18 @@ class CharacterEntity extends TileEntity {
 }
 
 class PlayerEntity extends CharacterEntity {
+    private StatsUI: Label;
+
     constructor(owner: Map) {
         super(owner, owner.getRandomValidSpawnLocation());
 
         this.setMovesPerTurn(10);
+
+        this.StatsUI = new Label(new Rectangle(100, 15, 150, 28), "Current Actions: " + this.getCurrentActions());
+    }
+
+    protected onUpdateActions() {
+        this.StatsUI.setText("Current Actions: " + this.getCurrentActions());        
     }
 
     public mouseLeftClick(x: number, y: number) {
@@ -592,6 +613,10 @@ class Label extends UIElement {
 
     public getBounds(): Rectangle {
         return this.Bounds;
+    }
+
+    public setText(str: string) {
+        this.Text = str;
     }
     
     public draw(ctx: CanvasRenderingContext2D) {
@@ -643,13 +668,17 @@ function main(): void {
         }
     }
 
-    map.addTileEntity(new PlayerEntity(map));
+    var player = new PlayerEntity(map);
+
+    map.addTileEntity(player);
 
     renderableList.push(map);
 
     renderableList.push(new Button(new Rectangle(15, 15, 80, 28), "End Turn", () => {
         map.advanceTurn();
     }));
+
+    renderableList.push(player.getStatsUI());
 
     mainCanvas.addEventListener("click", function (ev: MouseEvent) {
         renderableList.forEach(function (render: Renderable) {
