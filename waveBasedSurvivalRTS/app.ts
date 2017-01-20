@@ -198,7 +198,7 @@ class Map implements Renderable {
         var map: DijkstraMap = new DijkstraMap(this.Width, this.Height, true);
         map.updateWithCallback((x, y, initalValue) => {
             if (!self.getTileWithInfo(x, y).getIsPassable()) {
-                return -1;
+                return undefined;
             }
 
             if (x == xL && y == yL) {
@@ -236,6 +236,8 @@ class DijkstraMap {
         this.Inverse = inverse;
         this.InitalValue = inverse ? Number.MAX_VALUE : 0;
 
+        this.PropigateTileList = [];
+
         this.MapData = [];
         for (var x: number = 0; x < this.Width; x++) {
             this.MapData.push([]);
@@ -254,18 +256,18 @@ class DijkstraMap {
     public propigateMap(maxSteps: number = Number.MAX_VALUE): boolean {
         var self = this;
 
-        this.PropigateTileList = [];
-
-        forEach(this.Width, this.Height, this.MapData, (x, y, currentValue) => {
-            if (currentValue == this.InitalValue) {
-                if (!self.isTileInital(x - 1, y    ) ||
-                    !self.isTileInital(x + 1, y    ) ||
-                    !self.isTileInital(x    , y - 1) ||
-                    !self.isTileInital(x    , y + 1)) {
-                    this.PropigateTileList.push(new Vector2(x, y));
+        if (this.PropigateTileList.length == 0) {
+            forEach(this.Width, this.Height, this.MapData, (x, y, currentValue) => {
+                if (currentValue == this.InitalValue) {
+                    if (!self.isTileInital(x - 1, y    ) ||
+                        !self.isTileInital(x + 1, y    ) ||
+                        !self.isTileInital(x    , y - 1) ||
+                        !self.isTileInital(x    , y + 1)) {
+                        this.PropigateTileList.push(new Vector2(x, y));
+                    }
                 }
-            }
-        });
+            });
+        }
 
         var currentSteps = 0;
 
@@ -273,10 +275,13 @@ class DijkstraMap {
             var nextTile: Vector2 = this.PropigateTileList.shift();
             var nextTileX = nextTile.X;
             var nextTileY = nextTile.Y;
+            
             if (!this.isTileInital(nextTileX, nextTileY)) {
                 continue;
             }
+
             var lowestValue: number = 0;
+            
             if (this.Inverse) {
                 lowestValue = Math.min(
                     this.getValueAtPoint(nextTileX - 1, nextTileY    ),
@@ -300,6 +305,7 @@ class DijkstraMap {
                 this.PropigateTileList.push(new Vector2(nextTileX    , nextTileY - 1));
                 this.PropigateTileList.push(new Vector2(nextTileX    , nextTileY + 1));
             }
+            
             currentSteps++;
         }
 
@@ -307,9 +313,9 @@ class DijkstraMap {
     }
 
     public getValueAtPoint(x: number, y: number): number {
-        if (x < 0 || x > this.Width - 1 || y < 0 || y < this.Height - 1) {
-            return this.InitalValue;
-        }
+        // if (x < 0 || x > this.Width - 1 || y < 0 || y < this.Height - 1) {
+        //     return this.InitalValue;
+        // }
         
         return this.MapData[x][y];
     }
@@ -377,9 +383,9 @@ function main(): void {
 
     var pathFindingMap: DijkstraMap = map.createPathfindingMap(5, 5, 1);
 
-    setTimeout(function () {
-        if (pathFindingMap.propigateMap(1)) {
-            
+    setTimeout(function propigateMapAgain () {
+        if (!pathFindingMap.propigateMap(1)) {
+            setTimeout(propigateMapAgain, 1000);
         }
     }, 1000);
 

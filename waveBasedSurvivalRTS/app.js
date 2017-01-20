@@ -138,7 +138,7 @@ var Map = (function () {
         var map = new DijkstraMap(this.Width, this.Height, true);
         map.updateWithCallback(function (x, y, initalValue) {
             if (!self.getTileWithInfo(x, y).getIsPassable()) {
-                return -1;
+                return undefined;
             }
             if (x == xL && y == yL) {
                 return 0;
@@ -160,6 +160,7 @@ var DijkstraMap = (function () {
         this.Height = h;
         this.Inverse = inverse;
         this.InitalValue = inverse ? Number.MAX_VALUE : 0;
+        this.PropigateTileList = [];
         this.MapData = [];
         for (var x = 0; x < this.Width; x++) {
             this.MapData.push([]);
@@ -178,17 +179,18 @@ var DijkstraMap = (function () {
         var _this = this;
         if (maxSteps === void 0) { maxSteps = Number.MAX_VALUE; }
         var self = this;
-        this.PropigateTileList = [];
-        forEach(this.Width, this.Height, this.MapData, function (x, y, currentValue) {
-            if (currentValue == _this.InitalValue) {
-                if (!self.isTileInital(x - 1, y) ||
-                    !self.isTileInital(x + 1, y) ||
-                    !self.isTileInital(x, y - 1) ||
-                    !self.isTileInital(x, y + 1)) {
-                    _this.PropigateTileList.push(new Vector2(x, y));
+        if (this.PropigateTileList.length == 0) {
+            forEach(this.Width, this.Height, this.MapData, function (x, y, currentValue) {
+                if (currentValue == _this.InitalValue) {
+                    if (!self.isTileInital(x - 1, y) ||
+                        !self.isTileInital(x + 1, y) ||
+                        !self.isTileInital(x, y - 1) ||
+                        !self.isTileInital(x, y + 1)) {
+                        _this.PropigateTileList.push(new Vector2(x, y));
+                    }
                 }
-            }
-        });
+            });
+        }
         var currentSteps = 0;
         while (this.PropigateTileList.length > 0 && currentSteps < maxSteps) {
             var nextTile = this.PropigateTileList.shift();
@@ -219,9 +221,9 @@ var DijkstraMap = (function () {
         return this.PropigateTileList.length == 0;
     };
     DijkstraMap.prototype.getValueAtPoint = function (x, y) {
-        if (x < 0 || x > this.Width - 1 || y < 0 || y < this.Height - 1) {
-            return this.InitalValue;
-        }
+        // if (x < 0 || x > this.Width - 1 || y < 0 || y < this.Height - 1) {
+        //     return this.InitalValue;
+        // }
         return this.MapData[x][y];
     };
     DijkstraMap.prototype.isTileInital = function (x, y) {
@@ -275,8 +277,9 @@ function main() {
     }
     renderableList.push(map);
     var pathFindingMap = map.createPathfindingMap(5, 5, 1);
-    setTimeout(function () {
-        if (pathFindingMap.propigateMap(1)) {
+    setTimeout(function propigateMapAgain() {
+        if (!pathFindingMap.propigateMap(1)) {
+            setTimeout(propigateMapAgain, 1000);
         }
     }, 1000);
     function update() {
