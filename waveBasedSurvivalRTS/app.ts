@@ -1,3 +1,7 @@
+// TODO: Basic system with nothing on the level
+// TODO: Player charactor with non-turn based movement.
+
+
 interface Renderable {
     // TODO: Add keypress handler
     draw(ctx: CanvasRenderingContext2D);
@@ -10,6 +14,10 @@ class Vector2 {
     constructor(x: number, y: number) {
 
     }
+}
+
+class Color {
+    public Color: string;
 }
 
 class Rectangle {
@@ -27,21 +35,27 @@ enum TileType {
 
 class TileInfo {
     private Type: TileType;
+    private LoadTileID: number;
 
-    constructor(type: TileType) {
+    constructor(type: TileType, loadTileId: number) {
         this.Type = type;
     }
 }
 
+var allTiles: TileInfo[] = [
+
+];
+
 type MapTile = {
     type: TileType;
+    
 }
 
 class Map implements Renderable {
 
     /*
-        I don't have any clue what the map save format will look like but I expect there will be
-        a series of AI spawn points and
+        I don't have any clue what the map save format will look like but for now I will just
+        declare it staticly or even use csv
     */
     public draw(ctx: CanvasRenderingContext2D) {
         ctx.font = "72px sans-serif";
@@ -55,10 +69,17 @@ class Map implements Renderable {
 }
 
 class TileEntity implements Renderable {
-    private location: Vector2;
+    private Location: Vector2;
+    private Owner: Map;
+    private RenderColor: Color;
+
+    constructor(owner: Map, spawnLocation: Vector2) {
+        this.Owner = owner;
+        this.Location = spawnLocation;
+    }
 
     public draw(ctx: CanvasRenderingContext2D) {
-
+        var baseRect: Rectangle = this.Owner.levelToScreen(this.Location);
     }
 }
 

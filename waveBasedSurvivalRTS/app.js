@@ -1,7 +1,14 @@
+// TODO: Basic system with nothing on the level
+// TODO: Player charactor with non-turn based movement.
 var Vector2 = (function () {
     function Vector2(x, y) {
     }
     return Vector2;
+}());
+var Color = (function () {
+    function Color() {
+    }
+    return Color;
 }());
 var Rectangle = (function () {
     function Rectangle() {
@@ -15,17 +22,18 @@ var TileType;
     TileType[TileType["Floor"] = 2] = "Floor";
 })(TileType || (TileType = {}));
 var TileInfo = (function () {
-    function TileInfo(type) {
+    function TileInfo(type, loadTileId) {
         this.Type = type;
     }
     return TileInfo;
 }());
+var allTiles = [];
 var Map = (function () {
     function Map() {
     }
     /*
-        I don't have any clue what the map save format will look like but I expect there will be
-        a series of AI spawn points and
+        I don't have any clue what the map save format will look like but for now I will just
+        declare it staticly or even use csv
     */
     Map.prototype.draw = function (ctx) {
         ctx.font = "72px sans-serif";
@@ -37,9 +45,12 @@ var Map = (function () {
     return Map;
 }());
 var TileEntity = (function () {
-    function TileEntity() {
+    function TileEntity(owner, spawnLocation) {
+        this.Owner = owner;
+        this.Location = spawnLocation;
     }
     TileEntity.prototype.draw = function (ctx) {
+        var baseRect = this.Owner.levelToScreen(this.Location);
     };
     return TileEntity;
 }());
