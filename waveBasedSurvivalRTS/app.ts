@@ -354,11 +354,15 @@ class DijkstraMap {
     private setTileAtPoint(x: number, y: number, value: number) {
         this.MapData[x][y] = value;
     }
+
+    public forEach(cb: MapForEachCallback<number, void>) {
+        forEach(this.Width, this.Height, this.MapData, cb);
+    }
     
     public draw(ctx: CanvasRenderingContext2D, transformCallback: TransformCallback) {
         var self = this;
 
-        forEach(this.Width, this.Height, this.MapData, function (x: number, y: number, value: number) {
+        this.forEach(function (x: number, y: number, value: number) {
             var rect: Rectangle = transformCallback(new Vector2(x, y));
             ctx.fillStyle = "black";
             ctx.font = "12px sans-serif";
@@ -392,7 +396,11 @@ class TileEntity implements Renderable {
 }
 
 class CharacterEntity extends TileEntity {
+    constructor(owner: Map, spawnLocation: Vector2) {
+        super(owner, spawnLocation);
+    }
 
+    
 }
 
 class PlayerEntity extends CharacterEntity {
@@ -424,8 +432,6 @@ function main(): void {
 
     renderableList.push(map);
 
-    var pathFindingMap: DijkstraMap = map.createPathfindingMap(5, 5);
-
     function update() {
         ctx.fillStyle = "cornflowerBlue";
         ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
@@ -433,8 +439,6 @@ function main(): void {
         renderableList.forEach(function (renderable: Renderable) {
             renderable.draw(ctx);
         });
-
-        pathFindingMap.draw(ctx, map.levelToScreen.bind(map));
 
         window.requestAnimationFrame(update);
     }

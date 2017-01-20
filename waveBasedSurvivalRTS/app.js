@@ -266,9 +266,12 @@ var DijkstraMap = (function () {
     DijkstraMap.prototype.setTileAtPoint = function (x, y, value) {
         this.MapData[x][y] = value;
     };
+    DijkstraMap.prototype.forEach = function (cb) {
+        forEach(this.Width, this.Height, this.MapData, cb);
+    };
     DijkstraMap.prototype.draw = function (ctx, transformCallback) {
         var self = this;
-        forEach(this.Width, this.Height, this.MapData, function (x, y, value) {
+        this.forEach(function (x, y, value) {
             var rect = transformCallback(new Vector2(x, y));
             ctx.fillStyle = "black";
             ctx.font = "12px sans-serif";
@@ -297,8 +300,8 @@ var TileEntity = (function () {
 }());
 var CharacterEntity = (function (_super) {
     __extends(CharacterEntity, _super);
-    function CharacterEntity() {
-        return _super.apply(this, arguments) || this;
+    function CharacterEntity(owner, spawnLocation) {
+        return _super.call(this, owner, spawnLocation) || this;
     }
     return CharacterEntity;
 }(TileEntity));
@@ -329,14 +332,12 @@ function main() {
         }
     }
     renderableList.push(map);
-    var pathFindingMap = map.createPathfindingMap(5, 5);
     function update() {
         ctx.fillStyle = "cornflowerBlue";
         ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
         renderableList.forEach(function (renderable) {
             renderable.draw(ctx);
         });
-        pathFindingMap.draw(ctx, map.levelToScreen.bind(map));
         window.requestAnimationFrame(update);
     }
     window.requestAnimationFrame(update);
