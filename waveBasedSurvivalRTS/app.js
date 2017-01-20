@@ -393,7 +393,7 @@ var CharacterEntity = (function (_super) {
         if (!this.getOwner().getTileWithInfo(newLocation.X, newLocation.Y).getIsPassable()) {
             return false;
         }
-        if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) <= this.CurrentActions) {
+        if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) < this.CurrentActions) {
             var actionsLost = this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
             this.getOwner().scheduleForNextTurn(function () {
                 self.CurrentActions += actionsLost;
@@ -434,6 +434,9 @@ var PlayerEntity = (function (_super) {
             }
         });
     };
+    PlayerEntity.prototype.getStatsUI = function () {
+        return this.StatsUI;
+    };
     return PlayerEntity;
 }(CharacterEntity));
 var UIElement = (function () {
@@ -453,6 +456,9 @@ var Label = (function (_super) {
         _this.Text = text;
         return _this;
     }
+    Label.prototype.getBounds = function () {
+        return this.Bounds;
+    };
     Label.prototype.draw = function (ctx) {
         _super.prototype.draw.call(this, ctx);
         ctx.fillStyle = "white";
@@ -467,14 +473,12 @@ var Button = (function (_super) {
     __extends(Button, _super);
     function Button(rect, text, cb) {
         var _this = _super.call(this, rect, text) || this;
-        _this.Bounds = rect;
-        _this.Text = text;
         _this.OnClick = cb;
         return _this;
     }
     Button.prototype.mouseLeftClick = function (x, y) {
         _super.prototype.mouseLeftClick.call(this, x, y);
-        if (this.Bounds.contains(new Vector2(x, y))) {
+        if (this.getBounds().contains(new Vector2(x, y))) {
             this.OnClick();
         }
     };
@@ -501,7 +505,7 @@ function main() {
     }
     map.addTileEntity(new PlayerEntity(map));
     renderableList.push(map);
-    renderableList.push(new Button(new Rectangle(10, 10, 150, 45), "End Turn", function () {
+    renderableList.push(new Button(new Rectangle(15, 15, 80, 28), "End Turn", function () {
         map.advanceTurn();
     }));
     mainCanvas.addEventListener("click", function (ev) {

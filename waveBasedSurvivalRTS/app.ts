@@ -524,7 +524,7 @@ class CharacterEntity extends TileEntity {
         if (!this.getOwner().getTileWithInfo(newLocation.X, newLocation.Y).getIsPassable()) {
             return false;
         }
-        if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) <= this.CurrentActions) {
+        if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) < this.CurrentActions) {
             var actionsLost = this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
             this.getOwner().scheduleForNextTurn(function () {
                 self.CurrentActions += actionsLost;
@@ -564,6 +564,10 @@ class PlayerEntity extends CharacterEntity {
             }
         });
     }
+
+    public getStatsUI(): Label {
+        return this.StatsUI;
+    }
 }
 
 class UIElement implements Renderable {
@@ -585,6 +589,10 @@ class Label extends UIElement {
         this.Bounds = rect;
         this.Text = text;
     }
+
+    public getBounds(): Rectangle {
+        return this.Bounds;
+    }
     
     public draw(ctx: CanvasRenderingContext2D) {
         super.draw(ctx);
@@ -603,16 +611,12 @@ class Button extends Label {
 
     constructor(rect: Rectangle, text: string, cb: OnClickCallback) {
         super(rect, text);
-        this.Bounds = rect;
-        this.Text = text;
         this.OnClick = cb;
     }
 
-    
-
     public mouseLeftClick(x: number, y: number) {
         super.mouseLeftClick(x, y);
-        if (this.Bounds.contains(new Vector2(x, y))) {
+        if (this.getBounds().contains(new Vector2(x, y))) {
             this.OnClick();
         }
     }
@@ -643,7 +647,7 @@ function main(): void {
 
     renderableList.push(map);
 
-    renderableList.push(new Button(new Rectangle(10, 10, 150, 45), "End Turn", () => {
+    renderableList.push(new Button(new Rectangle(15, 15, 80, 28), "End Turn", () => {
         map.advanceTurn();
     }));
 
