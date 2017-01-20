@@ -9,7 +9,7 @@ if __name__ == "__main__":
         try:
             check_call(["git", "commit", "-m", "Commit on %s" % (dateString, )])
             check_call(["git", "push"])
-        except (CalledProcessError, e):
+        except (CalledProcessError):
             pass
 
         print "Sleeping for 5 minutes"
