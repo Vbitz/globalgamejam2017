@@ -267,7 +267,30 @@ class DijkstraMap {
 
         while (tileList.length > 0) {
             var nextTile: Vector2 = tileList.shift();
-            
+            var nextTileX = nextTile.X;
+            var nextTileY = nextTile.Y;
+            if (this.isTileInital(nextTileX, nextTileY)) {
+                continue;
+            }
+            if (this.Inverse) {
+                lowestValue = Math.min(
+                this.getValueAtPoint(nextTileX - 1, nextTileY    ),
+                this.getValueAtPoint(nextTileX + 1, nextTileY    ),
+                this.getValueAtPoint(nextTileX    , nextTileY - 1),
+                this.getValueAtPoint(nextTileX    , nextTileY + 1));
+            } else {
+                lowestValue = Math.max(
+                this.getValueAtPoint(nextTileX - 1, nextTileY    ),
+                this.getValueAtPoint(nextTileX + 1, nextTileY    ),
+                this.getValueAtPoint(nextTileX    , nextTileY - 1),
+                this.getValueAtPoint(nextTileX    , nextTileY + 1));
+            }
+            var lowestValue: number = 
+            if (lowestValue == this.InitalValue) {
+                
+            } else {
+                this.setTileAtPoint(nextTileX, nextTileY, lowestValue )
+            }
         }
     }
 
