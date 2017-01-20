@@ -308,8 +308,16 @@ var CharacterEntity = (function (_super) {
     function CharacterEntity(owner, spawnLocation) {
         var _this = _super.call(this, owner, spawnLocation) || this;
         _this.CanMove = true;
+        _this.MovesPerTurn = 5;
+        _this.CurrentActions = _this.MovesPerTurn;
         return _this;
     }
+    CharacterEntity.prototype.SetMoveSpeed = function (movesPerTurn) {
+        this.CurrentActions = this.CurrentActions + (movesPerTurn - this.MovesPerTurn);
+        this.MovesPerTurn = movesPerTurn;
+    };
+    CharacterEntity.prototype.MoveToPoint = function (newLocation) {
+    };
     return CharacterEntity;
 }(TileEntity));
 var PlayerEntity = (function (_super) {

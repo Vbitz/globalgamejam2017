@@ -360,7 +360,7 @@ class DijkstraMap {
         return (this.getValueAtPoint(x, y) >= 0) && !this.isTileInital(x, y);
     }
 
-    private setTileAtPoint(x: number, y: number, value: number) {
+    public setTileAtPoint(x: number, y: number, value: number) {
         this.MapData[x][y] = value;
     }
 
@@ -406,14 +406,27 @@ class TileEntity implements Renderable {
 
 class CharacterEntity extends TileEntity {
     private CanMove: boolean;
+    private MovesPerTurn: number;
+    private RenderMoveMap: number;
+
+    private CurrentActions: number;
 
     constructor(owner: Map, spawnLocation: Vector2) {
         super(owner, spawnLocation);
 
         this.CanMove = true;
+        this.MovesPerTurn = 5;
+        this.CurrentActions = this.MovesPerTurn;
     }
 
+    protected SetMoveSpeed(movesPerTurn: number) {
+        this.CurrentActions = this.CurrentActions + (movesPerTurn - this.MovesPerTurn);
+        this.MovesPerTurn = movesPerTurn;
+    }
 
+    public MoveToPoint(newLocation: Vector2): boolean {
+        
+    }
 }
 
 class PlayerEntity extends CharacterEntity {
