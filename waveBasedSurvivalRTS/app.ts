@@ -198,7 +198,7 @@ class Map implements Renderable {
         var map: DijkstraMap = new DijkstraMap(this.Width, this.Height, true);
         map.updateWithCallback((x, y, initalValue) => {
             if (!self.getTileWithInfo(x, y).getIsPassable()) {
-                return undefined;
+                return -1;
             }
 
             if (x == xL && y == yL) {
@@ -313,10 +313,6 @@ class DijkstraMap {
     }
 
     public getValueAtPoint(x: number, y: number): number {
-        // if (x < 0 || x > this.Width - 1 || y < 0 || y < this.Height - 1) {
-        //     return this.InitalValue;
-        // }
-        
         return this.MapData[x][y];
     }
 

@@ -138,7 +138,7 @@ var Map = (function () {
         var map = new DijkstraMap(this.Width, this.Height, true);
         map.updateWithCallback(function (x, y, initalValue) {
             if (!self.getTileWithInfo(x, y).getIsPassable()) {
-                return undefined;
+                return -1;
             }
             if (x == xL && y == yL) {
                 return 0;
@@ -221,9 +221,6 @@ var DijkstraMap = (function () {
         return this.PropigateTileList.length == 0;
     };
     DijkstraMap.prototype.getValueAtPoint = function (x, y) {
-        // if (x < 0 || x > this.Width - 1 || y < 0 || y < this.Height - 1) {
-        //     return this.InitalValue;
-        // }
         return this.MapData[x][y];
     };
     DijkstraMap.prototype.isTileInital = function (x, y) {
