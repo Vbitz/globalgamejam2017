@@ -101,6 +101,16 @@ function rand(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min) + min);
 }
 
+type LoadImageCallback = (img: HTMLImageElement) => void;
+
+function loadImageWithCallback(filename: string, cb: LoadImageCallback) {
+    var img = document.createElement("img");
+    img.src = filename;
+    img.addEventListener("load", function () {
+        cb(img);
+    });
+}
+
 enum TileType { 
     Floor,
     Wall
@@ -122,6 +132,12 @@ class SolidRenderBrush implements RenderBrush {
         ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
     }
 };
+
+class TileMapRenderBrush implements RenderBrush {
+    constructor(img: HTMLImageElement) {
+        this.Image = img;
+    }
+}
 
 class TileInfo {
     private Type: TileType;

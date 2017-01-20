@@ -71,6 +71,13 @@ var Rectangle = (function () {
 function rand(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
+function loadImageWithCallback(filename, cb) {
+    var img = document.createElement("img");
+    img.src = filename;
+    img.addEventListener("load", function () {
+        cb(img);
+    });
+}
 var TileType;
 (function (TileType) {
     TileType[TileType["Floor"] = 0] = "Floor";
@@ -88,6 +95,12 @@ var SolidRenderBrush = (function () {
     return SolidRenderBrush;
 }());
 ;
+var TileMapRenderBrush = (function () {
+    function TileMapRenderBrush(img) {
+        this.Image = img;
+    }
+    return TileMapRenderBrush;
+}());
 var TileInfo = (function () {
     function TileInfo(type, loadTileId, isSolid, isPassable) {
         this.Type = type;
