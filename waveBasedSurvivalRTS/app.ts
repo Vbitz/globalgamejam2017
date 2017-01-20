@@ -228,6 +228,9 @@ class DijkstraMap {
     private InitalValue: number;
 
     constructor(w: number, h: number, inverse: boolean) {
+        this.Width = w;
+        this.Height = h;
+
         this.Inverse = inverse;
         this.InitalValue = inverse ? Number.MAX_VALUE : 0;
 
@@ -246,19 +249,30 @@ class DijkstraMap {
         });
     }
 
+    private getTilesLeftToPropigate(): number {
+        var self = this;
+
+        var ret = 0;
+        forEach(this.Width, this.Height, this.MapData, (x, y, value) => {
+            ret += (value == self.InitalValue) ? 1 : 0;
+        });
+        return ret;
+    }
+
     public propigateMap() {
         var self = this;
 
-        // Start with a list of tiles that need to be updated
-        var tilesToUpdate: {[k: string]: boolean} = {};
-        forEach(this.Width, this.Height, this.MapData, (x, y, value) => {
-            tilesToUpdate[new Vector2(x, y).hash()] = value == self.InitalValue;
-        });
+        while (this.getTilesLeftToUpdate() > 0) {
 
+        }
     }
 
     public getValueAtPoint(x: number, y: number): number {
         return this.MapData[x][y];
+    }
+
+    private isTileInital(x: number, y: number): boolean {
+        return this.getValueAtPoint(x, y) == this.InitalValue;
     }
     
     public draw(ctx: CanvasRenderingContext2D, transformCallback: TransformCallback) {
@@ -316,15 +330,15 @@ function main(): void {
 
     var pathFindingMap: DijkstraMap = map.createPathfindingMap(5, 5);
 
-    renderableList.push(pathFindingMap);
-
     function update() {
         ctx.fillStyle = "cornflowerBlue";
         ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
 
         renderableList.forEach(function (renderable: Renderable) {
             renderable.draw(ctx);
-        })
+        });
+
+        pathFindingMap.draw(ctx, map.levelToScreen.bind(map));
 
         window.requestAnimationFrame(update);
     }

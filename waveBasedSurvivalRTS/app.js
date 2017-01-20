@@ -155,6 +155,8 @@ var Map = (function () {
 }());
 var DijkstraMap = (function () {
     function DijkstraMap(w, h, inverse) {
+        this.Width = w;
+        this.Height = h;
         this.Inverse = inverse;
         this.InitalValue = inverse ? Number.MAX_VALUE : 0;
         this.MapData = [];
@@ -171,16 +173,24 @@ var DijkstraMap = (function () {
             _this.MapData[x][y] = cb(x, y, currentValue);
         });
     };
+    DijkstraMap.prototype.getTilesLeftToPropigate = function () {
+        var self = this;
+        var ret = 0;
+        forEach(this.Width, this.Height, this.MapData, function (x, y, value) {
+            ret += (value == self.InitalValue) ? 1 : 0;
+        });
+        return ret;
+    };
     DijkstraMap.prototype.propigateMap = function () {
         var self = this;
-        // Start with a list of tiles that need to be updated
-        var tilesToUpdate = {};
-        forEach(this.Width, this.Height, this.MapData, function (x, y, value) {
-            tilesToUpdate[new Vector2(x, y).hash()] = value == self.InitalValue;
-        });
+        while (this.getTilesLeftToUpdate() > 0) {
+        }
     };
     DijkstraMap.prototype.getValueAtPoint = function (x, y) {
         return this.MapData[x][y];
+    };
+    DijkstraMap.prototype.isTileInital = function (x, y) {
+        return this.getValueAtPoint(x, y) == this.InitalValue;
     };
     DijkstraMap.prototype.draw = function (ctx, transformCallback) {
         var self = this;
@@ -227,13 +237,13 @@ function main() {
     }
     renderableList.push(map);
     var pathFindingMap = map.createPathfindingMap(5, 5);
-    renderableList.push(pathFindingMap);
     function update() {
         ctx.fillStyle = "cornflowerBlue";
         ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
         renderableList.forEach(function (renderable) {
             renderable.draw(ctx);
         });
+        pathFindingMap.draw(ctx, map.levelToScreen.bind(map));
         window.requestAnimationFrame(update);
     }
     window.requestAnimationFrame(update);
