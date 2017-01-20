@@ -1,4 +1,5 @@
 // TODO: Basic system with nothing on the level (DONE)
+// TODO: Flood fill map support
 // TODO: Player charactor with non-turn based movement.
 
 // TODO: Add camera support (maybe?)
@@ -118,16 +119,17 @@ type MapTile = {
     
 }
 
-type MapData = MapTile[][];
+type TwoDMap<T> = T[][];
 
 const TILE_SIZE: number = 32;
 
+// The turn based method is going to be implemented as runNextTurn(cb)
 class Map implements Renderable {
     public Width: number;
     public Height: number;
-    private mapData: MapData;
+    private mapData: TwoDMap<MapTile>;
 
-    private static forEach(width: number, height: number, mapData: MapData, cb: (x: number, y: number, tile: MapTile) => void) {
+    private static forEach(width: number, height: number, mapData: TwoDMap<MapTile>, cb: (x: number, y: number, tile: MapTile) => void) {
         for (var x: number = 0; x < width; x++) {
             for (var y: number = 0; y < height; y++) {
                 cb(x, y, mapData[x][y]);
@@ -175,6 +177,15 @@ class Map implements Renderable {
     }
 }
 
+class DijkstraMap {
+    private MapData: TwoDMap<number>;
+    private Owner: Map;
+
+    constructor(owner: Map) {
+        this.Owner = owner;
+    }
+}
+
 class TileEntity implements Renderable {
     private Location: Vector2;
     private Owner: Map;
@@ -190,7 +201,7 @@ class TileEntity implements Renderable {
     }
 }
 
-window.addEventListener("DOMContentLoaded", function () {
+function main(): void {
     var mainCanvas: HTMLCanvasElement = <HTMLCanvasElement> document.querySelector("#mainCanvas");
     mainCanvas.width =window.innerWidth;
     mainCanvas.height = window.innerHeight;
@@ -221,4 +232,6 @@ window.addEventListener("DOMContentLoaded", function () {
     }
 
     window.requestAnimationFrame(update);
-});
+}
+
+window.addEventListener("DOMContentLoaded", main);

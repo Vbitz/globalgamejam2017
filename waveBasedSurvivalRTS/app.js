@@ -1,4 +1,5 @@
 // TODO: Basic system with nothing on the level (DONE)
+// TODO: Flood fill map support
 // TODO: Player charactor with non-turn based movement.
 var Vector2 = (function () {
     function Vector2(x, y) {
@@ -78,6 +79,7 @@ function getTileInfoByType(type) {
     }
 }
 var TILE_SIZE = 32;
+// The turn based method is going to be implemented as runNextTurn(cb)
 var Map = (function () {
     function Map(width, height, startTileType) {
         this.Width = width;
@@ -121,6 +123,12 @@ var Map = (function () {
     };
     return Map;
 }());
+var DijkstraMap = (function () {
+    function DijkstraMap(owner) {
+        this.Owner = owner;
+    }
+    return DijkstraMap;
+}());
 var TileEntity = (function () {
     function TileEntity(owner, spawnLocation) {
         this.Owner = owner;
@@ -131,7 +139,7 @@ var TileEntity = (function () {
     };
     return TileEntity;
 }());
-window.addEventListener("DOMContentLoaded", function () {
+function main() {
     var mainCanvas = document.querySelector("#mainCanvas");
     mainCanvas.width = window.innerWidth;
     mainCanvas.height = window.innerHeight;
@@ -155,4 +163,5 @@ window.addEventListener("DOMContentLoaded", function () {
         window.requestAnimationFrame(update);
     }
     window.requestAnimationFrame(update);
-});
+}
+window.addEventListener("DOMContentLoaded", main);
