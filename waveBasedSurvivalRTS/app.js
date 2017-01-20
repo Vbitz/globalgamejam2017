@@ -1,6 +1,6 @@
 // TODO: Basic system with nothing on the level (DONE)
-// TODO: Flood fill map support
-// TODO: Player charactor with non-turn based movement.
+// TODO: Flood fill map support (DONE)
+// TODO: Player charactor with turn based movement.
 var Vector2 = (function () {
     function Vector2(x, y) {
         this.X = x;
@@ -267,6 +267,8 @@ var TileEntity = (function () {
     }
     TileEntity.prototype.draw = function (ctx) {
         var baseRect = this.Owner.levelToScreen(this.Location);
+        ctx.fillStyle = this.RenderColor.Color;
+        ctx.fillRect(baseRect.X, baseRect.Y, baseRect.Width, baseRect.Height);
     };
     return TileEntity;
 }());

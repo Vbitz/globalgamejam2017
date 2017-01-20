@@ -1,6 +1,6 @@
 // TODO: Basic system with nothing on the level (DONE)
-// TODO: Flood fill map support
-// TODO: Player charactor with non-turn based movement.
+// TODO: Flood fill map support (DONE)
+// TODO: Player charactor with turn based movement.
 
 // TODO: Add camera support (maybe?)
 
@@ -363,6 +363,8 @@ class TileEntity implements Renderable {
 
     public draw(ctx: CanvasRenderingContext2D) {
         var baseRect: Rectangle = this.Owner.levelToScreen(this.Location);
+        ctx.fillStyle = this.RenderColor.Color;
+        ctx.fillRect(baseRect.X, baseRect.Y, baseRect.Width, baseRect.Height);
     }
 }
 
