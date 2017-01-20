@@ -1,6 +1,11 @@
 // TODO: Basic system with nothing on the level (DONE)
 // TODO: Flood fill map support (DONE)
 // TODO: Player charactor with turn based movement.
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var Vector2 = (function () {
     function Vector2(x, y) {
         this.X = x;
@@ -33,6 +38,9 @@ var Rectangle = (function () {
     };
     return Rectangle;
 }());
+function rand(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+}
 var TileType;
 (function (TileType) {
     TileType[TileType["Floor"] = 0] = "Floor";
@@ -150,6 +158,14 @@ var Map = (function () {
         map.propigateMap(maxSteps);
         return map;
     };
+    Map.prototype.getRandomValidSpawnLocation = function () {
+        while (true) {
+            var newLocation = new Vector2(rand(0, this.Width), rand(0, this.Height));
+            if (this.getTileWithInfo(newLocation.X, newLocation.Y).getIsPassable()) {
+                return newLocation;
+            }
+        }
+    };
     Map.prototype.loadFromDocument = function (documentStr) {
     };
     return Map;
@@ -265,6 +281,9 @@ var TileEntity = (function () {
         this.Owner = owner;
         this.Location = spawnLocation;
     }
+    TileEntity.prototype.setColor = function (newColor) {
+        this.RenderColor = newColor;
+    };
     TileEntity.prototype.draw = function (ctx) {
         var baseRect = this.Owner.levelToScreen(this.Location);
         ctx.fillStyle = this.RenderColor.Color;
@@ -272,6 +291,13 @@ var TileEntity = (function () {
     };
     return TileEntity;
 }());
+var PlayerEntity = (function (_super) {
+    __extends(PlayerEntity, _super);
+    function PlayerEntity(owner) {
+        return _super.call(this, owner, owner.getRandomValidSpawnLocation()) || this;
+    }
+    return PlayerEntity;
+}(TileEntity));
 function main() {
     var mainCanvas = document.querySelector("#mainCanvas");
     mainCanvas.width = window.innerWidth;

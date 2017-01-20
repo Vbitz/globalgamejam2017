@@ -54,6 +54,10 @@ class Rectangle {
     }
 }
 
+function rand(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min) + min);
+}
+
 enum TileType { 
     Floor,
     Wall
@@ -213,6 +217,15 @@ class Map implements Renderable {
         return map;
     }
 
+    public getRandomValidSpawnLocation(): Vector2 {
+        while (true) {
+            var newLocation = new Vector2(rand(0, this.Width), rand(0, this.Height));
+            if (this.getTileWithInfo(newLocation.X, newLocation.Y).getIsPassable()) {
+                return newLocation;
+            }
+        }
+    }
+
     public loadFromDocument(documentStr: string) {
 
     }
@@ -361,10 +374,20 @@ class TileEntity implements Renderable {
         this.Location = spawnLocation;
     }
 
+    protected setColor(newColor: Color) {
+        this.RenderColor = newColor;
+    }
+
     public draw(ctx: CanvasRenderingContext2D) {
         var baseRect: Rectangle = this.Owner.levelToScreen(this.Location);
         ctx.fillStyle = this.RenderColor.Color;
         ctx.fillRect(baseRect.X, baseRect.Y, baseRect.Width, baseRect.Height);
+    }
+}
+
+class PlayerEntity extends TileEntity {
+    constructor(owner: Map) {
+        super(owner, owner.getRandomValidSpawnLocation());
     }
 }
 
