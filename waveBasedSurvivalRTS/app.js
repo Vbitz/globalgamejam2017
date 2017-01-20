@@ -1,6 +1,12 @@
 // TODO: Basic system with nothing on the level. (DONE)
 // TODO: Flood fill map support. (DONE)
 // TODO: Player charactor with turn based movement. (DONE)
+// TODO: AI Charactor able to move towards a point. (DONE)
+// TODO: AI Line of sight with player tracking.
+// TODO: Attack and Damage system
+// TODO: Wave spawning system
+// TODO: Item and Stat Modifyers
+// TODO: Additional Levels
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
