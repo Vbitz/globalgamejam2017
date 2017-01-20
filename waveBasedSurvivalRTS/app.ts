@@ -489,11 +489,22 @@ class DijkstraMap {
 
         var bestPoint: number = Math.min.apply(Math, valuesToCheck);
 
-        if (this.getValueAtPoint(nextTileX - 1, nextTileY    ) == bestPoint) {
-            return new Vector2(nextTileX - 1, nextTileY);
+        if (bestPoint == this.InitalValue) {
+            // No point found
+            return null;
         }
 
-        return null;
+        if (this.getValueAtPoint(       nextTileX - 1, nextTileY    ) == bestPoint) {
+            return new Vector2(         nextTileX - 1, nextTileY    );
+        } else if (this.getValueAtPoint(nextTileX + 1, nextTileY    ) == bestPoint) {
+            return new Vector2(         nextTileX + 1, nextTileY    );
+        } else if (this.getValueAtPoint(nextTileX    , nextTileY - 1) == bestPoint) {
+            return new Vector2(         nextTileX    , nextTileY - 1);
+        } else if (this.getValueAtPoint(nextTileX    , nextTileY + 1) == bestPoint) {
+            return new Vector2(         nextTileX    , nextTileY + 1);
+        } else {
+            throw new Error("Unreachable");
+        }
     }
     
     public draw(ctx: CanvasRenderingContext2D, transformCallback: TransformCallback) {
@@ -659,28 +670,51 @@ class PlayerEntity extends CharacterEntity {
 class BasicAIEntity extends CharacterEntity {
     private Target: Vector2;
     private PathfindingMap: DijkstraMap;
+    private IsPathfinding: boolean;
 
     constructor(owner: Map, spawnLocation: Vector2, initalTarget: Vector2) {
         super(owner, spawnLocation);
         this.Target = initalTarget;
         this.PathfindingMap = this.getOwner().createPathfindingMap(initalTarget.X, initalTarget.Y);
         this.getOwner().scheduleForNextTurn(this.stepPathfinding.bind(this));
+        this.IsPathfinding = true;
     }
 
     private setTarget(target: Vector2) {
         this.Target = target;
         this.PathfindingMap = this.getOwner().createPathfindingMap(target.X, target.Y);
+        if (!this.IsPathfinding) {
+            
+        }
     }
 
     private stepPathfinding() {
+        if (this.Target.equals(this.getLocation())) {
+            this.IsPathfinding = false;
+            return;
+        }
+
         while (this.getCurrentActions() > 0) {
-            if (!this.moveToPoint(this.PathfindingMap.findNextStepForPoint(this.getLocation()))) {
-                throw new Error("Bad Movement");
+            var nextStep = this.PathfindingMap.findNextStepForPoint(this.getLocation());
+            if (nextStep != null) {
+                if (!this.moveToPoint(nextStep)) {
+                    throw new Error("Bad Movement");
+                }
+            } else {
+                break;
             }
         }
 
         this.getOwner().scheduleForNextTurn(this.stepPathfinding.bind(this));
-    } 
+    }
+
+    public draw(ctx: CanvasRenderingContext2D) {
+        super.draw(ctx);
+        
+        ctx.fillStyle = "red";
+        var rect = this.getOwner().levelToScreen(this.Target);
+        ctx.fillRect(rect.X, rect.Y, )
+    }
 }
 
 class UIElement implements Renderable {

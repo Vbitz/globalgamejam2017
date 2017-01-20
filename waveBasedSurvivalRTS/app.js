@@ -365,10 +365,25 @@ var DijkstraMap = (function () {
             valuesToCheck.push(this.getValueAtPoint(nextTileX, nextTileY + 1));
         }
         var bestPoint = Math.min.apply(Math, valuesToCheck);
+        if (bestPoint == this.InitalValue) {
+            // No point found
+            return null;
+        }
         if (this.getValueAtPoint(nextTileX - 1, nextTileY) == bestPoint) {
             return new Vector2(nextTileX - 1, nextTileY);
         }
-        return null;
+        else if (this.getValueAtPoint(nextTileX + 1, nextTileY) == bestPoint) {
+            return new Vector2(nextTileX + 1, nextTileY);
+        }
+        else if (this.getValueAtPoint(nextTileX, nextTileY - 1) == bestPoint) {
+            return new Vector2(nextTileX, nextTileY - 1);
+        }
+        else if (this.getValueAtPoint(nextTileX, nextTileY + 1) == bestPoint) {
+            return new Vector2(nextTileX, nextTileY + 1);
+        }
+        else {
+            throw new Error("Unreachable");
+        }
     };
     DijkstraMap.prototype.draw = function (ctx, transformCallback) {
         var self = this;
@@ -507,19 +522,38 @@ var BasicAIEntity = (function (_super) {
         _this.Target = initalTarget;
         _this.PathfindingMap = _this.getOwner().createPathfindingMap(initalTarget.X, initalTarget.Y);
         _this.getOwner().scheduleForNextTurn(_this.stepPathfinding.bind(_this));
+        _this.IsPathfinding = true;
         return _this;
     }
     BasicAIEntity.prototype.setTarget = function (target) {
         this.Target = target;
         this.PathfindingMap = this.getOwner().createPathfindingMap(target.X, target.Y);
+        if (!this.IsPathfinding) {
+        }
     };
     BasicAIEntity.prototype.stepPathfinding = function () {
+        if (this.Target.equals(this.getLocation())) {
+            this.IsPathfinding = false;
+            return;
+        }
         while (this.getCurrentActions() > 0) {
-            if (!this.moveToPoint(this.PathfindingMap.findNextStepForPoint(this.getLocation()))) {
-                throw new Error("Bad Movement");
+            var nextStep = this.PathfindingMap.findNextStepForPoint(this.getLocation());
+            if (nextStep != null) {
+                if (!this.moveToPoint(nextStep)) {
+                    throw new Error("Bad Movement");
+                }
+            }
+            else {
+                break;
             }
         }
         this.getOwner().scheduleForNextTurn(this.stepPathfinding.bind(this));
+    };
+    BasicAIEntity.prototype.draw = function (ctx) {
+        _super.prototype.draw.call(this, ctx);
+        ctx.fillStyle = "red";
+        var rect = this.getOwner().levelToScreen(this.Target);
+        ctx.fillRect(rect.X, rect.Y);
     };
     return BasicAIEntity;
 }(CharacterEntity));
