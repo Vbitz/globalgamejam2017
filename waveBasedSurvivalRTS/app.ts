@@ -551,6 +551,20 @@ class PlayerEntity extends CharacterEntity {
     }
 }
 
+class UIElement implements Renderable {
+    public draw(ctx: CanvasRenderingContext2D) {
+
+    }
+
+    public mouseLeftClick(x: number, y: number) {
+
+    }
+}
+
+class Button extends UIElement {
+
+}
+
 function main(): void {
     var mainCanvas: HTMLCanvasElement = <HTMLCanvasElement> document.querySelector("#mainCanvas");
     mainCanvas.width =window.innerWidth;

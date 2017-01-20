@@ -422,6 +422,22 @@ var PlayerEntity = (function (_super) {
     };
     return PlayerEntity;
 }(CharacterEntity));
+var UIElement = (function () {
+    function UIElement() {
+    }
+    UIElement.prototype.draw = function (ctx) {
+    };
+    UIElement.prototype.mouseLeftClick = function (x, y) {
+    };
+    return UIElement;
+}());
+var Button = (function (_super) {
+    __extends(Button, _super);
+    function Button() {
+        return _super.apply(this, arguments) || this;
+    }
+    return Button;
+}(UIElement));
 function main() {
     var mainCanvas = document.querySelector("#mainCanvas");
     mainCanvas.width = window.innerWidth;
