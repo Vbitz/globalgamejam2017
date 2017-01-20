@@ -444,6 +444,10 @@ class TileEntity implements Renderable {
         this.Location = newLocation;
     }
 
+    public getLocation(): Vector2 {
+        return this.Location;
+    }
+
     protected setColor(newColor: Color) {
         this.RenderColor = newColor;
     }
@@ -469,7 +473,7 @@ class CharacterEntity extends TileEntity {
 
     private CurrentActions: number;
 
-    private CurrentActionMap: DijkstraMap;
+    protected CurrentActionMap: DijkstraMap;
 
     constructor(owner: Map, spawnLocation: Vector2) {
         super(owner, spawnLocation);
@@ -482,16 +486,24 @@ class CharacterEntity extends TileEntity {
     protected setMovesPerTurn(movesPerTurn: number) {
         this.CurrentActions = this.CurrentActions + (movesPerTurn - this.MovesPerTurn);
         this.MovesPerTurn = movesPerTurn;
+        this.recalculateCurrentActionMap();
+    }
+
+    protected recalculateCurrentActionMap() {
+        var currentLocation = this.getLocation();
+        this.CurrentActionMap = this.getOwner().createPathfindingMap(currentLocation.X, currentLocation.Y);
     }
 
     public moveToPoint(newLocation: Vector2): boolean {
         var self = this;
         if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) <= this.CurrentActions) {
+            var actionsLost = this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
             this.getOwner().scheduleForNextTurn(function () {
-                self.setLocation(newLocation);
+                self.CurrentActions += actionsLost;
             });
-            this.CurrentActions -= this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
-            this.CurrentActionMap = this.getOwner().createPathfindingMap(newLocation.X, newLocation.Y);
+            this.CurrentActions -= actionsLost;
+            self.setLocation(newLocation);
+            this.recalculateCurrentActionMap();
         } else {
             return false;
         }
@@ -507,6 +519,16 @@ class PlayerEntity extends CharacterEntity {
 
     public mouseLeftClick(x: number, y: number) {
         var tileUnderClick: Vector2 = this.getOwner().screenToLevel(new Vector2(x, y));
+        console.log(tileUnderClick.X, tileUnderClick.Y, this.getLocation().X, this.getLocation().Y);
+    }
+
+    public draw(ctx: CanvasRenderingContext2D) {
+        super.draw(ctx);
+        this.CurrentActionMap.forEach((x, y, currentValue) => {
+            if (currentValue > 0 && currentValue < this.getCurrentActions()) {
+                
+            }
+        });
     }
 }
 

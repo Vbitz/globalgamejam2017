@@ -330,6 +330,9 @@ var TileEntity = (function () {
     TileEntity.prototype.setLocation = function (newLocation) {
         this.Location = newLocation;
     };
+    TileEntity.prototype.getLocation = function () {
+        return this.Location;
+    };
     TileEntity.prototype.setColor = function (newColor) {
         this.RenderColor = newColor;
     };
@@ -357,15 +360,22 @@ var CharacterEntity = (function (_super) {
     CharacterEntity.prototype.setMovesPerTurn = function (movesPerTurn) {
         this.CurrentActions = this.CurrentActions + (movesPerTurn - this.MovesPerTurn);
         this.MovesPerTurn = movesPerTurn;
+        this.recalculateCurrentActionMap();
+    };
+    CharacterEntity.prototype.recalculateCurrentActionMap = function () {
+        var currentLocation = this.getLocation();
+        this.CurrentActionMap = this.getOwner().createPathfindingMap(currentLocation.X, currentLocation.Y);
     };
     CharacterEntity.prototype.moveToPoint = function (newLocation) {
         var self = this;
         if (this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y) <= this.CurrentActions) {
+            var actionsLost = this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
             this.getOwner().scheduleForNextTurn(function () {
-                self.setLocation(newLocation);
+                self.CurrentActions += actionsLost;
             });
-            this.CurrentActions -= this.CurrentActionMap.getValueAtPoint(newLocation.X, newLocation.Y);
-            this.CurrentActionMap = this.getOwner().createPathfindingMap(newLocation.X, newLocation.Y);
+            this.CurrentActions -= actionsLost;
+            self.setLocation(newLocation);
+            this.recalculateCurrentActionMap();
         }
         else {
             return false;
@@ -382,6 +392,15 @@ var PlayerEntity = (function (_super) {
     }
     PlayerEntity.prototype.mouseLeftClick = function (x, y) {
         var tileUnderClick = this.getOwner().screenToLevel(new Vector2(x, y));
+        console.log(tileUnderClick.X, tileUnderClick.Y, this.getLocation().X, this.getLocation().Y);
+    };
+    PlayerEntity.prototype.draw = function (ctx) {
+        var _this = this;
+        _super.prototype.draw.call(this, ctx);
+        this.CurrentActionMap.forEach(function (x, y, currentValue) {
+            if (currentValue > 0 && currentValue < _this.getCurrentActions())
+                ;
+        });
     };
     return PlayerEntity;
 }(CharacterEntity));
