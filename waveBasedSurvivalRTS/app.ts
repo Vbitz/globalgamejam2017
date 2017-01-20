@@ -302,6 +302,7 @@ class Map implements Renderable {
         this.NextTurnActionList.forEach(function (cb: NextTurnCallback) {
             cb();
         });
+        this.NextTurnActionList = [];
     }
 
     public scheduleForNextTurn(cb: NextTurnCallback) {
@@ -575,20 +576,16 @@ class UIElement implements Renderable {
     }
 }
 
-type OnClickCallback = () => void;
-
-class Button extends UIElement {
+class Label extends UIElement {
     private Bounds: Rectangle;
     private Text: string;
-    private OnClick: OnClickCallback;
 
-    constructor(rect: Rectangle, text: string, cb: OnClickCallback) {
+    constructor(rect: Rectangle, text: string) {
         super();
         this.Bounds = rect;
         this.Text = text;
-        this.OnClick = cb;
     }
-
+    
     public draw(ctx: CanvasRenderingContext2D) {
         super.draw(ctx);
         ctx.fillStyle = "white";
@@ -597,6 +594,21 @@ class Button extends UIElement {
         ctx.font = "16px sans-serif";
         ctx.fillText(this.Text, this.Bounds.X + 5, this.Bounds.Y + 20);
     }
+}
+
+type OnClickCallback = () => void;
+
+class Button extends Label {
+    private OnClick: OnClickCallback;
+
+    constructor(rect: Rectangle, text: string, cb: OnClickCallback) {
+        super(rect, text);
+        this.Bounds = rect;
+        this.Text = text;
+        this.OnClick = cb;
+    }
+
+    
 
     public mouseLeftClick(x: number, y: number) {
         super.mouseLeftClick(x, y);

@@ -223,6 +223,7 @@ var Map = (function () {
         this.NextTurnActionList.forEach(function (cb) {
             cb();
         });
+        this.NextTurnActionList = [];
     };
     Map.prototype.scheduleForNextTurn = function (cb) {
         this.NextTurnActionList.push(cb);
@@ -444,16 +445,15 @@ var UIElement = (function () {
     };
     return UIElement;
 }());
-var Button = (function (_super) {
-    __extends(Button, _super);
-    function Button(rect, text, cb) {
+var Label = (function (_super) {
+    __extends(Label, _super);
+    function Label(rect, text) {
         var _this = _super.call(this) || this;
         _this.Bounds = rect;
         _this.Text = text;
-        _this.OnClick = cb;
         return _this;
     }
-    Button.prototype.draw = function (ctx) {
+    Label.prototype.draw = function (ctx) {
         _super.prototype.draw.call(this, ctx);
         ctx.fillStyle = "white";
         ctx.fillRect(this.Bounds.X, this.Bounds.Y, this.Bounds.Width, this.Bounds.Height);
@@ -461,6 +461,17 @@ var Button = (function (_super) {
         ctx.font = "16px sans-serif";
         ctx.fillText(this.Text, this.Bounds.X + 5, this.Bounds.Y + 20);
     };
+    return Label;
+}(UIElement));
+var Button = (function (_super) {
+    __extends(Button, _super);
+    function Button(rect, text, cb) {
+        var _this = _super.call(this, rect, text) || this;
+        _this.Bounds = rect;
+        _this.Text = text;
+        _this.OnClick = cb;
+        return _this;
+    }
     Button.prototype.mouseLeftClick = function (x, y) {
         _super.prototype.mouseLeftClick.call(this, x, y);
         if (this.Bounds.contains(new Vector2(x, y))) {
@@ -468,7 +479,7 @@ var Button = (function (_super) {
         }
     };
     return Button;
-}(UIElement));
+}(Label));
 function main() {
     var mainCanvas = document.querySelector("#mainCanvas");
     mainCanvas.width = window.innerWidth;
