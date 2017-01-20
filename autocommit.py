@@ -7,6 +7,7 @@ if __name__ == "__main__":
         check_call(["git", "add", "."])
         try:
             check_call(["git", "commit", "-m", "Commit on %s" % (dateString, )])
+            check_call(["git", "push"])
         except (CalledProcessError, e):
             pass
 
