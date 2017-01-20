@@ -17,4 +17,11 @@
     - Say a big wave happens every x turns and you have to defend agenist it.
     - It could be made in the context of a city building game like SimCity.
     - That would be pretty easy to implament but would still require fluid simulation.
+- Another kind of wave is an attacking force.
+    - You could make a turn based game like Fire Emblum or Battle for Wesnoth where there's attacks happening every X turns.
+    - There's alot of possible gameplay there and you clould also create side quests for the player to preform.
+    - So a wave survival game told from the perspective of indervigual charactors.
+    - So it would say the next wave is 20 turns away or 10 turns away.
+    - Players could fortify the structures based on resource gathering done behind the wall.
+    - So it ends up being a kind of simpliyed RTS game with a strong emphsis on defence.
     
