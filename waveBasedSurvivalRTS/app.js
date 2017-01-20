@@ -173,9 +173,12 @@ var DijkstraMap = (function () {
         });
     };
     DijkstraMap.prototype.propigateMap = function (startX, startY) {
+        var self = this;
         // Start with a list of tiles that need to be updated
         var valueAtStart = this.getValueAtPoint(startX, startY);
-        var tilesToUpdate = forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x, y, value) {
+        var tilesToUpdate = {};
+        forEach(this.Owner.Width, this.Owner.Height, this.MapData, function (x, y, value) {
+            tilesToUpdate[new Vector2(x, y).hash()] = value == self.InitalValue;
         });
     };
     DijkstraMap.prototype.getValueAtPoint = function (x, y) {

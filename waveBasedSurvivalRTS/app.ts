@@ -240,11 +240,15 @@ class DijkstraMap implements Renderable {
     }
 
     public propigateMap(startX: number, startY: number) {
+        var self = this;
+
         // Start with a list of tiles that need to be updated
         var valueAtStart = this.getValueAtPoint(startX, startY);
-        var tilesToUpdate = forEach(this.Owner.Width, this.Owner.Height, this.MapData, (x, y, value) => {
-            
+        var tilesToUpdate: {[k: string]: boolean} = {};
+        forEach(this.Owner.Width, this.Owner.Height, this.MapData, (x, y, value) => {
+            tilesToUpdate[new Vector2(x, y).hash()] = value == self.InitalValue;
         });
+
     }
 
     public getValueAtPoint(x: number, y: number): number {
