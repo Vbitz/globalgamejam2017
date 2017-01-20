@@ -15,7 +15,7 @@ var Color = (function () {
     return Color;
 }());
 var Rectangle = (function () {
-    function Rectangle() {
+    function Rectangle(x, y, w, h) {
     }
     return Rectangle;
 }());
@@ -24,6 +24,18 @@ var TileType;
     TileType[TileType["Floor"] = 0] = "Floor";
     TileType[TileType["Wall"] = 1] = "Wall";
 })(TileType || (TileType = {}));
+;
+var SolidRenderBrush = (function () {
+    function SolidRenderBrush(color) {
+        this.RenderColor = color;
+    }
+    SolidRenderBrush.prototype.draw = function (ctx, rect) {
+        ctx.fillStyle = this.RenderColor.Color;
+        ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
+    };
+    return SolidRenderBrush;
+}());
+;
 var TileInfo = (function () {
     function TileInfo(type, loadTileId, isSolid, isPassable) {
         this.Type = type;
@@ -31,11 +43,15 @@ var TileInfo = (function () {
         this.IsSolid = isSolid;
         this.IsPassable = isPassable;
     }
+    TileInfo.prototype.setColor = function (col) {
+        this.Render = new SolidRenderBrush(col);
+        return this;
+    };
     return TileInfo;
 }());
 var allTiles = [
-    new TileInfo(TileType.Floor, 0),
-    new TileInfo(TileType.Wall, 1)
+    new TileInfo(TileType.Floor, 0, false, true).setColor,
+    new TileInfo(TileType.Wall, 1, false, true)
 ];
 var Map = (function () {
     function Map(width, height, startTileType) {
@@ -63,6 +79,9 @@ var Map = (function () {
         declare it staticly or even use csv
     */
     Map.prototype.draw = function (ctx) {
+    };
+    Map.prototype.levelToScreen = function (localLocation) {
+        return new Rectangle();
     };
     Map.prototype.loadFromDocument = function (documentStr) {
     };

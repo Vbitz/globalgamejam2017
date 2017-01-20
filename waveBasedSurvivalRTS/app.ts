@@ -33,6 +33,10 @@ class Rectangle {
     public Y: number;
     public Width: number;
     public Height: number;
+
+    constructor(x: number, y: number, w: number, h: number) {
+
+    }
 }
 
 enum TileType { 
@@ -40,11 +44,30 @@ enum TileType {
     Wall
 }
 
+interface RenderBrush {
+    draw(ctx: CanvasRenderingContext2D, rect: Rectangle);
+};
+
+class SolidRenderBrush implements RenderBrush {
+    private RenderColor: Color;
+    
+    constructor(color: Color) {
+        this.RenderColor = color;
+    }
+
+    public draw(ctx: CanvasRenderingContext2D, rect: Rectangle) {
+        ctx.fillStyle = this.RenderColor.Color;
+        ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
+    }
+};
+
 class TileInfo {
     private Type: TileType;
     private LoadTileID: number;
     private IsSolid: boolean;
     private IsPassable: boolean;
+
+    private Render: RenderBrush;
 
     constructor(type: TileType, loadTileId: number, isSolid: boolean, isPassable: boolean) {
         this.Type = type;
@@ -52,11 +75,16 @@ class TileInfo {
         this.IsSolid = isSolid;
         this.IsPassable = isPassable;
     }
+
+    public setColor(col: Color): TileInfo {
+        this.Render = new SolidRenderBrush(col);
+        return this;
+    }
 }
 
 var allTiles: TileInfo[] = [
-    new TileInfo(TileType.Floor, 0),
-    new TileInfo(TileType.Wall, 1)
+    new TileInfo(TileType.Floor, 0, false, true).setColor,
+    new TileInfo(TileType.Wall, 1, false, true)
 ];
 
 type MapTile = {
@@ -99,6 +127,10 @@ class Map implements Renderable {
     */
     public draw(ctx: CanvasRenderingContext2D) {
 
+    }
+
+    public levelToScreen(localLocation: Vector2): Rectangle {
+        return new Rectangle()
     }
 
     public loadFromDocument(documentStr: string) {
