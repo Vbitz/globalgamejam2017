@@ -46,10 +46,10 @@ var UnitType;
 })(UnitType || (UnitType = {}));
 ;
 function getResourcesForRaidLevel(isPrimary, raidLevel) {
-    return (isPrimary ? 50 : 25) * raidLevel;
+    return Math.round((isPrimary ? 50 : 25) * Math.pow(1.05, raidLevel));
 }
 function getDurationForRaidLevel(isPrimary, raidLevel) {
-    return ((isPrimary ? 60 : 15) * raidLevel * 1000);
+    return ((isPrimary ? 60 : 15) * Math.pow(1.02, raidLevel)) * 1000;
 }
 function time() {
     return +(new Date());

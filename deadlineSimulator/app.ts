@@ -107,11 +107,11 @@ type SaveFileData = {
 };
 
 function getResourcesForRaidLevel(isPrimary: boolean, raidLevel: number): number {
-    return (isPrimary ? 50 : 25) * raidLevel;
+    return Math.round((isPrimary ? 50 : 25) * Math.pow(1.05, raidLevel));
 }
 
 function getDurationForRaidLevel(isPrimary: boolean, raidLevel: number): number {
-    return ((isPrimary ? 60 : 15) * raidLevel * 1000);
+    return ((isPrimary ? 60 : 15) * Math.pow(1.02, raidLevel)) * 1000;
 }
 
 function time(): number {
