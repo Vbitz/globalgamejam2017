@@ -26,8 +26,9 @@ function deleteSaveFile(): boolean {
 }
 
 enum EventType {
-    ResourceProduction,
     PrimaryRaid,
+    OneTimeResourceEvent,
+    PersistantResourceEvent,
 };
 
 type PrimaryRaidEvent = {
@@ -99,7 +100,7 @@ type BuildingData = {
 var buildingCreationFunctions: {[key: number]: (save: SaveFile, location: LocationData, level: number) => void} = {};
 
 buildingCreationFunctions[BuildingType.Sawmill] = (save, location, level) => {
-    save.addResourceToLocation
+    save.removeResourceInLocation(ResourceType.Wood, )
 };
 
 type LocationData = {
@@ -235,8 +236,7 @@ class SaveFile {
         return this.Data.LocationList.filter((locationData: LocationData) => locationData.Name == locationName)[0];
     }
 
-    public addResourceInLocation(locationName: string, type: ResourceType, count: number) {
-        var location: LocationData = this.getLocation(locationName);
+    public addResourceInLocation(location: LocationData, type: ResourceType, count: number) {
         if (location.ResourceAmounts[type] !== undefined) {
             location.ResourceAmounts[type] = 0;
         }
@@ -247,7 +247,9 @@ class SaveFile {
         }
     }
 
-    public removeResourceInLocation
+    public removeResourceInLocation(location: LocationData, type: ResourceType, count: number) {
+
+    }
 
     public addBuildingInLocation(locationName: string, buildingType: BuildingType, buildingLevel: number) {
         var location: LocationData = this.getLocation(locationName);
@@ -317,6 +319,10 @@ class SaveFile {
         })
     }
 
+    public createOneTimeResourceEvent(type: ResourceType, count: number) {
+
+    }
+
     public hasEventPassed(event: EventData): boolean {
         return (event.EventStartTime + event.EventDuration) < time();
     }
@@ -333,7 +339,7 @@ class SaveFile {
         if (event.EventType == EventType.PrimaryRaid) {
             let details = <PrimaryRaidEvent> event.EventDetails;
             return "Level = " + details.RaidLevel.toString(10) + " | Required Resources = " + details.ResourcesRequired.toString(10) + " Supplies";
-        } else if (event.EventType == EventType.GetResource) {
+        } else if (event.EventType == EventType.OneTimeResourceEvent) {
             let details = <GetResourceEvent> event.EventDetails;
             return ResourceType[details.Type] + " X " + details.Count.toString(10);
         }

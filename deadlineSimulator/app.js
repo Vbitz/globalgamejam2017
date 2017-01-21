@@ -24,8 +24,9 @@ function deleteSaveFile() {
 }
 var EventType;
 (function (EventType) {
-    EventType[EventType["ResourceProduction"] = 0] = "ResourceProduction";
-    EventType[EventType["PrimaryRaid"] = 1] = "PrimaryRaid";
+    EventType[EventType["PrimaryRaid"] = 0] = "PrimaryRaid";
+    EventType[EventType["OneTimeResourceEvent"] = 1] = "OneTimeResourceEvent";
+    EventType[EventType["PersistantResourceEvent"] = 2] = "PersistantResourceEvent";
 })(EventType || (EventType = {}));
 ;
 var ResourceType;
@@ -61,7 +62,7 @@ var BuildingType;
 ;
 var buildingCreationFunctions = {};
 buildingCreationFunctions[BuildingType.Sawmill] = function (save, location, level) {
-    save.addResourceToLocation;
+    save.removeResourceInLocation(ResourceType.Wood);
 };
 var UnitType;
 (function (UnitType) {
@@ -153,8 +154,7 @@ var SaveFile = (function () {
     SaveFile.prototype.getLocation = function (locationName) {
         return this.Data.LocationList.filter(function (locationData) { return locationData.Name == locationName; })[0];
     };
-    SaveFile.prototype.addResourceInLocation = function (locationName, type, count) {
-        var location = this.getLocation(locationName);
+    SaveFile.prototype.addResourceInLocation = function (location, type, count) {
         if (location.ResourceAmounts[type] !== undefined) {
             location.ResourceAmounts[type] = 0;
         }
@@ -164,6 +164,8 @@ var SaveFile = (function () {
         else {
             throw new NotEnoughResourcesError();
         }
+    };
+    SaveFile.prototype.removeResourceInLocation = function (location, type, count) {
     };
     SaveFile.prototype.addBuildingInLocation = function (locationName, buildingType, buildingLevel) {
         var location = this.getLocation(locationName);
@@ -219,6 +221,8 @@ var SaveFile = (function () {
             EventDuration: getDurationForRaidLevel(raidLevel)
         });
     };
+    SaveFile.prototype.createOneTimeResourceEvent = function (type, count) {
+    };
     SaveFile.prototype.hasEventPassed = function (event) {
         return (event.EventStartTime + event.EventDuration) < time();
     };
@@ -234,7 +238,7 @@ var SaveFile = (function () {
             var details = event.EventDetails;
             return "Level = " + details.RaidLevel.toString(10) + " | Required Resources = " + details.ResourcesRequired.toString(10) + " Supplies";
         }
-        else if (event.EventType == EventType.GetResource) {
+        else if (event.EventType == EventType.OneTimeResourceEvent) {
             var details = event.EventDetails;
             return ResourceType[details.Type] + " X " + details.Count.toString(10);
         }
