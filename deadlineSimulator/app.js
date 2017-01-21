@@ -12,6 +12,8 @@
 // TODO: Unit System
 // TODO: World Generation
 // TODO: Add Lose Condition
+// TODO: Time Skips
+// TODO: Hidden Units
 function deleteSaveFile() {
     localStorage.clear();
     document.location.reload();
@@ -63,9 +65,9 @@ function printTime(valueInMs) {
     ret = Math.round(valueInSeconds % 60).toString(10) + " Minutes";
     valueInSeconds -= (valueInSeconds % 60);
     if (valueInSeconds / 60 > 0) {
-        ret = Math.round((valueInSeconds / 60) % 60).toString(10) + " Hours " + ret;
+        ret = Math.round((valueInSeconds / 60) % 24).toString(10) + " Hours " + ret;
     }
-    valueInSeconds -= (valueInSeconds / 60) % 60;
+    valueInSeconds -= (valueInSeconds / 60) % 24;
     if (valueInSeconds / 60 / 24 > 0) {
         ret = Math.round(valueInSeconds / 60 / 60).toString(10) + " Days " + ret;
     }
