@@ -45,17 +45,39 @@ enum LocationType {
     Town,
     City,
     Village,
-    Mountion
+    Mountion,
+    DungeonEntrance,
+    DungeonLevel
 };
 
 type LocationData = {
+    LocationType: LocationType;
+    LocationName: string;
+    LocationConnections: string[];
+};
 
+type ItemData
+
+enum UnitType {
+    Hero
+};
+
+type UnitData = {
+    UnitType: UnitType;
+    UnitName: string;
+    UnitLocation: string;
+    UnitStats: {
+        AttackPower: number,
+        Health: number,
+    };
+    UnitInventory: ItemData[];
 };
 
 type SaveFileData = {
     HasLost: boolean;
     EventList: EventData[];
     LocationList: LocationData[];
+    UnitList: UnitData[];
 };
 
 function getResourcesForRaidLevel(isPrimary: boolean, raidLevel: number): number {
@@ -111,8 +133,16 @@ class SaveFile {
     public createNewGame() {
         this.Data = {
             HasLost: false,
-            EventList: []
+            EventList: [],
+            LocationList: [],
+            CharactorList: []
         };
+
+        this.generateLocationsAndBasicEvents();
+    }
+
+    public generateLocationsAndBasicEvents() {
+
     }
 
     public load() {

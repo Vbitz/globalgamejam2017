@@ -30,7 +30,14 @@ var LocationType;
     LocationType[LocationType["City"] = 1] = "City";
     LocationType[LocationType["Village"] = 2] = "Village";
     LocationType[LocationType["Mountion"] = 3] = "Mountion";
+    LocationType[LocationType["DungeonEntrance"] = 4] = "DungeonEntrance";
+    LocationType[LocationType["DungeonLevel"] = 5] = "DungeonLevel";
 })(LocationType || (LocationType = {}));
+;
+var UnitType;
+(function (UnitType) {
+    UnitType[UnitType["Hero"] = 0] = "Hero";
+})(UnitType || (UnitType = {}));
 ;
 function getResourcesForRaidLevel(isPrimary, raidLevel) {
     return (isPrimary ? 50 : 25) * raidLevel;
@@ -71,8 +78,13 @@ var SaveFile = (function () {
     SaveFile.prototype.createNewGame = function () {
         this.Data = {
             HasLost: false,
-            EventList: []
+            EventList: [],
+            LocationList: [],
+            CharactorList: []
         };
+        this.generateLocationsAndBasicEvents();
+    };
+    SaveFile.prototype.generateLocationsAndBasicEvents = function () {
     };
     SaveFile.prototype.load = function () {
         this.Data = JSON.parse(localStorage.getItem("saveData"));
