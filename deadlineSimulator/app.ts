@@ -323,6 +323,7 @@ class SaveFile {
             BuildingData: {},
             Level: buildingLevel
         });
+        buildingCreationFunctions[buildingType](this, location, buildingLevel, currentTime);
     }
 
     public createRandomVillageLocation(currentTime: number) {
@@ -446,7 +447,7 @@ class SaveFile {
         }
     }
 
-    public getRenderTable(): {}[] {
+    public getEventTable(): {}[] {
         return this.Data.EventList.map(((event: EventData) => {
             return {
                 "Event Type": EventType[event.EventType],
@@ -454,6 +455,29 @@ class SaveFile {
                 "Details": this.getEventDetails(event)
             };
         }).bind(this));
+    }
+
+    public getCurrentLocation(): string {
+        return "Testing Location";
+    }
+
+    public getCurrentLocationResourceTable(): {}[] {
+        var location = this.getLocation(this.getCurrentLocation());
+        return Object.keys(location.ResourceAmounts).map((rKey: string) => {
+            return {
+                "Resource Type": ResourceType[rKey],
+                "Resource Amount": location.ResourceAmounts[rKey].toString(10)
+            };
+        });
+    }
+
+    public getCurrentLocationBuildingTable(): {}[] {
+        var location = this.getLocation(this.getCurrentLocation());
+        return location.Buildings.map((building: BuildingData) => {
+            return {
+
+            }
+        });
     }
 
     public update() {
@@ -523,9 +547,9 @@ function main() {
         save.update();
         save.save();
 
-        var rTable = save.getRenderTable();
-
-        renderTable(document.querySelector("#currentDeadlineList"), rTable);
+        renderTable(document.querySelector("#currentDeadlineList"), save.getEventTable());
+        renderTable(document.querySelector("#currentLocationResourceList"), save.getCurrentLocationResourceTable());
+        renderTable(document.querySelector("#currentLocationBuildingList"), save.getCurrentLocationBuildingTable());
     }, 1000);
 }
 

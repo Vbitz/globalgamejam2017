@@ -222,6 +222,7 @@ var SaveFile = (function () {
             BuildingData: {},
             Level: buildingLevel
         });
+        buildingCreationFunctions[buildingType](this, location, buildingLevel, currentTime);
     };
     SaveFile.prototype.createRandomVillageLocation = function (currentTime) {
         var locationName = "Testing Location";
@@ -330,7 +331,7 @@ var SaveFile = (function () {
             return ret;
         }
     };
-    SaveFile.prototype.getRenderTable = function () {
+    SaveFile.prototype.getEventTable = function () {
         var _this = this;
         return this.Data.EventList.map((function (event) {
             return {
@@ -339,6 +340,24 @@ var SaveFile = (function () {
                 "Details": _this.getEventDetails(event)
             };
         }).bind(this));
+    };
+    SaveFile.prototype.getCurrentLocation = function () {
+        return "Testing Location";
+    };
+    SaveFile.prototype.getCurrentLocationResourceTable = function () {
+        var location = this.getLocation(this.getCurrentLocation());
+        return Object.keys(location.ResourceAmounts).map(function (rKey) {
+            return {
+                "Resource Type": ResourceType[rKey],
+                "Resource Amount": location.ResourceAmounts[rKey].toString(10)
+            };
+        });
+    };
+    SaveFile.prototype.getCurrentLocationBuildingTable = function () {
+        var location = this.getLocation(this.getCurrentLocation());
+        return location.Buildings.map(function (building) {
+            return {};
+        });
     };
     SaveFile.prototype.update = function () {
         var _this = this;
@@ -400,8 +419,9 @@ function main() {
     setInterval(function () {
         save.update();
         save.save();
-        var rTable = save.getRenderTable();
-        renderTable(document.querySelector("#currentDeadlineList"), rTable);
+        renderTable(document.querySelector("#currentDeadlineList"), save.getEventTable());
+        renderTable(document.querySelector("#currentLocationResourceList"), save.getCurrentLocationResourceTable());
+        renderTable(document.querySelector("#currentLocationBuildingList"), save.getCurrentLocationBuildingTable());
     }, 1000);
 }
 document.addEventListener("DOMContentLoaded", main);
