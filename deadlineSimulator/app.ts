@@ -82,13 +82,15 @@ enum BuildingType {
     IronMine,
     Barracks,
     Swordsmith,
-    WatchTower
+    WatchTower,
+    House
 };
 
 type BuildingData = {
     Type: BuildingType;
     Level: number;
-    FreeActionSlots;
+    FreeActionSlots: number;
+    BuildingData: {};
 };
 
 type LocationData = {
@@ -98,7 +100,7 @@ type LocationData = {
     ResourceAmounts: ResourceStockpile;
     DropedItems: ItemData[];
     Buildings: BuildingData[];
-    LocationData: (TownLocationData | CityLocationData | VillageLocationData | MountionLocationData | DungeonEntranceLocationData | DungeonLevelLocationData)
+    LocationData: (TownLocationData | CityLocationData | VillageLocationData | MountionLocationData | DungeonEntranceLocationData | DungeonLevelLocationData);
 };
 
 type ItemData = {
@@ -215,8 +217,35 @@ class SaveFile {
         this.generateBasicData();
     }
 
+    private getLocation(locationName: string) {
+        
+    }
+
+    public addResourceToLocation(locationName: string, type: ResourceType, count: number) {
+
+    }
+
+    public createRandomVillageLocation() {
+        var locationName = "Testing Location";
+        this.Data.LocationList.push({
+            Type: LocationType.Village,
+            Name: locationName,
+            Connections: [],
+            ResourceAmounts: {},
+            DropedItems: [],
+            Buildings: [],
+            LocationData: <VillageLocationData> {
+
+            }
+        });
+        this.addResourceToLocation(locationName, ResourceType.LandArea, 1000);
+        this.addBuildingInLocation(BuildingType.House, 1);
+        return locationName;
+    }
+
     public generateBasicData() {
         var baseLocationId = this.createRandomVillageLocation();
+        this.addBuildingInLocation(BuildingType.IronMine, 1);
         this.addBuildingInLocation(BuildingType.Sawmill, 1);
         this.addBuildingInLocation(BuildingType.Swordsmith, 1);
         this.addBuildingInLocation(BuildingType.Barracks, 1);

@@ -53,6 +53,7 @@ var BuildingType;
     BuildingType[BuildingType["Barracks"] = 2] = "Barracks";
     BuildingType[BuildingType["Swordsmith"] = 3] = "Swordsmith";
     BuildingType[BuildingType["WatchTower"] = 4] = "WatchTower";
+    BuildingType[BuildingType["House"] = 5] = "House";
 })(BuildingType || (BuildingType = {}));
 ;
 var UnitType;
@@ -135,8 +136,28 @@ var SaveFile = (function () {
         };
         this.generateBasicData();
     };
+    SaveFile.prototype.getLocation = function (locationName) {
+    };
+    SaveFile.prototype.addResourceToLocation = function (locationName, type, count) {
+    };
+    SaveFile.prototype.createRandomVillageLocation = function () {
+        var locationName = "Testing Location";
+        this.Data.LocationList.push({
+            Type: LocationType.Village,
+            Name: locationName,
+            Connections: [],
+            ResourceAmounts: {},
+            DropedItems: [],
+            Buildings: [],
+            LocationData: {}
+        });
+        this.addResourceToLocation(locationName, ResourceType.LandArea, 1000);
+        this.addBuildingInLocation(BuildingType.House, 1);
+        return locationName;
+    };
     SaveFile.prototype.generateBasicData = function () {
         var baseLocationId = this.createRandomVillageLocation();
+        this.addBuildingInLocation(BuildingType.IronMine, 1);
         this.addBuildingInLocation(BuildingType.Sawmill, 1);
         this.addBuildingInLocation(BuildingType.Swordsmith, 1);
         this.addBuildingInLocation(BuildingType.Barracks, 1);
