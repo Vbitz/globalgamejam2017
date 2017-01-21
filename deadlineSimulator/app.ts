@@ -129,10 +129,12 @@ function getDurationForRaidLevel(raidLevel: number): number {
 }
 
 function dumpRaidProgression(maxCount: number) {
-    return ((new Array(maxCount)).map((v:number, i: number) => {return {
-        level: i,
-        resources: getResourcesForRaidLevel(i),
-        duration: getDurationForRaidLevel(i)
+    var arr: number[] = new Array(60);
+    arr.fill(0);
+    console.table(arr.map((v:number, i: number) => {return {
+        level: i + 1,
+        resources: getResourcesForRaidLevel(i + 1),
+        duration: getDurationForRaidLevel(i + 1)
     }}));
 }
 
@@ -213,10 +215,10 @@ class SaveFile {
             EventType: EventType.PrimaryRaid,
             EventDetails: <PrimaryRaidEvent> {
                 RaidLevel: raidLevel,
-                ResourcesRequired: getResourcesForRaidLevel(true, raidLevel)
+                ResourcesRequired: getResourcesForRaidLevel(raidLevel)
             },
             EventStartTime: startTime,
-            EventDuration: getDurationForRaidLevel(true, raidLevel)
+            EventDuration: getDurationForRaidLevel(raidLevel)
         })
     }
 

@@ -68,11 +68,13 @@ function getDurationForRaidLevel(raidLevel) {
     }
 }
 function dumpRaidProgression(maxCount) {
-    return ((new Array(maxCount)).map(function (v, i) {
+    var arr = new Array(60);
+    arr.fill(0);
+    console.table(arr.map(function (v, i) {
         return {
-            level: i,
-            resources: getResourcesForRaidLevel(i),
-            duration: getDurationForRaidLevel(i)
+            level: i + 1,
+            resources: getResourcesForRaidLevel(i + 1),
+            duration: getDurationForRaidLevel(i + 1)
         };
     }));
 }
@@ -134,10 +136,10 @@ var SaveFile = (function () {
             EventType: EventType.PrimaryRaid,
             EventDetails: {
                 RaidLevel: raidLevel,
-                ResourcesRequired: getResourcesForRaidLevel(true, raidLevel)
+                ResourcesRequired: getResourcesForRaidLevel(raidLevel)
             },
             EventStartTime: startTime,
-            EventDuration: getDurationForRaidLevel(true, raidLevel)
+            EventDuration: getDurationForRaidLevel(raidLevel)
         });
     };
     SaveFile.prototype.hasEventPassed = function (event) {
