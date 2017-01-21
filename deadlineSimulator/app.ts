@@ -14,6 +14,14 @@ function deleteSaveFile(): boolean {
     return false;
 }
 
+type SaveFileData = {};
+
+class SaveFile {
+    public loadSaveFile() {
+        
+    }
+}
+
 function main() {
 
 }

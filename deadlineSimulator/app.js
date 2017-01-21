@@ -12,6 +12,13 @@ function deleteSaveFile() {
     localStorage.clear();
     return false;
 }
+var SaveFile = (function () {
+    function SaveFile() {
+    }
+    SaveFile.prototype.loadSaveFile = function () {
+    };
+    return SaveFile;
+}());
 function main() {
 }
 document.addEventListener("DOMContentLoaded", main);
