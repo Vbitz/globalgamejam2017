@@ -35,7 +35,11 @@ function time() {
 }
 function printTime(valueInMs) {
     var ret = "";
-    valueInMs = valueInMs / 1000;
+    var valueInSeconds = valueInMs / 1000;
+    ret = Math.round(valueInSeconds % 60).toString(10) + " Seconds";
+    valueInMs -= valueInSeconds % 60;
+    ret >
+    ;
     return ret;
 }
 var SaveFile = (function () {

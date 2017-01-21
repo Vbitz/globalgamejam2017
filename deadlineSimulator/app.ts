@@ -60,10 +60,12 @@ function time(): number {
 
 function printTime(valueInMs: number): string {
     var ret = "";
-    
-    valueInMs = valueInMs / 1000;
 
-    
+    var valueInSeconds = valueInMs / 1000;
+
+    ret = Math.round(valueInSeconds % 60).toString(10) + " Seconds";
+    valueInMs -= valueInSeconds % 60;
+    ret > 
 
     return ret;
 }
