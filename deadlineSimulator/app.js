@@ -25,10 +25,8 @@ function deleteSaveFile() {
 var EventType;
 (function (EventType) {
     EventType[EventType["PrimaryRaid"] = 0] = "PrimaryRaid";
-    EventType[EventType["OneTimeResourceProductionEvent"] = 1] = "OneTimeResourceProductionEvent";
-    EventType[EventType["PersistantResourceProductionEvent"] = 2] = "PersistantResourceProductionEvent";
-    EventType[EventType["OneTimeResourceEvent"] = 3] = "OneTimeResourceEvent";
-    EventType[EventType["PersistantResourceEvent"] = 4] = "PersistantResourceEvent";
+    EventType[EventType["PersistantResourceProductionEvent"] = 1] = "PersistantResourceProductionEvent";
+    EventType[EventType["PersistantResourceEvent"] = 2] = "PersistantResourceEvent";
 })(EventType || (EventType = {}));
 ;
 var ResourceType;
@@ -40,6 +38,7 @@ var ResourceType;
     ResourceType[ResourceType["IronSword"] = 4] = "IronSword";
     ResourceType[ResourceType["RawIron"] = 5] = "RawIron";
     ResourceType[ResourceType["Iron"] = 6] = "Iron";
+    ResourceType[ResourceType["BasicSwordsman"] = 7] = "BasicSwordsman";
 })(ResourceType || (ResourceType = {}));
 ;
 function resourcePair(type, count) {
@@ -72,22 +71,32 @@ var buildingCreationFunctions = {};
 buildingCreationFunctions[BuildingType.Sawmill] = function (save, location, level, currentTime) {
     save.removeResourceInLocation(location, ResourceType.Wood, 50);
     save.removeResourceInLocation(location, ResourceType.LandArea, 100);
-    save.createPersistantResourceProductionEvent([resourcePair(ResourceType.RawWood, 10)], [resourcePair(ResourceType.Wood, 25)], currentTime, 30);
+    save.createResourceProductionEvent([resourcePair(ResourceType.RawWood, 10)], [resourcePair(ResourceType.Wood, 25)], true, currentTime, 30);
 };
 buildingCreationFunctions[BuildingType.IronMine] = function (save, location, level, currentTime) {
     save.removeResourceInLocation(location, ResourceType.Wood, 100);
     save.removeResourceInLocation(location, ResourceType.LandArea, 200);
-    save.createPersistantResourceProductionEvent([resourcePair(ResourceType.RawIron, 10)], [resourcePair(ResourceType.Iron, 5)], currentTime, 60);
+    save.createResourceProductionEvent([resourcePair(ResourceType.RawIron, 10)], [resourcePair(ResourceType.Iron, 10)], true, currentTime, 30);
 };
 buildingCreationFunctions[BuildingType.Barracks] = function (save, location, level, currentTime) {
     save.removeResourceInLocation(location, ResourceType.Wood, 150);
     save.removeResourceInLocation(location, ResourceType.LandArea, 100);
-    save.createPersistantResourceProductionEvent([
+    save.createResourceProductionEvent([
         resourcePair(ResourceType.Population, 1),
         resourcePair(ResourceType.IronSword, 1)
     ], [
-        resourcePair(ResourceType.BasicSwordsman)
-    ], currentTime, 120);
+        resourcePair(ResourceType.BasicSwordsman, 1)
+    ], true, currentTime, 120);
+};
+buildingCreationFunctions[BuildingType.Swordsmith] = function (save, location, level, currentTime) {
+    save.removeResourceInLocation(location, ResourceType.Wood, 150);
+    save.removeResourceInLocation(location, ResourceType.LandArea, 100);
+    save.createResourceProductionEvent([
+        resourcePair(ResourceType.Iron, 5),
+        resourcePair(ResourceType.Wood, 5)
+    ], [
+        resourcePair(ResourceType.IronSword, 5)
+    ], true, currentTime, 120);
 };
 var UnitType;
 (function (UnitType) {
@@ -251,18 +260,12 @@ var SaveFile = (function () {
     };
     SaveFile.prototype.createOneTimeResourceEvent = function (pair, startTime, duration) {
     };
-    SaveFile.prototype.createPersistantResourceProductionEvent = function (input, output, outputCount, startTime, duration) {
+    SaveFile.prototype.createResourceProductionEvent = function (inputs, outputs, repeats, startTime, duration) {
         this.PendingEventList.push({
-            EventType: EventType.PersistantResourceProductionEvent,
+            EventType: repeats ? EventType.PersistantResourceProductionEvent : EventType.OneTimeResourceProductionEvent,
             EventDetails: {
-                Input: {
-                    Type: inputType,
-                    Count: inputCount
-                },
-                Output: {
-                    Type: outputType,
-                    Count: outputCount
-                }
+                Inputs: inputs,
+                Outputs: outputs
             },
             EventStartTime: startTime,
             EventDuration: duration
@@ -283,17 +286,18 @@ var SaveFile = (function () {
             var details = event.EventDetails;
             return "Level = " + details.RaidLevel.toString(10) + " | Required Resources = " + details.ResourcesRequired.toString(10) + " Supplies";
         }
-        else if (event.EventType == EventType.OneTimeResourceEvent || event.EventType == EventType.PersistantResourceEvent) {
-            var details = event.EventDetails;
-            return ResourceType[details.Output.Type] + " X " + details.Output.Count.toString(10);
-        }
         else if (event.EventType == EventType.OneTimeResourceProductionEvent || event.EventType == EventType.PersistantResourceProductionEvent) {
             var details = event.EventDetails;
             var ret = "";
-            ret += "Turns ";
-            ret += ResourceType[details.Input.Type] + " X " + details.Input.Count.toString(10);
-            ret += " Into ";
-            ret += ResourceType[details.Output.Type] + " X " + details.Output.Count.toString(10);
+            ret += "Turns {";
+            details.Inputs.forEach(function (pair) {
+                ret += ResourceType[pair.Type] + " X " + pair.Count.toString(10) + ", ";
+            });
+            ret += "} Into {";
+            details.Outputs.forEach(function (pair) {
+                ret += ResourceType[pair.Type] + " X " + pair.Count.toString(10) + ", ";
+            });
+            ret += "}";
             return ret;
         }
     };
