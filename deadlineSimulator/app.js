@@ -89,11 +89,31 @@ var SaveFile = (function () {
     return SaveFile;
 }());
 function e(type, attrs, value) {
+    var newElement = document.createElement(type);
+    for (var k in attrs) {
+        newElement.setAttribute(k, attrs[k]);
+    }
     if (value instanceof Array) {
         value.forEach(function (ele) { return newElement.appendChild(ele); });
     }
+    else {
+        newElement.textContent = value;
+    }
+    return newElement;
 }
 function renderTable(tableElement, data) {
+    // Clear Content
+    tableElement.innerHTML = "";
+    tableElement.appendChild(e("thead", {}, [
+        e("tr", {}, Object.keys(data[0]).map(function (heading) { return e("th", {}, heading); }))
+    ]));
+    tableElement.appendChild(e("tbody", {}, data.map(function (dataRow) {
+        var arr = [];
+        for (var k in dataRow) {
+            arr.push(e("td"));
+        }
+        return e("tr", {}, arr);
+    })));
 }
 function main() {
     var save = new SaveFile();

@@ -126,14 +126,37 @@ class SaveFile {
     }
 }
 
-function e(type: string, attrs: {[k: string]: string}, value: string | HTMLElement[]) {
+function e(type: string, attrs: {[k: string]: string}, value: string | Element[]): Element {
+    var newElement = document.createElement(type);
+    
+    for (var k in attrs) {
+        newElement.setAttribute(k, attrs[k]);
+    }
+
     if (value instanceof Array) {
         value.forEach((ele) => newElement.appendChild(ele));
+    } else {
+        newElement.textContent = value;
     }
+    
+    return newElement;
 }
 
-function renderTable(tableElement: HTMLElement, data: {}[]) {
+function renderTable(tableElement: Element, data: {}[]) {
+    // Clear Content
+    tableElement.innerHTML = "";
 
+    tableElement.appendChild(e("thead", {}, [
+        e("tr", {}, Object.keys(data[0]).map((heading: string) => e("th", {}, heading)))
+    ]));
+
+    tableElement.appendChild(e("tbody", {}, data.map((dataRow: {}) => {
+        var arr: Element[] = [];
+        for (var k in dataRow) {
+            arr.push(e("td"))
+        }
+        return e("tr", {}, arr);
+    })));
 }
 
 function main() {
