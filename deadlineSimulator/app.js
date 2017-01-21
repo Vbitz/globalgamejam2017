@@ -25,8 +25,10 @@ function deleteSaveFile() {
 var EventType;
 (function (EventType) {
     EventType[EventType["PrimaryRaid"] = 0] = "PrimaryRaid";
-    EventType[EventType["OneTimeResourceEvent"] = 1] = "OneTimeResourceEvent";
-    EventType[EventType["PersistantResourceEvent"] = 2] = "PersistantResourceEvent";
+    EventType[EventType["OneTimeResourceProductionEvent"] = 1] = "OneTimeResourceProductionEvent";
+    EventType[EventType["PersistantResourceProductionEvent"] = 2] = "PersistantResourceProductionEvent";
+    EventType[EventType["OneTimeResourceEvent"] = 3] = "OneTimeResourceEvent";
+    EventType[EventType["PersistantResourceEvent"] = 4] = "PersistantResourceEvent";
 })(EventType || (EventType = {}));
 ;
 var ResourceType;
@@ -62,7 +64,8 @@ var BuildingType;
 ;
 var buildingCreationFunctions = {};
 buildingCreationFunctions[BuildingType.Sawmill] = function (save, location, level) {
-    save.removeResourceInLocation(ResourceType.Wood);
+    save.removeResourceInLocation(location, ResourceType.Wood, 50);
+    save.createPersistantResourceProductionEvent(ResourceType.RawWood, 10, ResourceType.Wood, 25, 30);
 };
 var UnitType;
 (function (UnitType) {
@@ -166,9 +169,9 @@ var SaveFile = (function () {
         }
     };
     SaveFile.prototype.removeResourceInLocation = function (location, type, count) {
+        return this.addResourceInLocation(location, type, -count);
     };
-    SaveFile.prototype.addBuildingInLocation = function (locationName, buildingType, buildingLevel) {
-        var location = this.getLocation(locationName);
+    SaveFile.prototype.addBuildingInLocation = function (location, buildingType, buildingLevel) {
     };
     SaveFile.prototype.createRandomVillageLocation = function () {
         var locationName = "Testing Location";
@@ -181,11 +184,12 @@ var SaveFile = (function () {
             Buildings: [],
             LocationData: {}
         });
-        this.addResourceInLocation(locationName, ResourceType.LandArea, 1000);
-        this.addResourceInLocation(locationName, ResourceType.Wood, 250);
-        this.addResourceInLocation(locationName, ResourceType.RawWood, 5000);
-        this.addResourceInLocation(locationName, ResourceType.RawIron, 1500);
-        this.addBuildingInLocation(locationName, BuildingType.House, 1); // 50 wood
+        var location = this.getLocation(locationName);
+        this.addResourceInLocation(location, ResourceType.LandArea, 1000);
+        this.addResourceInLocation(location, ResourceType.Wood, 250);
+        this.addResourceInLocation(location, ResourceType.RawWood, 5000);
+        this.addResourceInLocation(location, ResourceType.RawIron, 1500);
+        this.addBuildingInLocation(location, BuildingType.House, 1); // 50 wood
         // 50 wood should be spare
         return locationName;
     };
@@ -193,11 +197,12 @@ var SaveFile = (function () {
     };
     SaveFile.prototype.generateBasicData = function () {
         var baseLocationId = this.createRandomVillageLocation();
-        this.addResourceToLocation(baseLocationId, ResourceType.Wood, 500);
-        this.addBuildingInLocation(baseLocationId, BuildingType.IronMine, 1); // 100 wood
-        this.addBuildingInLocation(baseLocationId, BuildingType.Sawmill, 1); // 50 wood
-        this.addBuildingInLocation(baseLocationId, BuildingType.Swordsmith, 1); // 150 wood
-        this.addBuildingInLocation(baseLocationId, BuildingType.Barracks, 1); // 200 wood
+        var baseLocation = this.getLocation(baseLocationId);
+        this.addResourceInLocation(baseLocation, ResourceType.Wood, 500);
+        this.addBuildingInLocation(baseLocation, BuildingType.IronMine, 1); // 100 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.Sawmill, 1); // 50 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.Swordsmith, 1); // 150 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.Barracks, 1); // 200 wood
         this.createRandomHeroInLocation(baseLocationId);
         this.createPrimaryRaidEvent(1, time());
     };
@@ -222,6 +227,8 @@ var SaveFile = (function () {
         });
     };
     SaveFile.prototype.createOneTimeResourceEvent = function (type, count) {
+    };
+    SaveFile.prototype.createPersistantResourceProductionEvent = function (inputType, inputCount, outputType, outputCount, duration) {
     };
     SaveFile.prototype.hasEventPassed = function (event) {
         return (event.EventStartTime + event.EventDuration) < time();

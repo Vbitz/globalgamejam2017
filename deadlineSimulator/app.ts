@@ -27,6 +27,8 @@ function deleteSaveFile(): boolean {
 
 enum EventType {
     PrimaryRaid,
+    OneTimeResourceProductionEvent,
+    PersistantResourceProductionEvent,
     OneTimeResourceEvent,
     PersistantResourceEvent,
 };
@@ -38,9 +40,12 @@ type PrimaryRaidEvent = {
 
 enum ResourceType {
     Population,
+    
     LandArea,
+    
     RawWood,
     Wood,
+
     IronSword,
     RawIron,
     Iron,
@@ -100,7 +105,8 @@ type BuildingData = {
 var buildingCreationFunctions: {[key: number]: (save: SaveFile, location: LocationData, level: number) => void} = {};
 
 buildingCreationFunctions[BuildingType.Sawmill] = (save, location, level) => {
-    save.removeResourceInLocation(ResourceType.Wood, )
+    save.removeResourceInLocation(location, ResourceType.Wood, 50);
+    save.createPersistantResourceProductionEvent(ResourceType.RawWood, 10, ResourceType.Wood, 25, 30);
 };
 
 type LocationData = {
@@ -248,11 +254,10 @@ class SaveFile {
     }
 
     public removeResourceInLocation(location: LocationData, type: ResourceType, count: number) {
-
+        return this.addResourceInLocation(location, type, -count);
     }
 
-    public addBuildingInLocation(locationName: string, buildingType: BuildingType, buildingLevel: number) {
-        var location: LocationData = this.getLocation(locationName);
+    public addBuildingInLocation(location: LocationData, buildingType: BuildingType, buildingLevel: number) {
 
     }
 
@@ -269,11 +274,13 @@ class SaveFile {
             LocationData: <VillageLocationData> {}
         });
 
-        this.addResourceInLocation(locationName, ResourceType.LandArea, 1000);
-        this.addResourceInLocation(locationName, ResourceType.Wood, 250);
-        this.addResourceInLocation(locationName, ResourceType.RawWood, 5000);
-        this.addResourceInLocation(locationName, ResourceType.RawIron, 1500);
-        this.addBuildingInLocation(locationName, BuildingType.House, 1); // 50 wood
+        var location = this.getLocation(locationName);
+
+        this.addResourceInLocation(location, ResourceType.LandArea, 1000);
+        this.addResourceInLocation(location, ResourceType.Wood, 250);
+        this.addResourceInLocation(location, ResourceType.RawWood, 5000);
+        this.addResourceInLocation(location, ResourceType.RawIron, 1500);
+        this.addBuildingInLocation(location, BuildingType.House, 1); // 50 wood
         
         // 50 wood should be spare
 
@@ -286,11 +293,12 @@ class SaveFile {
 
     public generateBasicData() {
         var baseLocationId = this.createRandomVillageLocation();
-        this.addResourceToLocation(baseLocationId, ResourceType.Wood, 500);
-        this.addBuildingInLocation(baseLocationId, BuildingType.IronMine, 1); // 100 wood
-        this.addBuildingInLocation(baseLocationId, BuildingType.Sawmill, 1); // 50 wood
-        this.addBuildingInLocation(baseLocationId, BuildingType.Swordsmith, 1); // 150 wood
-        this.addBuildingInLocation(baseLocationId, BuildingType.Barracks, 1); // 200 wood
+        var baseLocation = this.getLocation(baseLocationId);
+        this.addResourceInLocation(baseLocation, ResourceType.Wood, 500);
+        this.addBuildingInLocation(baseLocation, BuildingType.IronMine, 1); // 100 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.Sawmill, 1); // 50 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.Swordsmith, 1); // 150 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.Barracks, 1); // 200 wood
         this.createRandomHeroInLocation(baseLocationId);
         this.createPrimaryRaidEvent(1, time());
     }
@@ -321,6 +329,10 @@ class SaveFile {
 
     public createOneTimeResourceEvent(type: ResourceType, count: number) {
 
+    }
+
+    public createPersistantResourceProductionEvent(inputType: ResourceType, inputCount: number, outputType: ResourceType, outputCount: number, duration) {
+        
     }
 
     public hasEventPassed(event: EventData): boolean {
