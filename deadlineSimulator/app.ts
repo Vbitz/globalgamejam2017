@@ -41,9 +41,21 @@ type EventData = {
     EventDuration: number;
 };
 
+enum LocationType {
+    Town,
+    City,
+    Village,
+    Mountion
+};
+
+type LocationData = {
+
+};
+
 type SaveFileData = {
     HasLost: boolean;
     EventList: EventData[];
+    LocationList: LocationData[];
 };
 
 function getResourcesForRaidLevel(isPrimary: boolean, raidLevel: number): number {

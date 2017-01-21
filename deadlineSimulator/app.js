@@ -24,6 +24,14 @@ var ResourceType;
     ResourceType[ResourceType["Troops"] = 0] = "Troops";
 })(ResourceType || (ResourceType = {}));
 ;
+var LocationType;
+(function (LocationType) {
+    LocationType[LocationType["Town"] = 0] = "Town";
+    LocationType[LocationType["City"] = 1] = "City";
+    LocationType[LocationType["Village"] = 2] = "Village";
+    LocationType[LocationType["Mountion"] = 3] = "Mountion";
+})(LocationType || (LocationType = {}));
+;
 function getResourcesForRaidLevel(isPrimary, raidLevel) {
     return (isPrimary ? 50 : 25) * raidLevel;
 }
