@@ -185,20 +185,31 @@ class SaveFile {
     }
 
     public hasEventPassed(event: EventData): boolean {
+        return (event.EventStartTime + event.EventDuration) > time();
+    }
+
+    public complateEvent(event: EventData) {
 
     }
 
-    public complateEvent() {
-
+    public getEventDetails(event: EventData): string {
+        if (event.EventType == EventType.PrimaryRaid) {
+            var details = <PrimaryRaidEvent> event.EventDetails;
+            return "Level: " + details.RaidLevel + " : Required Resources" + ;
+        } else if (event.EventType == EventType.GetResource) {
+            var details = <GetResourceEvent> event.EventDetails;
+            return "Resource: " + ResourceType[details.Type];
+        }
     }
 
     public getRenderTable(): {}[] {
-        return this.Data.EventList.map((eventInfo: EventData) => {
+        return this.Data.EventList.map(((event: EventData) => {
             return {
-                "Event Type": EventType[eventInfo.EventType],
-                "Time Remaining": printTime((eventInfo.EventStartTime + eventInfo.EventDuration) - time())
+                "Event Type": EventType[event.EventType],
+                "Time Remaining": printTime((event.EventStartTime + event.EventDuration) - time()),
+                "Details": this.getEventDetails(event)
             };
-        });
+        }).bind(this));
     }
 
     public update() {
@@ -206,7 +217,8 @@ class SaveFile {
             if (!this.hasEventPassed(event)) {
                 return true;
             } else {
-                this.complateEvent();
+                this.complateEvent(event);
+                return false;
             }
         }).bind(this));
     }

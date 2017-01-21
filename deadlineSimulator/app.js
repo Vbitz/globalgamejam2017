@@ -107,16 +107,29 @@ var SaveFile = (function () {
         });
     };
     SaveFile.prototype.hasEventPassed = function (event) {
+        return (event.EventStartTime + event.EventDuration) > time();
     };
-    SaveFile.prototype.complateEvent = function () {
+    SaveFile.prototype.complateEvent = function (event) {
+    };
+    SaveFile.prototype.getEventDetails = function (event) {
+        if (event.EventType == EventType.PrimaryRaid) {
+            var details = event.EventDetails;
+            return "Level: " + ().RaidLevel + " : Required Resources" + ;
+        }
+        else if (event.EventType == EventType.GetResource) {
+            var details = event.EventDetails;
+            return "Resource: " + ResourceType[details.Type];
+        }
     };
     SaveFile.prototype.getRenderTable = function () {
-        return this.Data.EventList.map(function (eventInfo) {
+        var _this = this;
+        return this.Data.EventList.map((function (event) {
             return {
-                "Event Type": EventType[eventInfo.EventType],
-                "Time Remaining": printTime((eventInfo.EventStartTime + eventInfo.EventDuration) - time())
+                "Event Type": EventType[event.EventType],
+                "Time Remaining": printTime((event.EventStartTime + event.EventDuration) - time()),
+                "Details": _this.getEventDetails(event)
             };
-        });
+        }).bind(this));
     };
     SaveFile.prototype.update = function () {
         var _this = this;
@@ -125,7 +138,8 @@ var SaveFile = (function () {
                 return true;
             }
             else {
-                _this.complateEvent();
+                _this.complateEvent(event);
+                return false;
             }
         }).bind(this));
     };
