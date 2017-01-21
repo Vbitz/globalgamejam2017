@@ -61,6 +61,13 @@ function time(): number {
 function printTime(valueInMs: number): string {
     var ret = "";
 
+    var inverse = true;
+
+    inverse = valueInMs < 0;
+    if (inverse) {
+        valueInMs = -valueInMs;
+    }
+
     var valueInSeconds = valueInMs / 1000;
 
     ret = Math.round(valueInSeconds % 60).toString(10) + " Seconds";
@@ -69,6 +76,10 @@ function printTime(valueInMs: number): string {
     }
     if (valueInSeconds / 60 / 60 > 0) {
         ret = Math.round(valueInSeconds / 60 / 60).toString(10) + " Hours " + ret;
+    }
+
+    if (inverse) {
+        ret = "-" + ret;
     }
 
     return ret;
