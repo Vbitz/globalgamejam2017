@@ -94,6 +94,11 @@ type BuildingData = {
     BuildingData: {};
 };
 
+var buildingCreationFunctions: {[key: number]: (save: SaveFile, location: LocationData, level: number) => void} = {};
+
+buildingCreationFunctions[BuildingType.Sawmill] = (save, location, level) => {
+};
+
 type LocationData = {
     Type: LocationType;
     Name: string;
@@ -227,10 +232,15 @@ class SaveFile {
         if (location.ResourceAmounts[type] !== undefined) {
             location.ResourceAmounts[type] = 0;
         }
+        if (location.ResourceAmounts[type] + count >= 0) {
         location.ResourceAmounts[type] += count;
+        } else {
+            throw NotEnoughResourcesError();
+        }
     }
 
     public addBuildingInLocation(locationName: string, buildingType: BuildingType, buildingLevel: number) {
+        var location: LocationData = this.getLocation(locationName);
 
     }
 
@@ -247,16 +257,23 @@ class SaveFile {
         });
         this.addResourceToLocation(locationName, ResourceType.LandArea, 1000);
         this.addResourceToLocation(locationName, ResourceType.Wood, 50);
-        this.addBuildingInLocation(locationName, BuildingType.House, 1);
+        this.addResourceToLocation(locationName, ResourceType.RawWood, 5000);
+        this.addResourceToLocation(locationName, ResourceType.RawIron, 1000);
+        this.addBuildingInLocation(locationName, BuildingType.House, 1); // 50 wood
         return locationName;
+    }
+
+    public createRandomHeroInLocation(locationName: string) {
+
     }
 
     public generateBasicData() {
         var baseLocationId = this.createRandomVillageLocation();
-        this.addBuildingInLocation(baseLocationId, BuildingType.IronMine, 1);
-        this.addBuildingInLocation(baseLocationId, BuildingType.Sawmill, 1);
-        this.addBuildingInLocation(baseLocationId, BuildingType.Swordsmith, 1);
-        this.addBuildingInLocation(baseLocationId, BuildingType.Barracks, 1);
+        this.addResourceToLocation(baseLocationId, ResourceType.Wood, 500);
+        this.addBuildingInLocation(baseLocationId, BuildingType.IronMine, 1); // 100 wood
+        this.addBuildingInLocation(baseLocationId, BuildingType.Sawmill, 1); // 50 wood
+        this.addBuildingInLocation(baseLocationId, BuildingType.Swordsmith, 1); // 150 wood
+        this.addBuildingInLocation(baseLocationId, BuildingType.Barracks, 1); // 200 wood
         this.createRandomHeroInLocation(baseLocationId);
         this.createPrimaryRaidEvent(1, time());
     }
