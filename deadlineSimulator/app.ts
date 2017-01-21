@@ -64,14 +64,22 @@ function printTime(valueInMs: number): string {
     var valueInSeconds = valueInMs / 1000;
 
     ret = Math.round(valueInSeconds % 60).toString(10) + " Seconds";
-    valueInMs -= valueInSeconds % 60;
-    ret > 
+    if (valueInSeconds / 60 > 0) {
+        ret = Math.round((valueInSeconds / 60) % 60).toString(10) + " Minutes " + ret;
+    }
+    if (valueInSeconds / 60 / 60 > 0) {
+        ret = Math.round(valueInSeconds / 60 / 60).toString(10) + " Hours " + ret;
+    }
 
     return ret;
 }
 
 class SaveFile {
     private Data: SaveFileData;
+
+    constructor() {
+        this.createNewGame();
+    }
 
     public isNewGame(): boolean {
         return localStorage.getItem("saveData") != null;
@@ -118,8 +126,19 @@ class SaveFile {
     }
 }
 
+function e(type: string, attrs: {[k: string]: string}, value: string | HTMLElement[]) {
+    if (value instanceof Array) {
+        value.forEach((ele) => newElement.appendChild(ele));
+    }
+}
+
+function renderTable(tableElement: HTMLElement, data: {}[]) {
+
+}
+
 function main() {
     var save: SaveFile = new SaveFile();
+    window["save"] = save;
 
     if (save.isNewGame()) {
         save.createNewGame();

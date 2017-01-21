@@ -37,13 +37,17 @@ function printTime(valueInMs) {
     var ret = "";
     var valueInSeconds = valueInMs / 1000;
     ret = Math.round(valueInSeconds % 60).toString(10) + " Seconds";
-    valueInMs -= valueInSeconds % 60;
-    ret >
-    ;
+    if (valueInSeconds / 60 > 0) {
+        ret = Math.round((valueInSeconds / 60) % 60).toString(10) + " Minutes " + ret;
+    }
+    if (valueInSeconds / 60 / 60 > 0) {
+        ret = Math.round(valueInSeconds / 60 / 60).toString(10) + " Hours " + ret;
+    }
     return ret;
 }
 var SaveFile = (function () {
     function SaveFile() {
+        this.createNewGame();
     }
     SaveFile.prototype.isNewGame = function () {
         return localStorage.getItem("saveData") != null;
@@ -84,8 +88,16 @@ var SaveFile = (function () {
     };
     return SaveFile;
 }());
+function e(type, attrs, value) {
+    if (value instanceof Array) {
+        value.forEach(function (ele) { return newElement.appendChild(ele); });
+    }
+}
+function renderTable(tableElement, data) {
+}
 function main() {
     var save = new SaveFile();
+    window["save"] = save;
     if (save.isNewGame()) {
         save.createNewGame();
         save.createPrimaryRaidEvent(1, time());
