@@ -123,13 +123,13 @@ var buildingCreationFunctions: {[key: number]: (save: SaveFile, location: Locati
 buildingCreationFunctions[BuildingType.Sawmill] = (save, location, level, currentTime) => {
     save.removeResourceInLocation(location, ResourceType.Wood, 50);
     save.removeResourceInLocation(location, ResourceType.LandArea, 100);
-    save.createResourceProductionEvent(location.Name, [resourcePair(ResourceType.RawWood, 10)], [resourcePair(ResourceType.Wood, 25)], true, currentTime, 30);
+    save.createResourceProductionEvent(location.Name, [resourcePair(ResourceType.RawWood, 10)], [resourcePair(ResourceType.Wood, 25)], true, currentTime, 30000);
 };
 
 buildingCreationFunctions[BuildingType.IronMine] = (save, location, level, currentTime) => {
     save.removeResourceInLocation(location, ResourceType.Wood, 100);
     save.removeResourceInLocation(location, ResourceType.LandArea, 200);
-    save.createResourceProductionEvent(location.Name, [resourcePair(ResourceType.RawIron, 10)], [resourcePair(ResourceType.Iron, 10)], true, currentTime, 30);
+    save.createResourceProductionEvent(location.Name, [resourcePair(ResourceType.RawIron, 10)], [resourcePair(ResourceType.Iron, 10)], true, currentTime, 30000);
 };
 
 buildingCreationFunctions[BuildingType.Barracks] = (save, location, level, currentTime) => {
@@ -140,7 +140,7 @@ buildingCreationFunctions[BuildingType.Barracks] = (save, location, level, curre
         resourcePair(ResourceType.IronSword, 1)
     ], [
         resourcePair(ResourceType.BasicSwordsman, 1)
-    ], true, currentTime, 120);
+    ], true, currentTime, 100000);
 };
 
 buildingCreationFunctions[BuildingType.Swordsmith] = (save, location, level, currentTime) => {
@@ -151,7 +151,7 @@ buildingCreationFunctions[BuildingType.Swordsmith] = (save, location, level, cur
         resourcePair(ResourceType.Wood, 5)
     ], [
         resourcePair(ResourceType.IronSword, 5)
-    ], true, currentTime, 60);
+    ], true, currentTime, 60000);
 };
 
 buildingCreationFunctions[BuildingType.WatchTower] = (save, location, level, currentTime) => {
@@ -218,6 +218,7 @@ function getResourcesForRaidLevel(raidLevel: number): number {
 function getDurationForRaidLevel(raidLevel: number): number {
     // Excel Formula: =ROUND((SIN(A2 / 0.5)+1) * 4, 0) * 15
     var value = Math.round((Math.sin(raidLevel / 0.5) + 1) * 4) * 15;
+    value = value * 1000;
     if (raidLevel == 1) {
         return value;
     } else {
@@ -342,9 +343,12 @@ class SaveFile {
         var location = this.getLocation(locationName);
 
         this.addResourceInLocation(location, ResourceType.LandArea, 1000);
-        this.addResourceInLocation(location, ResourceType.Wood, 250);
+        this.addResourceInLocation(location, ResourceType.Wood, 500);
         this.addResourceInLocation(location, ResourceType.RawWood, 5000);
         this.addResourceInLocation(location, ResourceType.RawIron, 1500);
+        this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
+        this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
+        this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
         this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
         
         // 50 wood should be spare
@@ -403,7 +407,7 @@ class SaveFile {
                 Outputs: outputs
             },
             EventStartTime: startTime,
-            EventDuration: duration * 1000
+            EventDuration: duration
         });
     }
 
@@ -475,13 +479,16 @@ class SaveFile {
         var location = this.getLocation(this.getCurrentLocation());
         return location.Buildings.map((building: BuildingData) => {
             return {
-                "Building Type": ResourceType[building.Type],
+                "Building Type": BuildingType[building.Type],
                 "Building Level": building.Level.toString(10),
             };
         });
     }
 
     public update() {
+        if (this.Data.HasLost) {
+            return;
+        }
         this.Data.EventList = this.Data.EventList.filter(((event: EventData) => {
             if (!this.hasEventPassed(event)) {
                 return true;
