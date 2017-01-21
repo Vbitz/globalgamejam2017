@@ -12,6 +12,7 @@
 // TODO: Day/Night System
 // TODO: Unit System
 // TODO: World Generation
+// TODO: Add Lose Condition
 
 function deleteSaveFile(): boolean {
     localStorage.clear();
@@ -193,13 +194,13 @@ class SaveFile {
     }
 
     public hasEventPassed(event: EventData): boolean {
-        return (event.EventStartTime + event.EventDuration) > time();
+        return (event.EventStartTime + event.EventDuration) < time();
     }
 
     public complateEvent(event: EventData) {
-        if (event.EventType == PrimaryRaidEvent) {
+        if (event.EventType == EventType.PrimaryRaid) {
             let details = <PrimaryRaidEvent> event.EventDetails;
-            this.createPrimaryRaidEvent(event.EventDetails)
+            this.createPrimaryRaidEvent(details.RaidLevel + 1, event.EventStartTime + event.EventDuration);
         }
     }
 
@@ -229,6 +230,7 @@ class SaveFile {
             if (!this.hasEventPassed(event)) {
                 return true;
             } else {
+                console.log("Completing: " + event);
                 this.complateEvent(event);
                 return false;
             }

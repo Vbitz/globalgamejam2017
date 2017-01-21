@@ -11,6 +11,7 @@
 // TODO: Day/Night System
 // TODO: Unit System
 // TODO: World Generation
+// TODO: Add Lose Condition
 function deleteSaveFile() {
     localStorage.clear();
     document.location.reload();
@@ -110,10 +111,12 @@ var SaveFile = (function () {
         });
     };
     SaveFile.prototype.hasEventPassed = function (event) {
-        return (event.EventStartTime + event.EventDuration) > time();
+        return (event.EventStartTime + event.EventDuration) < time();
     };
     SaveFile.prototype.complateEvent = function (event) {
-        if (event.EventType == PrimaryRaidEvent) {
+        if (event.EventType == EventType.PrimaryRaid) {
+            var details = event.EventDetails;
+            this.createPrimaryRaidEvent(details.RaidLevel + 1, event.EventStartTime + event.EventDuration);
         }
     };
     SaveFile.prototype.getEventDetails = function (event) {
@@ -144,6 +147,7 @@ var SaveFile = (function () {
                 return true;
             }
             else {
+                console.log("Completing: " + event);
                 _this.complateEvent(event);
                 return false;
             }
