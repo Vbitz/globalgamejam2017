@@ -10,11 +10,12 @@
 */
 // TODO; Resource Generation
 // TODO: Add Lose Condition
+// TODO: Building Upgrades
 // TODO: Day/Night System
 // TODO: Unit System
 // TODO: World Generation
 // TODO: Time Skips
-// TODO: Hidden Units
+// TODO: Hidden Events
 // TODO: Better Mobile Display
 function deleteSaveFile() {
     localStorage.clear();
@@ -137,8 +138,16 @@ var SaveFile = (function () {
         this.generateBasicData();
     };
     SaveFile.prototype.getLocation = function (locationName) {
+        return this.Data.LocationList.filter(function (locationData) { return locationData.Name == locationName; })[0];
     };
     SaveFile.prototype.addResourceToLocation = function (locationName, type, count) {
+        var location = this.getLocation(locationName);
+        if (location.ResourceAmounts[type] !== undefined) {
+            location.ResourceAmounts[type] = 0;
+        }
+        location.ResourceAmounts[type] += count;
+    };
+    SaveFile.prototype.addBuildingInLocation = function (locationName, buildingType, buildingLevel) {
     };
     SaveFile.prototype.createRandomVillageLocation = function () {
         var locationName = "Testing Location";
@@ -152,16 +161,17 @@ var SaveFile = (function () {
             LocationData: {}
         });
         this.addResourceToLocation(locationName, ResourceType.LandArea, 1000);
-        this.addBuildingInLocation(BuildingType.House, 1);
+        this.addResourceToLocation(locationName, ResourceType.Wood, 50);
+        this.addBuildingInLocation(locationName, BuildingType.House, 1);
         return locationName;
     };
     SaveFile.prototype.generateBasicData = function () {
         var baseLocationId = this.createRandomVillageLocation();
-        this.addBuildingInLocation(BuildingType.IronMine, 1);
-        this.addBuildingInLocation(BuildingType.Sawmill, 1);
-        this.addBuildingInLocation(BuildingType.Swordsmith, 1);
-        this.addBuildingInLocation(BuildingType.Barracks, 1);
-        this.createRandomHeroInLocation();
+        this.addBuildingInLocation(baseLocationId, BuildingType.IronMine, 1);
+        this.addBuildingInLocation(baseLocationId, BuildingType.Sawmill, 1);
+        this.addBuildingInLocation(baseLocationId, BuildingType.Swordsmith, 1);
+        this.addBuildingInLocation(baseLocationId, BuildingType.Barracks, 1);
+        this.createRandomHeroInLocation(baseLocationId);
         this.createPrimaryRaidEvent(1, time());
     };
     SaveFile.prototype.load = function () {
