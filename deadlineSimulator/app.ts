@@ -42,8 +42,13 @@ type EventData = {
 };
 
 type SaveFileData = {
+    HasLost: boolean;
     EventList: EventData[];
 };
+
+function getResourcesForRaidLevel(isPrimary: boolean, raidLevel: number) {
+    return (isPrimary ? 50 : 25) * raidLevel;
+}
 
 class SaveFile {
     private Data: SaveFileData;
@@ -54,6 +59,7 @@ class SaveFile {
 
     public createNewGame() {
         this.Data = {
+            HasLost: false,
             EventList: []
         };
     }
@@ -71,7 +77,13 @@ class SaveFile {
     }
 
     public createPrimaryRaidEvent(raidLevel: number) {
-        this.Data.EventList.push(new )
+        this.Data.EventList.push({
+            EventType: PrimaryRaidEvent,
+            EventDetails: {
+                RaidLevel: raidLevel,
+                ResourcesRequired: getResourcesForRaidLevel(true, raidLevel)
+            }
+        })
     }
 }
 

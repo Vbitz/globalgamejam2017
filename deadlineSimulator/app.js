@@ -24,6 +24,9 @@ var ResourceType;
     ResourceType[ResourceType["Troops"] = 0] = "Troops";
 })(ResourceType || (ResourceType = {}));
 ;
+function getResourcesForRaidLevel(isPrimary, raidLevel) {
+    return (isPrimary ? 50 : 25) * raidLevel;
+}
 var SaveFile = (function () {
     function SaveFile() {
     }
@@ -32,6 +35,7 @@ var SaveFile = (function () {
     };
     SaveFile.prototype.createNewGame = function () {
         this.Data = {
+            HasLost: false,
             EventList: []
         };
     };
@@ -45,7 +49,13 @@ var SaveFile = (function () {
         return this.Data.EventList;
     };
     SaveFile.prototype.createPrimaryRaidEvent = function (raidLevel) {
-        this.Data.EventList.push(new );
+        this.Data.EventList.push({
+            EventType: PrimaryRaidEvent,
+            EventDetails: {
+                RaidLevel: raidLevel,
+                ResourcesRequired: getResourcesForRaidLevel(true, raidLevel)
+            }
+        });
     };
     return SaveFile;
 }());
