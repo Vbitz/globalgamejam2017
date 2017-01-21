@@ -12,12 +12,13 @@
 // TODO: Add Lose Condition
 // TODO: Message Display System
 // TODO: Building Upgrades
-// TODO: Day/Night System
+// TODO: New Buildings
 // TODO: Unit System
-// TODO: World Generation
+// TODO: Day/Night System
 // TODO: Time Skips
 // TODO: Hidden Events
 // TODO: Better Mobile Display
+// TODO: World Generation
 function deleteSaveFile() {
     localStorage.clear();
     document.location.reload();
@@ -214,6 +215,14 @@ var SaveFile = (function () {
     SaveFile.prototype.getLocation = function (locationName) {
         return this.Data.LocationList.filter(function (locationData) { return locationData.Name == locationName; })[0];
     };
+    SaveFile.prototype.getResourcesInLocation = function (location, type) {
+        if (location.ResourceAmounts[type] == undefined) {
+            return 0;
+        }
+        else {
+            return location.ResourceAmounts[type];
+        }
+    };
     SaveFile.prototype.addResourceInLocation = function (location, type, count) {
         if (location.ResourceAmounts[type] == undefined) {
             location.ResourceAmounts[type] = 0;
@@ -311,12 +320,22 @@ var SaveFile = (function () {
     SaveFile.prototype.hasEventPassed = function (event) {
         return (event.EventStartTime + event.EventDuration) < time();
     };
+    SaveFile.prototype.lose = function () {
+        this.Data.HasLost = true;
+        this.save();
+        alert("You have been overrun.");
+    };
+    SaveFile.prototype.getForceAmountInLocation = function (location) {
+        return this.getResourcesInLocation(location, ResourceType.BasicSwordsman) * 100 +
+            this.getResourcesInLocation(location, ResourceType.WatchTower) * 500;
+    };
     SaveFile.prototype.complateEvent = function (event) {
         var _this = this;
         var location = this.getLocation(event.EventLocation);
         if (event.EventType == EventType.PrimaryRaid) {
             var details = event.EventDetails;
-            if (details.ResourcesRequired > this.getForceAmountInLocation()) {
+            if (details.ResourcesRequired > this.getForceAmountInLocation(location)) {
+                this.lose();
             }
             else {
                 this.createPrimaryRaidEvent(event.EventLocation, details.RaidLevel + 1, event.EventStartTime + event.EventDuration);
@@ -446,6 +465,7 @@ function main() {
     setInterval(function () {
         save.update();
         save.save();
+        document.querySelector("#currentForceAmount").textContent = save.getForceAmountInLocation(save.getLocation(save.getCurrentLocation())).toString(10);
         renderTable(document.querySelector("#currentDeadlineList"), save.getEventTable());
         renderTable(document.querySelector("#currentLocationResourceList"), save.getCurrentLocationResourceTable());
         renderTable(document.querySelector("#currentLocationBuildingList"), save.getCurrentLocationBuildingTable());
