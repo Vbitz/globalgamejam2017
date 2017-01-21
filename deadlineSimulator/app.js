@@ -39,6 +39,7 @@ var ResourceType;
     ResourceType[ResourceType["RawIron"] = 5] = "RawIron";
     ResourceType[ResourceType["Iron"] = 6] = "Iron";
     ResourceType[ResourceType["BasicSwordsman"] = 7] = "BasicSwordsman";
+    ResourceType[ResourceType["WatchTower"] = 8] = "WatchTower";
 })(ResourceType || (ResourceType = {}));
 ;
 function resourcePair(type, count) {
@@ -71,17 +72,17 @@ var buildingCreationFunctions = {};
 buildingCreationFunctions[BuildingType.Sawmill] = function (save, location, level, currentTime) {
     save.removeResourceInLocation(location, ResourceType.Wood, 50);
     save.removeResourceInLocation(location, ResourceType.LandArea, 100);
-    save.createResourceProductionEvent([resourcePair(ResourceType.RawWood, 10)], [resourcePair(ResourceType.Wood, 25)], true, currentTime, 30);
+    save.createResourceProductionEvent(location.Name, [resourcePair(ResourceType.RawWood, 10)], [resourcePair(ResourceType.Wood, 25)], true, currentTime, 30);
 };
 buildingCreationFunctions[BuildingType.IronMine] = function (save, location, level, currentTime) {
     save.removeResourceInLocation(location, ResourceType.Wood, 100);
     save.removeResourceInLocation(location, ResourceType.LandArea, 200);
-    save.createResourceProductionEvent([resourcePair(ResourceType.RawIron, 10)], [resourcePair(ResourceType.Iron, 10)], true, currentTime, 30);
+    save.createResourceProductionEvent(location.Name, [resourcePair(ResourceType.RawIron, 10)], [resourcePair(ResourceType.Iron, 10)], true, currentTime, 30);
 };
 buildingCreationFunctions[BuildingType.Barracks] = function (save, location, level, currentTime) {
     save.removeResourceInLocation(location, ResourceType.Wood, 150);
     save.removeResourceInLocation(location, ResourceType.LandArea, 100);
-    save.createResourceProductionEvent([
+    save.createResourceProductionEvent(location.Name, [
         resourcePair(ResourceType.Population, 1),
         resourcePair(ResourceType.IronSword, 1)
     ], [
@@ -91,7 +92,7 @@ buildingCreationFunctions[BuildingType.Barracks] = function (save, location, lev
 buildingCreationFunctions[BuildingType.Swordsmith] = function (save, location, level, currentTime) {
     save.removeResourceInLocation(location, ResourceType.Wood, 150);
     save.removeResourceInLocation(location, ResourceType.LandArea, 100);
-    save.createResourceProductionEvent([
+    save.createResourceProductionEvent(location.Name, [
         resourcePair(ResourceType.Iron, 5),
         resourcePair(ResourceType.Wood, 5)
     ], [
@@ -99,6 +100,16 @@ buildingCreationFunctions[BuildingType.Swordsmith] = function (save, location, l
     ], true, currentTime, 60);
 };
 buildingCreationFunctions[BuildingType.WatchTower] = function (save, location, level, currentTime) {
+    save.removeResourceInLocation(location, ResourceType.Wood, 100);
+    save.removeResourceInLocation(location, ResourceType.Iron, 25);
+    save.removeResourceInLocation(location, ResourceType.LandArea, 20);
+    save.removeResourceInLocation(location, ResourceType.Population, 3);
+    save.addResourceInLocation(location, ResourceType.WatchTower, 1);
+};
+buildingCreationFunctions[BuildingType.House] = function (save, location, level, currentTime) {
+    save.removeResourceInLocation(location, ResourceType.Wood, 50);
+    save.removeResourceInLocation(location, ResourceType.LandArea, 20);
+    save.addResourceInLocation(location, ResourceType.Population, 4);
 };
 var UnitType;
 (function (UnitType) {
@@ -205,6 +216,12 @@ var SaveFile = (function () {
         return this.addResourceInLocation(location, type, -count);
     };
     SaveFile.prototype.addBuildingInLocation = function (location, buildingType, buildingLevel, currentTime) {
+        location.Buildings.push({
+            Type: buildingType,
+            FreeActionSlots: 1,
+            BuildingData: {},
+            Level: buildingLevel
+        });
     };
     SaveFile.prototype.createRandomVillageLocation = function (currentTime) {
         var locationName = "Testing Location";
@@ -238,7 +255,7 @@ var SaveFile = (function () {
         this.addBuildingInLocation(baseLocation, BuildingType.Swordsmith, 1, currentTime); // 150 wood
         this.addBuildingInLocation(baseLocation, BuildingType.Barracks, 1, currentTime); // 200 wood
         this.createRandomHeroInLocation(baseLocationId);
-        this.createPrimaryRaidEvent(1, currentTime);
+        this.createPrimaryRaidEvent(baseLocationId, 1, currentTime);
     };
     SaveFile.prototype.load = function () {
         this.Data = JSON.parse(localStorage.getItem("saveData"));
@@ -288,7 +305,7 @@ var SaveFile = (function () {
             details.Inputs.forEach((function (pair) { return _this.removeResourceInLocation(location, pair.Type, pair.Count); }).bind(this));
             details.Outputs.forEach((function (pair) { return _this.addResourceInLocation(location, pair.Type, pair.Count); }).bind(this));
             if (event.EventType == EventType.PersistantResourceProductionEvent) {
-                this.createResourceProductionEvent(event.EventLocation);
+                this.createResourceProductionEvent(event.EventLocation, details.Inputs, details.Outputs, true, event.EventStartTime + event.EventDuration, event.EventDuration);
             }
         }
     };

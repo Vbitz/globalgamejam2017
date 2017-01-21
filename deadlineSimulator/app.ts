@@ -51,6 +51,7 @@ enum ResourceType {
     Iron,
 
     BasicSwordsman,
+    WatchTower,
 };
 
 type ResourcePair = {
@@ -122,19 +123,19 @@ var buildingCreationFunctions: {[key: number]: (save: SaveFile, location: Locati
 buildingCreationFunctions[BuildingType.Sawmill] = (save, location, level, currentTime) => {
     save.removeResourceInLocation(location, ResourceType.Wood, 50);
     save.removeResourceInLocation(location, ResourceType.LandArea, 100);
-    save.createResourceProductionEvent([resourcePair(ResourceType.RawWood, 10)], [resourcePair(ResourceType.Wood, 25)], true, currentTime, 30);
+    save.createResourceProductionEvent(location.Name, [resourcePair(ResourceType.RawWood, 10)], [resourcePair(ResourceType.Wood, 25)], true, currentTime, 30);
 };
 
 buildingCreationFunctions[BuildingType.IronMine] = (save, location, level, currentTime) => {
     save.removeResourceInLocation(location, ResourceType.Wood, 100);
     save.removeResourceInLocation(location, ResourceType.LandArea, 200);
-    save.createResourceProductionEvent([resourcePair(ResourceType.RawIron, 10)], [resourcePair(ResourceType.Iron, 10)], true, currentTime, 30);
+    save.createResourceProductionEvent(location.Name, [resourcePair(ResourceType.RawIron, 10)], [resourcePair(ResourceType.Iron, 10)], true, currentTime, 30);
 };
 
 buildingCreationFunctions[BuildingType.Barracks] = (save, location, level, currentTime) => {
     save.removeResourceInLocation(location, ResourceType.Wood, 150);
     save.removeResourceInLocation(location, ResourceType.LandArea, 100);
-    save.createResourceProductionEvent([
+    save.createResourceProductionEvent(location.Name, [
         resourcePair(ResourceType.Population, 1),
         resourcePair(ResourceType.IronSword, 1)
     ], [
@@ -145,7 +146,7 @@ buildingCreationFunctions[BuildingType.Barracks] = (save, location, level, curre
 buildingCreationFunctions[BuildingType.Swordsmith] = (save, location, level, currentTime) => {
     save.removeResourceInLocation(location, ResourceType.Wood, 150);
     save.removeResourceInLocation(location, ResourceType.LandArea, 100);
-    save.createResourceProductionEvent([
+    save.createResourceProductionEvent(location.Name, [
         resourcePair(ResourceType.Iron, 5),
         resourcePair(ResourceType.Wood, 5)
     ], [
@@ -154,7 +155,17 @@ buildingCreationFunctions[BuildingType.Swordsmith] = (save, location, level, cur
 };
 
 buildingCreationFunctions[BuildingType.WatchTower] = (save, location, level, currentTime) => {
+    save.removeResourceInLocation(location, ResourceType.Wood, 100);
+    save.removeResourceInLocation(location, ResourceType.Iron, 25);
+    save.removeResourceInLocation(location, ResourceType.LandArea, 20);
+    save.removeResourceInLocation(location, ResourceType.Population, 3);
+    save.addResourceInLocation(location, ResourceType.WatchTower, 1);
+};
 
+buildingCreationFunctions[BuildingType.House] = (save, location, level, currentTime) => {
+    save.removeResourceInLocation(location, ResourceType.Wood, 50);
+    save.removeResourceInLocation(location, ResourceType.LandArea, 20);
+    save.addResourceInLocation(location, ResourceType.Population, 4);
 };
 
 type LocationData = {
@@ -306,7 +317,12 @@ class SaveFile {
     }
 
     public addBuildingInLocation(location: LocationData, buildingType: BuildingType, buildingLevel: number, currentTime: number) {
-
+        location.Buildings.push({
+            Type: buildingType,
+            FreeActionSlots: 1,
+            BuildingData: {},
+            Level: buildingLevel
+        });
     }
 
     public createRandomVillageLocation(currentTime: number) {
@@ -349,7 +365,7 @@ class SaveFile {
         this.addBuildingInLocation(baseLocation, BuildingType.Swordsmith, 1, currentTime);  // 150 wood
         this.addBuildingInLocation(baseLocation, BuildingType.Barracks, 1, currentTime);    // 200 wood
         this.createRandomHeroInLocation(baseLocationId);
-        this.createPrimaryRaidEvent(1, currentTime);
+        this.createPrimaryRaidEvent(baseLocationId, 1, currentTime);
     }
 
     public load() {
@@ -404,7 +420,7 @@ class SaveFile {
             details.Inputs.forEach(((pair: ResourcePair) => this.removeResourceInLocation(location, pair.Type, pair.Count)).bind(this));
             details.Outputs.forEach(((pair: ResourcePair) => this.addResourceInLocation(location, pair.Type, pair.Count)).bind(this));
             if (event.EventType == EventType.PersistantResourceProductionEvent) {
-                this.createResourceProductionEvent(event.EventLocation)
+                this.createResourceProductionEvent(event.EventLocation, details.Inputs, details.Outputs, true, event.EventStartTime + event.EventDuration, event.EventDuration);
             }
         }
     }
