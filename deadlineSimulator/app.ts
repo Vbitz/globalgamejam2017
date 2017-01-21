@@ -69,7 +69,9 @@ type LocationData = {
     LocationData: (TownLocationData | CityLocationData | VillageLocationData | MountionLocationData | DungeonEntranceLocationData | DungeonLevelLocationData)
 };
 
-type ItemData
+type ItemData = {
+
+};
 
 enum UnitType {
     Hero
@@ -182,6 +184,14 @@ class SaveFile {
         })
     }
 
+    public hasEventPassed(event: EventData): boolean {
+
+    }
+
+    public complateEvent() {
+
+    }
+
     public getRenderTable(): {}[] {
         return this.Data.EventList.map((eventInfo: EventData) => {
             return {
@@ -189,6 +199,16 @@ class SaveFile {
                 "Time Remaining": printTime((eventInfo.EventStartTime + eventInfo.EventDuration) - time())
             };
         });
+    }
+
+    public update() {
+        this.Data.EventList = this.Data.EventList.filter(((event: EventData) => {
+            if (!this.hasEventPassed(event)) {
+                return true;
+            } else {
+                this.complateEvent();
+            }
+        }).bind(this));
     }
 }
 
@@ -238,6 +258,8 @@ function main() {
     }
 
     setInterval(function () {
+        save.update();
+
         var rTable = save.getRenderTable();
 
         renderTable(document.querySelector("#currentDeadlineList"), rTable);

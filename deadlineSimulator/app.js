@@ -106,6 +106,10 @@ var SaveFile = (function () {
             EventDuration: getDurationForRaidLevel(true, raidLevel)
         });
     };
+    SaveFile.prototype.hasEventPassed = function (event) {
+    };
+    SaveFile.prototype.complateEvent = function () {
+    };
     SaveFile.prototype.getRenderTable = function () {
         return this.Data.EventList.map(function (eventInfo) {
             return {
@@ -113,6 +117,17 @@ var SaveFile = (function () {
                 "Time Remaining": printTime((eventInfo.EventStartTime + eventInfo.EventDuration) - time())
             };
         });
+    };
+    SaveFile.prototype.update = function () {
+        var _this = this;
+        this.Data.EventList = this.Data.EventList.filter((function (event) {
+            if (!_this.hasEventPassed(event)) {
+                return true;
+            }
+            else {
+                _this.complateEvent();
+            }
+        }).bind(this));
     };
     return SaveFile;
 }());
@@ -155,6 +170,7 @@ function main() {
         save.load();
     }
     setInterval(function () {
+        save.update();
         var rTable = save.getRenderTable();
         renderTable(document.querySelector("#currentDeadlineList"), rTable);
     }, 1000);
