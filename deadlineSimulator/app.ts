@@ -9,6 +9,10 @@
     Savegame Storage is stored in
 */
 
+// TODO: Day/Night System
+// TODO: Unit System
+// TODO: World Generation
+
 function deleteSaveFile(): boolean {
     localStorage.clear();
     document.location.reload();
@@ -62,10 +66,14 @@ type MountionLocationData = {};
 type DungeonEntranceLocationData = {};
 type DungeonLevelLocationData = {};
 
+type ResourceStockpile = {[key: number]: number};
+
 type LocationData = {
     LocationType: LocationType;
     LocationName: string;
     LocationConnections: ConnectionData[];
+    ResourceAmounts: ResourceStockpile;
+    DropedItems: ItemData[];
     LocationData: (TownLocationData | CityLocationData | VillageLocationData | MountionLocationData | DungeonEntranceLocationData | DungeonLevelLocationData)
 };
 
@@ -189,16 +197,20 @@ class SaveFile {
     }
 
     public complateEvent(event: EventData) {
-
+        if (event.EventType == PrimaryRaidEvent) {
+            let details = <PrimaryRaidEvent> event.EventDetails;
+            this.createPrimaryRaidEvent(event.EventDetails)
+        }
     }
 
     public getEventDetails(event: EventData): string {
+        // TODO: Make this return a Element with nice styling
         if (event.EventType == EventType.PrimaryRaid) {
-            var details = <PrimaryRaidEvent> event.EventDetails;
-            return "Level: " + details.RaidLevel + " : Required Resources" + ;
+            let details = <PrimaryRaidEvent> event.EventDetails;
+            return "Level = " + details.RaidLevel.toString(10) + " | Required Resources = " + details.ResourcesRequired.toString(10) + " Supplies";
         } else if (event.EventType == EventType.GetResource) {
-            var details = <GetResourceEvent> event.EventDetails;
-            return "Resource: " + ResourceType[details.Type];
+            let details = <GetResourceEvent> event.EventDetails;
+            return ResourceType[details.Type] + " X " + details.Count.toString(10);
         }
     }
 

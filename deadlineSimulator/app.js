@@ -8,6 +8,9 @@
     
     Savegame Storage is stored in
 */
+// TODO: Day/Night System
+// TODO: Unit System
+// TODO: World Generation
 function deleteSaveFile() {
     localStorage.clear();
     document.location.reload();
@@ -110,15 +113,18 @@ var SaveFile = (function () {
         return (event.EventStartTime + event.EventDuration) > time();
     };
     SaveFile.prototype.complateEvent = function (event) {
+        if (event.EventType == PrimaryRaidEvent) {
+        }
     };
     SaveFile.prototype.getEventDetails = function (event) {
+        // TODO: Make this return a Element with nice styling
         if (event.EventType == EventType.PrimaryRaid) {
             var details = event.EventDetails;
-            return "Level: " + ().RaidLevel + " : Required Resources" + ;
+            return "Level = " + details.RaidLevel.toString(10) + " | Required Resources = " + details.ResourcesRequired.toString(10) + " Supplies";
         }
         else if (event.EventType == EventType.GetResource) {
             var details = event.EventDetails;
-            return "Resource: " + ResourceType[details.Type];
+            return ResourceType[details.Type] + " X " + details.Count.toString(10);
         }
     };
     SaveFile.prototype.getRenderTable = function () {
