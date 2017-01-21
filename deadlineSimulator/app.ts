@@ -46,9 +46,18 @@ type SaveFileData = {
     EventList: EventData[];
 };
 
-function getResourcesForRaidLevel(isPrimary: boolean, raidLevel: number) {
+function getResourcesForRaidLevel(isPrimary: boolean, raidLevel: number): number {
     return (isPrimary ? 50 : 25) * raidLevel;
 }
+
+function getDurationForRaidLevel(isPrimary: boolean, raidLevel: number): number {
+    return (isPrimary ? 60 : 15) * raidLevel;
+}
+
+function time(): number {
+    return +(new Date());
+}
+
 
 class SaveFile {
     private Data: SaveFileData;
@@ -76,18 +85,24 @@ class SaveFile {
         return this.Data.EventList;
     }
 
-    public createPrimaryRaidEvent(raidLevel: number) {
+    public createPrimaryRaidEvent(raidLevel: number, startTime: number) {
         this.Data.EventList.push({
-            EventType: PrimaryRaidEvent,
-            EventDetails: {
+            EventType: EventType.PrimaryRaid,
+            EventDetails: <PrimaryRaidEvent> {
                 RaidLevel: raidLevel,
                 ResourcesRequired: getResourcesForRaidLevel(true, raidLevel)
-            }
+            },
+            EventStartTime: startTime,
+            EventDuration: getDurationForRaidLevel(true, raidLevel)
         })
     }
 }
 
 function main() {
+    var save: SaveFile = new SaveFile();
+    
+    
+
     setInterval(function () {
         
     }, 1000);

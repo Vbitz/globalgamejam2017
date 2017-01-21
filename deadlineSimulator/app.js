@@ -27,6 +27,12 @@ var ResourceType;
 function getResourcesForRaidLevel(isPrimary, raidLevel) {
     return (isPrimary ? 50 : 25) * raidLevel;
 }
+function getDurationForRaidLevel(isPrimary, raidLevel) {
+    return (isPrimary ? 60 : 15) * raidLevel;
+}
+function time() {
+    return +(new Date());
+}
 var SaveFile = (function () {
     function SaveFile() {
     }
@@ -48,18 +54,21 @@ var SaveFile = (function () {
     SaveFile.prototype.getEventList = function () {
         return this.Data.EventList;
     };
-    SaveFile.prototype.createPrimaryRaidEvent = function (raidLevel) {
+    SaveFile.prototype.createPrimaryRaidEvent = function (raidLevel, startTime) {
         this.Data.EventList.push({
-            EventType: PrimaryRaidEvent,
+            EventType: EventType.PrimaryRaid,
             EventDetails: {
                 RaidLevel: raidLevel,
                 ResourcesRequired: getResourcesForRaidLevel(true, raidLevel)
-            }
+            },
+            EventStartTime: startTime,
+            EventDuration: getDurationForRaidLevel(true, raidLevel)
         });
     };
     return SaveFile;
 }());
 function main() {
+    var save = new SaveFile();
     setInterval(function () {
     }, 1000);
 }
