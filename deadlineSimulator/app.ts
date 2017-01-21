@@ -30,7 +30,7 @@ enum EventType {
 
     PersistantResourceProductionEvent,
 
-    PersistantResourceEvent,
+    OneTimeResourceProductionEvent,
 };
 
 type PrimaryRaidEvent = {
@@ -72,6 +72,7 @@ type ResourceProductionEvent = {
 
 type EventData = {
     EventType: EventType;
+    EventLocation: string;
     EventDetails: (ResourceProductionEvent | PrimaryRaidEvent);
     EventStartTime: number;
     EventDuration: number;
@@ -149,7 +150,11 @@ buildingCreationFunctions[BuildingType.Swordsmith] = (save, location, level, cur
         resourcePair(ResourceType.Wood, 5)
     ], [
         resourcePair(ResourceType.IronSword, 5)
-    ], true, currentTime, 120);
+    ], true, currentTime, 60);
+};
+
+buildingCreationFunctions[BuildingType.WatchTower] = (save, location, level, currentTime) => {
+
 };
 
 type LocationData = {
@@ -359,8 +364,9 @@ class SaveFile {
         return this.Data.EventList;
     }
 
-    public createPrimaryRaidEvent(raidLevel: number, startTime: number) {
+    public createPrimaryRaidEvent(locationName: string, raidLevel: number, startTime: number) {
         this.PendingEventList.push({
+            EventLocation: locationName,
             EventType: EventType.PrimaryRaid,
             EventDetails: <PrimaryRaidEvent> {
                 RaidLevel: raidLevel,
@@ -371,12 +377,9 @@ class SaveFile {
         })
     }
 
-    public createOneTimeResourceEvent(pair: ResourcePair, startTime: number, duration: number) {
-
-    }
-
-    public createResourceProductionEvent(inputs: ResourcePair[], outputs: ResourcePair[], repeats: boolean, startTime: number, duration: number) {
+    public createResourceProductionEvent(locationName: string, inputs: ResourcePair[], outputs: ResourcePair[], repeats: boolean, startTime: number, duration: number) {
         this.PendingEventList.push({
+            EventLocation: locationName,
             EventType: repeats ? EventType.PersistantResourceProductionEvent : EventType.OneTimeResourceProductionEvent,
             EventDetails: <ResourceProductionEvent> {
                 Inputs: inputs,
@@ -392,9 +395,17 @@ class SaveFile {
     }
 
     public complateEvent(event: EventData) {
+        var location = this.getLocation(event.EventLocation);
         if (event.EventType == EventType.PrimaryRaid) {
             let details = <PrimaryRaidEvent> event.EventDetails;
-            this.createPrimaryRaidEvent(details.RaidLevel + 1, event.EventStartTime + event.EventDuration);
+            this.createPrimaryRaidEvent(event.EventLocation, details.RaidLevel + 1, event.EventStartTime + event.EventDuration);
+        } else if (event.EventType == EventType.PersistantResourceProductionEvent || event.EventType == EventType.OneTimeResourceProductionEvent) {
+            let details = <ResourceProductionEvent> event.EventDetails;
+            details.Inputs.forEach(((pair: ResourcePair) => this.removeResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+            details.Outputs.forEach(((pair: ResourcePair) => this.addResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+            if (event.EventType == EventType.PersistantResourceProductionEvent) {
+                this.createResourceProductionEvent(event.EventLocation)
+            }
         }
     }
 

@@ -26,7 +26,7 @@ var EventType;
 (function (EventType) {
     EventType[EventType["PrimaryRaid"] = 0] = "PrimaryRaid";
     EventType[EventType["PersistantResourceProductionEvent"] = 1] = "PersistantResourceProductionEvent";
-    EventType[EventType["PersistantResourceEvent"] = 2] = "PersistantResourceEvent";
+    EventType[EventType["OneTimeResourceProductionEvent"] = 2] = "OneTimeResourceProductionEvent";
 })(EventType || (EventType = {}));
 ;
 var ResourceType;
@@ -96,7 +96,9 @@ buildingCreationFunctions[BuildingType.Swordsmith] = function (save, location, l
         resourcePair(ResourceType.Wood, 5)
     ], [
         resourcePair(ResourceType.IronSword, 5)
-    ], true, currentTime, 120);
+    ], true, currentTime, 60);
+};
+buildingCreationFunctions[BuildingType.WatchTower] = function (save, location, level, currentTime) {
 };
 var UnitType;
 (function (UnitType) {
@@ -247,8 +249,9 @@ var SaveFile = (function () {
     SaveFile.prototype.getEventList = function () {
         return this.Data.EventList;
     };
-    SaveFile.prototype.createPrimaryRaidEvent = function (raidLevel, startTime) {
+    SaveFile.prototype.createPrimaryRaidEvent = function (locationName, raidLevel, startTime) {
         this.PendingEventList.push({
+            EventLocation: locationName,
             EventType: EventType.PrimaryRaid,
             EventDetails: {
                 RaidLevel: raidLevel,
@@ -258,10 +261,9 @@ var SaveFile = (function () {
             EventDuration: getDurationForRaidLevel(raidLevel)
         });
     };
-    SaveFile.prototype.createOneTimeResourceEvent = function (pair, startTime, duration) {
-    };
-    SaveFile.prototype.createResourceProductionEvent = function (inputs, outputs, repeats, startTime, duration) {
+    SaveFile.prototype.createResourceProductionEvent = function (locationName, inputs, outputs, repeats, startTime, duration) {
         this.PendingEventList.push({
+            EventLocation: locationName,
             EventType: repeats ? EventType.PersistantResourceProductionEvent : EventType.OneTimeResourceProductionEvent,
             EventDetails: {
                 Inputs: inputs,
@@ -275,9 +277,19 @@ var SaveFile = (function () {
         return (event.EventStartTime + event.EventDuration) < time();
     };
     SaveFile.prototype.complateEvent = function (event) {
+        var _this = this;
+        var location = this.getLocation(event.EventLocation);
         if (event.EventType == EventType.PrimaryRaid) {
             var details = event.EventDetails;
-            this.createPrimaryRaidEvent(details.RaidLevel + 1, event.EventStartTime + event.EventDuration);
+            this.createPrimaryRaidEvent(event.EventLocation, details.RaidLevel + 1, event.EventStartTime + event.EventDuration);
+        }
+        else if (event.EventType == EventType.PersistantResourceProductionEvent || event.EventType == EventType.OneTimeResourceProductionEvent) {
+            var details = event.EventDetails;
+            details.Inputs.forEach((function (pair) { return _this.removeResourceInLocation(location, pair.Type, pair.Count); }).bind(this));
+            details.Outputs.forEach((function (pair) { return _this.addResourceInLocation(location, pair.Type, pair.Count); }).bind(this));
+            if (event.EventType == EventType.PersistantResourceProductionEvent) {
+                this.createResourceProductionEvent(event.EventLocation);
+            }
         }
     };
     SaveFile.prototype.getEventDetails = function (event) {
