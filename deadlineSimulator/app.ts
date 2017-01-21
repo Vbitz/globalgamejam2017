@@ -50,10 +50,23 @@ enum LocationType {
     DungeonLevel
 };
 
+type ConnectionData = {
+    DestinationName: string;
+    DestinationDistance: number;
+};
+
+type TownLocationData = {};
+type CityLocationData = {};
+type VillageLocationData = {};
+type MountionLocationData = {};
+type DungeonEntranceLocationData = {};
+type DungeonLevelLocationData = {};
+
 type LocationData = {
     LocationType: LocationType;
     LocationName: string;
-    LocationConnections: string[];
+    LocationConnections: ConnectionData[];
+    LocationData: (TownLocationData | CityLocationData | VillageLocationData | MountionLocationData | DungeonEntranceLocationData | DungeonLevelLocationData)
 };
 
 type ItemData
@@ -104,12 +117,12 @@ function printTime(valueInMs: number): string {
 
     var valueInSeconds = valueInMs / 1000;
 
-    ret = Math.round(valueInSeconds % 60).toString(10) + " Seconds";
+    ret = Math.round(valueInSeconds % 60).toString(10) + " Minutes";
     if (valueInSeconds / 60 > 0) {
-        ret = Math.round((valueInSeconds / 60) % 60).toString(10) + " Minutes " + ret;
+        ret = Math.round((valueInSeconds / 60) % 60).toString(10) + " Hours " + ret;
     }
-    if (valueInSeconds / 60 / 60 > 0) {
-        ret = Math.round(valueInSeconds / 60 / 60).toString(10) + " Hours " + ret;
+    if (valueInSeconds / 60 / 24 > 0) {
+        ret = Math.round(valueInSeconds / 60 / 60).toString(10) + " Days " + ret;
     }
 
     if (inverse) {
@@ -135,13 +148,13 @@ class SaveFile {
             HasLost: false,
             EventList: [],
             LocationList: [],
-            CharactorList: []
+            UnitList: [],
         };
 
-        this.generateLocationsAndBasicEvents();
+        this.generateBasicData();
     }
 
-    public generateLocationsAndBasicEvents() {
+    public generateBasicData() {
 
     }
 

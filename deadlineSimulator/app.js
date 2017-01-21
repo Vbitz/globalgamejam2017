@@ -56,12 +56,12 @@ function printTime(valueInMs) {
         valueInMs = -valueInMs;
     }
     var valueInSeconds = valueInMs / 1000;
-    ret = Math.round(valueInSeconds % 60).toString(10) + " Seconds";
+    ret = Math.round(valueInSeconds % 60).toString(10) + " Minutes";
     if (valueInSeconds / 60 > 0) {
-        ret = Math.round((valueInSeconds / 60) % 60).toString(10) + " Minutes " + ret;
+        ret = Math.round((valueInSeconds / 60) % 60).toString(10) + " Hours " + ret;
     }
-    if (valueInSeconds / 60 / 60 > 0) {
-        ret = Math.round(valueInSeconds / 60 / 60).toString(10) + " Hours " + ret;
+    if (valueInSeconds / 60 / 24 > 0) {
+        ret = Math.round(valueInSeconds / 60 / 60).toString(10) + " Days " + ret;
     }
     if (inverse) {
         ret = "-" + ret;
@@ -80,11 +80,11 @@ var SaveFile = (function () {
             HasLost: false,
             EventList: [],
             LocationList: [],
-            CharactorList: []
+            UnitList: []
         };
-        this.generateLocationsAndBasicEvents();
+        this.generateBasicData();
     };
-    SaveFile.prototype.generateLocationsAndBasicEvents = function () {
+    SaveFile.prototype.generateBasicData = function () {
     };
     SaveFile.prototype.load = function () {
         this.Data = JSON.parse(localStorage.getItem("saveData"));
