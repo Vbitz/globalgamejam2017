@@ -25,8 +25,8 @@ function deleteSaveFile(): boolean {
 }
 
 enum EventType {
-    GetResource,
-    PrimaryRaid
+    ResourceProduction,
+    PrimaryRaid,
 };
 
 type PrimaryRaidEvent = {
@@ -35,7 +35,11 @@ type PrimaryRaidEvent = {
 };
 
 enum ResourceType {
-    Troops
+    Population,
+    LandArea,
+    Wood,
+    IronSword,
+    Iron,
 };
 
 type GetResourceEvent = {
@@ -73,12 +77,27 @@ type DungeonLevelLocationData = {};
 
 type ResourceStockpile = {[key: number]: number};
 
+enum BuildingType {
+    Sawmill,
+    IronMine,
+    Barracks,
+    Swordsmith,
+    WatchTower
+};
+
+type BuildingData = {
+    Type: BuildingType;
+    Level: number;
+    FreeActionSlots;
+};
+
 type LocationData = {
-    LocationType: LocationType;
-    LocationName: string;
-    LocationConnections: ConnectionData[];
+    Type: LocationType;
+    Name: string;
+    Connections: ConnectionData[];
     ResourceAmounts: ResourceStockpile;
     DropedItems: ItemData[];
+    Buildings: BuildingData[];
     LocationData: (TownLocationData | CityLocationData | VillageLocationData | MountionLocationData | DungeonEntranceLocationData | DungeonLevelLocationData)
 };
 
@@ -197,7 +216,11 @@ class SaveFile {
     }
 
     public generateBasicData() {
-        this.createRandomVillageLocation();
+        var baseLocationId = this.createRandomVillageLocation();
+        this.addBuildingInLocation(BuildingType.Sawmill, 1);
+        this.addBuildingInLocation(BuildingType.Swordsmith, 1);
+        this.addBuildingInLocation(BuildingType.Barracks, 1);
+        this.createRandomHeroInLocation();
         this.createPrimaryRaidEvent(1, time());
     }
 

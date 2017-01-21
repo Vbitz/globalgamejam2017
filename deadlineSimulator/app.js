@@ -23,13 +23,17 @@ function deleteSaveFile() {
 }
 var EventType;
 (function (EventType) {
-    EventType[EventType["GetResource"] = 0] = "GetResource";
+    EventType[EventType["ResourceProduction"] = 0] = "ResourceProduction";
     EventType[EventType["PrimaryRaid"] = 1] = "PrimaryRaid";
 })(EventType || (EventType = {}));
 ;
 var ResourceType;
 (function (ResourceType) {
-    ResourceType[ResourceType["Troops"] = 0] = "Troops";
+    ResourceType[ResourceType["Population"] = 0] = "Population";
+    ResourceType[ResourceType["LandArea"] = 1] = "LandArea";
+    ResourceType[ResourceType["Wood"] = 2] = "Wood";
+    ResourceType[ResourceType["IronSword"] = 3] = "IronSword";
+    ResourceType[ResourceType["Iron"] = 4] = "Iron";
 })(ResourceType || (ResourceType = {}));
 ;
 var LocationType;
@@ -41,6 +45,15 @@ var LocationType;
     LocationType[LocationType["DungeonEntrance"] = 4] = "DungeonEntrance";
     LocationType[LocationType["DungeonLevel"] = 5] = "DungeonLevel";
 })(LocationType || (LocationType = {}));
+;
+var BuildingType;
+(function (BuildingType) {
+    BuildingType[BuildingType["Sawmill"] = 0] = "Sawmill";
+    BuildingType[BuildingType["IronMine"] = 1] = "IronMine";
+    BuildingType[BuildingType["Barracks"] = 2] = "Barracks";
+    BuildingType[BuildingType["Swordsmith"] = 3] = "Swordsmith";
+    BuildingType[BuildingType["WatchTower"] = 4] = "WatchTower";
+})(BuildingType || (BuildingType = {}));
 ;
 var UnitType;
 (function (UnitType) {
@@ -123,7 +136,11 @@ var SaveFile = (function () {
         this.generateBasicData();
     };
     SaveFile.prototype.generateBasicData = function () {
-        this.createRandomVillageLocation();
+        var baseLocationId = this.createRandomVillageLocation();
+        this.addBuildingInLocation(BuildingType.Sawmill, 1);
+        this.addBuildingInLocation(BuildingType.Swordsmith, 1);
+        this.addBuildingInLocation(BuildingType.Barracks, 1);
+        this.createRandomHeroInLocation();
         this.createPrimaryRaidEvent(1, time());
     };
     SaveFile.prototype.load = function () {
