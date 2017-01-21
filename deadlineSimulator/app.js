@@ -8,8 +8,9 @@
     
     Savegame Storage is stored in
 */
-// TODO; Resource Generation
+// TODO; [x] Resource Generation
 // TODO: Add Lose Condition
+// TODO: Message Display System
 // TODO: Building Upgrades
 // TODO: Day/Night System
 // TODO: Unit System
@@ -70,18 +71,24 @@ var BuildingType;
 ;
 var buildingCreationFunctions = {};
 buildingCreationFunctions[BuildingType.Sawmill] = function (save, location, level, currentTime) {
-    save.removeResourceInLocation(location, ResourceType.Wood, 50);
-    save.removeResourceInLocation(location, ResourceType.LandArea, 100);
+    if (level == 1) {
+        save.removeResourceInLocation(location, ResourceType.Wood, 50);
+        save.removeResourceInLocation(location, ResourceType.LandArea, 100);
+    }
     save.createResourceProductionEvent(location.Name, [resourcePair(ResourceType.RawWood, 10)], [resourcePair(ResourceType.Wood, 25)], true, currentTime, 30000);
 };
 buildingCreationFunctions[BuildingType.IronMine] = function (save, location, level, currentTime) {
-    save.removeResourceInLocation(location, ResourceType.Wood, 100);
-    save.removeResourceInLocation(location, ResourceType.LandArea, 200);
+    if (level == 1) {
+        save.removeResourceInLocation(location, ResourceType.Wood, 100);
+        save.removeResourceInLocation(location, ResourceType.LandArea, 200);
+    }
     save.createResourceProductionEvent(location.Name, [resourcePair(ResourceType.RawIron, 10)], [resourcePair(ResourceType.Iron, 10)], true, currentTime, 30000);
 };
 buildingCreationFunctions[BuildingType.Barracks] = function (save, location, level, currentTime) {
-    save.removeResourceInLocation(location, ResourceType.Wood, 150);
-    save.removeResourceInLocation(location, ResourceType.LandArea, 100);
+    if (level == 1) {
+        save.removeResourceInLocation(location, ResourceType.Wood, 150);
+        save.removeResourceInLocation(location, ResourceType.LandArea, 100);
+    }
     save.createResourceProductionEvent(location.Name, [
         resourcePair(ResourceType.Population, 1),
         resourcePair(ResourceType.IronSword, 1)
@@ -90,8 +97,10 @@ buildingCreationFunctions[BuildingType.Barracks] = function (save, location, lev
     ], true, currentTime, 100000);
 };
 buildingCreationFunctions[BuildingType.Swordsmith] = function (save, location, level, currentTime) {
-    save.removeResourceInLocation(location, ResourceType.Wood, 150);
-    save.removeResourceInLocation(location, ResourceType.LandArea, 100);
+    if (level == 1) {
+        save.removeResourceInLocation(location, ResourceType.Wood, 150);
+        save.removeResourceInLocation(location, ResourceType.LandArea, 100);
+    }
     save.createResourceProductionEvent(location.Name, [
         resourcePair(ResourceType.Iron, 5),
         resourcePair(ResourceType.Wood, 5)
@@ -100,15 +109,19 @@ buildingCreationFunctions[BuildingType.Swordsmith] = function (save, location, l
     ], true, currentTime, 60000);
 };
 buildingCreationFunctions[BuildingType.WatchTower] = function (save, location, level, currentTime) {
-    save.removeResourceInLocation(location, ResourceType.Wood, 100);
-    save.removeResourceInLocation(location, ResourceType.Iron, 25);
-    save.removeResourceInLocation(location, ResourceType.LandArea, 20);
-    save.removeResourceInLocation(location, ResourceType.Population, 3);
+    if (level == 1) {
+        save.removeResourceInLocation(location, ResourceType.Wood, 100);
+        save.removeResourceInLocation(location, ResourceType.Iron, 25);
+        save.removeResourceInLocation(location, ResourceType.LandArea, 20);
+        save.removeResourceInLocation(location, ResourceType.Population, 3);
+    }
     save.addResourceInLocation(location, ResourceType.WatchTower, 1);
 };
 buildingCreationFunctions[BuildingType.House] = function (save, location, level, currentTime) {
-    save.removeResourceInLocation(location, ResourceType.Wood, 50);
-    save.removeResourceInLocation(location, ResourceType.LandArea, 20);
+    if (level == 1) {
+        save.removeResourceInLocation(location, ResourceType.Wood, 50);
+        save.removeResourceInLocation(location, ResourceType.LandArea, 20);
+    }
     save.addResourceInLocation(location, ResourceType.Population, 4);
 };
 var UnitType;
@@ -303,7 +316,11 @@ var SaveFile = (function () {
         var location = this.getLocation(event.EventLocation);
         if (event.EventType == EventType.PrimaryRaid) {
             var details = event.EventDetails;
-            this.createPrimaryRaidEvent(event.EventLocation, details.RaidLevel + 1, event.EventStartTime + event.EventDuration);
+            if (details.ResourcesRequired > this.getForceAmountInLocation()) {
+            }
+            else {
+                this.createPrimaryRaidEvent(event.EventLocation, details.RaidLevel + 1, event.EventStartTime + event.EventDuration);
+            }
         }
         else if (event.EventType == EventType.PersistantResourceProductionEvent || event.EventType == EventType.OneTimeResourceProductionEvent) {
             var details = event.EventDetails;
