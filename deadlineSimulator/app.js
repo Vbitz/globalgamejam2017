@@ -63,10 +63,12 @@ var BuildingType;
 })(BuildingType || (BuildingType = {}));
 ;
 var buildingCreationFunctions = {};
-buildingCreationFunctions[BuildingType.Sawmill] = function (save, location, level) {
+buildingCreationFunctions[BuildingType.Sawmill] = function (save, location, level, currentTime) {
     save.removeResourceInLocation(location, ResourceType.Wood, 50);
-    save.createPersistantResourceProductionEvent(ResourceType.RawWood, 10, ResourceType.Wood, 25, 30);
+    save.removeResourceInLocation(location, ResourceType.LandArea, 100);
+    save.createPersistantResourceProductionEvent(ResourceType.RawWood, 10, ResourceType.Wood, 25, currentTime, 30);
 };
+buildingCreationFunctions[BuildingType.IronMine];
 var UnitType;
 (function (UnitType) {
     UnitType[UnitType["Hero"] = 0] = "Hero";
@@ -171,9 +173,9 @@ var SaveFile = (function () {
     SaveFile.prototype.removeResourceInLocation = function (location, type, count) {
         return this.addResourceInLocation(location, type, -count);
     };
-    SaveFile.prototype.addBuildingInLocation = function (location, buildingType, buildingLevel) {
+    SaveFile.prototype.addBuildingInLocation = function (location, buildingType, buildingLevel, currentTime) {
     };
-    SaveFile.prototype.createRandomVillageLocation = function () {
+    SaveFile.prototype.createRandomVillageLocation = function (currentTime) {
         var locationName = "Testing Location";
         this.Data.LocationList.push({
             Type: LocationType.Village,
@@ -189,22 +191,23 @@ var SaveFile = (function () {
         this.addResourceInLocation(location, ResourceType.Wood, 250);
         this.addResourceInLocation(location, ResourceType.RawWood, 5000);
         this.addResourceInLocation(location, ResourceType.RawIron, 1500);
-        this.addBuildingInLocation(location, BuildingType.House, 1); // 50 wood
+        this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
         // 50 wood should be spare
         return locationName;
     };
     SaveFile.prototype.createRandomHeroInLocation = function (locationName) {
     };
     SaveFile.prototype.generateBasicData = function () {
-        var baseLocationId = this.createRandomVillageLocation();
+        var currentTime = time();
+        var baseLocationId = this.createRandomVillageLocation(currentTime);
         var baseLocation = this.getLocation(baseLocationId);
         this.addResourceInLocation(baseLocation, ResourceType.Wood, 500);
-        this.addBuildingInLocation(baseLocation, BuildingType.IronMine, 1); // 100 wood
-        this.addBuildingInLocation(baseLocation, BuildingType.Sawmill, 1); // 50 wood
-        this.addBuildingInLocation(baseLocation, BuildingType.Swordsmith, 1); // 150 wood
-        this.addBuildingInLocation(baseLocation, BuildingType.Barracks, 1); // 200 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.IronMine, 1, currentTime); // 100 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.Sawmill, 1, currentTime); // 50 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.Swordsmith, 1, currentTime); // 150 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.Barracks, 1, currentTime); // 200 wood
         this.createRandomHeroInLocation(baseLocationId);
-        this.createPrimaryRaidEvent(1, time());
+        this.createPrimaryRaidEvent(1, currentTime);
     };
     SaveFile.prototype.load = function () {
         this.Data = JSON.parse(localStorage.getItem("saveData"));
@@ -228,7 +231,18 @@ var SaveFile = (function () {
     };
     SaveFile.prototype.createOneTimeResourceEvent = function (type, count) {
     };
-    SaveFile.prototype.createPersistantResourceProductionEvent = function (inputType, inputCount, outputType, outputCount, duration) {
+    SaveFile.prototype.createPersistantResourceProductionEvent = function (inputType, inputCount, outputType, outputCount, startTime, duration) {
+        this.PendingEventList.push({
+            EventType: EventType.PersistantResourceProductionEvent,
+            EventDetails: {
+                InputType: inputType,
+                InputCount: inputCount,
+                OutputType: outputType,
+                OutputCount: outputCount
+            },
+            EventStartTime: startTime,
+            EventDuration: duration
+        });
     };
     SaveFile.prototype.hasEventPassed = function (event) {
         return (event.EventStartTime + event.EventDuration) < time();

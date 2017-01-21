@@ -56,9 +56,16 @@ type GetResourceEvent = {
     Count: number;
 };
 
+type ResourceProductionEvent = {
+    InputType: ResourceType,
+    InputCount: number,
+    OutputType: ResourceType,
+    OutputCount: number
+};
+
 type EventData = {
     EventType: EventType;
-    EventDetails: (GetResourceEvent | PrimaryRaidEvent);
+    EventDetails: (GetResourceEvent | ResourceProductionEvent | PrimaryRaidEvent);
     EventStartTime: number;
     EventDuration: number;
 };
@@ -102,12 +109,15 @@ type BuildingData = {
     BuildingData: {};
 };
 
-var buildingCreationFunctions: {[key: number]: (save: SaveFile, location: LocationData, level: number) => void} = {};
+var buildingCreationFunctions: {[key: number]: (save: SaveFile, location: LocationData, level: number, currentTime: number) => void} = {};
 
-buildingCreationFunctions[BuildingType.Sawmill] = (save, location, level) => {
+buildingCreationFunctions[BuildingType.Sawmill] = (save, location, level, currentTime) => {
     save.removeResourceInLocation(location, ResourceType.Wood, 50);
-    save.createPersistantResourceProductionEvent(ResourceType.RawWood, 10, ResourceType.Wood, 25, 30);
+    save.removeResourceInLocation(location, ResourceType.LandArea, 100);
+    save.createPersistantResourceProductionEvent(ResourceType.RawWood, 10, ResourceType.Wood, 25, currentTime, 30);
 };
+
+buildingCreationFunctions[BuildingType.IronMine]
 
 type LocationData = {
     Type: LocationType;
@@ -257,11 +267,11 @@ class SaveFile {
         return this.addResourceInLocation(location, type, -count);
     }
 
-    public addBuildingInLocation(location: LocationData, buildingType: BuildingType, buildingLevel: number) {
+    public addBuildingInLocation(location: LocationData, buildingType: BuildingType, buildingLevel: number, currentTime: number) {
 
     }
 
-    public createRandomVillageLocation() {
+    public createRandomVillageLocation(currentTime: number) {
         var locationName = "Testing Location";
         
         this.Data.LocationList.push({
@@ -280,7 +290,7 @@ class SaveFile {
         this.addResourceInLocation(location, ResourceType.Wood, 250);
         this.addResourceInLocation(location, ResourceType.RawWood, 5000);
         this.addResourceInLocation(location, ResourceType.RawIron, 1500);
-        this.addBuildingInLocation(location, BuildingType.House, 1); // 50 wood
+        this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
         
         // 50 wood should be spare
 
@@ -292,15 +302,16 @@ class SaveFile {
     }
 
     public generateBasicData() {
-        var baseLocationId = this.createRandomVillageLocation();
+        var currentTime = time();
+        var baseLocationId = this.createRandomVillageLocation(currentTime);
         var baseLocation = this.getLocation(baseLocationId);
         this.addResourceInLocation(baseLocation, ResourceType.Wood, 500);
-        this.addBuildingInLocation(baseLocation, BuildingType.IronMine, 1); // 100 wood
-        this.addBuildingInLocation(baseLocation, BuildingType.Sawmill, 1); // 50 wood
-        this.addBuildingInLocation(baseLocation, BuildingType.Swordsmith, 1); // 150 wood
-        this.addBuildingInLocation(baseLocation, BuildingType.Barracks, 1); // 200 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.IronMine, 1, currentTime);    // 100 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.Sawmill, 1, currentTime);     // 50 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.Swordsmith, 1, currentTime);  // 150 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.Barracks, 1, currentTime);    // 200 wood
         this.createRandomHeroInLocation(baseLocationId);
-        this.createPrimaryRaidEvent(1, time());
+        this.createPrimaryRaidEvent(1, currentTime);
     }
 
     public load() {
@@ -331,8 +342,20 @@ class SaveFile {
 
     }
 
-    public createPersistantResourceProductionEvent(inputType: ResourceType, inputCount: number, outputType: ResourceType, outputCount: number, duration) {
-        
+    public createPersistantResourceProductionEvent(inputType: ResourceType, inputCount: number,
+        outputType: ResourceType, outputCount: number,
+        startTime: number, duration: number) {
+        this.PendingEventList.push({
+            EventType: EventType.PersistantResourceProductionEvent,
+            EventDetails: <ResourceProductionEvent> {
+                InputType: inputType,
+                InputCount: inputCount,
+                OutputType: outputType,
+                OutputCount: outputCount
+            },
+            EventStartTime: startTime,
+            EventDuration: duration
+        });
     }
 
     public hasEventPassed(event: EventData): boolean {
