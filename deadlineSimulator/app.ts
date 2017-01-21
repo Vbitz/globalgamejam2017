@@ -107,8 +107,9 @@ type SaveFileData = {
 };
 
 function getResourcesForRaidLevel(raidLevel: number): number {
-    // Excel Formula: =ROUND((SIN(A2 / 0.5)+1) * 4, 0) * 5
-    var value = Math.round((Math.sin(raidLevel / 0.5) + 1) * 4) * 5;
+    // Excel Formula: =ROUND((SIN(A2 / 0.5)+1) * 30, 0) * POWER(10, (ROUNDDOWN(A2 / 5, 0)) * 0.5)
+    var value = Math.round((Math.sin(raidLevel / 0.5) + 1) * 30) * Math.pow(10, Math.floor(raidLevel / 5) * 0.5);
+    value = Math.round(value);
     if (raidLevel == 1) {
         return value;
     } else {
