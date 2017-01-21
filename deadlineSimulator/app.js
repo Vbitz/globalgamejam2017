@@ -68,9 +68,13 @@ function getDurationForRaidLevel(raidLevel) {
     }
 }
 function dumpRaidProgression(maxCount) {
-    for (var i = 1; i < maxCount; i++) {
-        console.log(i, getResourcesForRaidLevel(i), printTime(getDurationForRaidLevel(i)));
-    }
+    return ((new Array(maxCount)).map(function (v, i) {
+        return {
+            level: i,
+            resources: getResourcesForRaidLevel(i),
+            duration: getDurationForRaidLevel(i)
+        };
+    }));
 }
 function time() {
     return +(new Date());

@@ -129,9 +129,11 @@ function getDurationForRaidLevel(raidLevel: number): number {
 }
 
 function dumpRaidProgression(maxCount: number) {
-    for (var i: number = 1; i < maxCount; i++) {
-        console.log(i, getResourcesForRaidLevel(i), printTime(getDurationForRaidLevel(i)));
-    }
+    return ((new Array(maxCount)).map((v:number, i: number) => {return {
+        level: i,
+        resources: getResourcesForRaidLevel(i),
+        duration: getDurationForRaidLevel(i)
+    }}));
 }
 
 function time(): number {
