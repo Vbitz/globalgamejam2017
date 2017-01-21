@@ -218,7 +218,6 @@ function getResourcesForRaidLevel(raidLevel: number): number {
 function getDurationForRaidLevel(raidLevel: number): number {
     // Excel Formula: =ROUND((SIN(A2 / 0.5)+1) * 4, 0) * 15
     var value = Math.round((Math.sin(raidLevel / 0.5) + 1) * 4) * 15;
-    value = value * 1000;
     if (raidLevel == 1) {
         return value;
     } else {
@@ -279,7 +278,7 @@ class SaveFile {
     private PendingEventList: EventData[] = [];
 
     constructor() {
-        this.createNewGame();
+        // this.createNewGame();
     }
 
     public isNewGame(): boolean {
@@ -302,11 +301,12 @@ class SaveFile {
     }
 
     public addResourceInLocation(location: LocationData, type: ResourceType, count: number) {
-        if (location.ResourceAmounts[type] !== undefined) {
+        if (location.ResourceAmounts[type] == undefined) {
             location.ResourceAmounts[type] = 0;
         }
+        console.log("addResourceInLocation", location.Name, ResourceType[type], count, location.ResourceAmounts[type])
         if (location.ResourceAmounts[type] + count >= 0) {
-        location.ResourceAmounts[type] += count;
+            location.ResourceAmounts[type] += count;
         } else {
             throw new NotEnoughResourcesError();
         }
@@ -341,7 +341,7 @@ class SaveFile {
 
         var location = this.getLocation(locationName);
 
-        this.addResourceInLocation(location, ResourceType.LandArea, 2000);
+        this.addResourceInLocation(location, ResourceType.LandArea, 1000);
         this.addResourceInLocation(location, ResourceType.Wood, 250);
         this.addResourceInLocation(location, ResourceType.RawWood, 5000);
         this.addResourceInLocation(location, ResourceType.RawIron, 1500);
@@ -403,7 +403,7 @@ class SaveFile {
                 Outputs: outputs
             },
             EventStartTime: startTime,
-            EventDuration: duration
+            EventDuration: duration * 1000
         });
     }
 
@@ -475,8 +475,9 @@ class SaveFile {
         var location = this.getLocation(this.getCurrentLocation());
         return location.Buildings.map((building: BuildingData) => {
             return {
-
-            }
+                "Building Type": ResourceType[building.Type],
+                "Building Level": building.Level.toString(10),
+            };
         });
     }
 

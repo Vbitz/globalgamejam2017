@@ -130,7 +130,6 @@ function getResourcesForRaidLevel(raidLevel) {
 function getDurationForRaidLevel(raidLevel) {
     // Excel Formula: =ROUND((SIN(A2 / 0.5)+1) * 4, 0) * 15
     var value = Math.round((Math.sin(raidLevel / 0.5) + 1) * 4) * 15;
-    value = value * 1000;
     if (raidLevel == 1) {
         return value;
     }
@@ -184,7 +183,7 @@ var NotEnoughResourcesError = (function () {
 var SaveFile = (function () {
     function SaveFile() {
         this.PendingEventList = [];
-        this.createNewGame();
+        // this.createNewGame();
     }
     SaveFile.prototype.isNewGame = function () {
         return localStorage.getItem("saveData") == null;
@@ -202,9 +201,10 @@ var SaveFile = (function () {
         return this.Data.LocationList.filter(function (locationData) { return locationData.Name == locationName; })[0];
     };
     SaveFile.prototype.addResourceInLocation = function (location, type, count) {
-        if (location.ResourceAmounts[type] !== undefined) {
+        if (location.ResourceAmounts[type] == undefined) {
             location.ResourceAmounts[type] = 0;
         }
+        console.log("addResourceInLocation", location.Name, ResourceType[type], count, location.ResourceAmounts[type]);
         if (location.ResourceAmounts[type] + count >= 0) {
             location.ResourceAmounts[type] += count;
         }
@@ -236,7 +236,7 @@ var SaveFile = (function () {
             LocationData: {}
         });
         var location = this.getLocation(locationName);
-        this.addResourceInLocation(location, ResourceType.LandArea, 2000);
+        this.addResourceInLocation(location, ResourceType.LandArea, 1000);
         this.addResourceInLocation(location, ResourceType.Wood, 250);
         this.addResourceInLocation(location, ResourceType.RawWood, 5000);
         this.addResourceInLocation(location, ResourceType.RawIron, 1500);
@@ -288,7 +288,7 @@ var SaveFile = (function () {
                 Outputs: outputs
             },
             EventStartTime: startTime,
-            EventDuration: duration
+            EventDuration: duration * 1000
         });
     };
     SaveFile.prototype.hasEventPassed = function (event) {
@@ -356,7 +356,10 @@ var SaveFile = (function () {
     SaveFile.prototype.getCurrentLocationBuildingTable = function () {
         var location = this.getLocation(this.getCurrentLocation());
         return location.Buildings.map(function (building) {
-            return {};
+            return {
+                "Building Type": ResourceType[building.Type],
+                "Building Level": building.Level.toString(10)
+            };
         });
     };
     SaveFile.prototype.update = function () {
