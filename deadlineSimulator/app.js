@@ -68,7 +68,15 @@ buildingCreationFunctions[BuildingType.Sawmill] = function (save, location, leve
     save.removeResourceInLocation(location, ResourceType.LandArea, 100);
     save.createPersistantResourceProductionEvent(ResourceType.RawWood, 10, ResourceType.Wood, 25, currentTime, 30);
 };
-buildingCreationFunctions[BuildingType.IronMine];
+buildingCreationFunctions[BuildingType.IronMine] = function (save, location, level, currentTime) {
+    save.removeResourceInLocation(location, ResourceType.Wood, 100);
+    save.removeResourceInLocation(location, ResourceType.LandArea, 200);
+    save.createPersistantResourceProductionEvent(ResourceType.RawIron, 10, ResourceType.Iron, 5, currentTime, 60);
+};
+buildingCreationFunctions[BuildingType.Barracks] = function (save, location, level, currentTime) {
+    save.removeResourceInLocation(location, ResourceType.Wood, 150);
+    save.removeResourceInLocation(location, ResourceType.LandArea, 100);
+};
 var UnitType;
 (function (UnitType) {
     UnitType[UnitType["Hero"] = 0] = "Hero";
@@ -187,7 +195,7 @@ var SaveFile = (function () {
             LocationData: {}
         });
         var location = this.getLocation(locationName);
-        this.addResourceInLocation(location, ResourceType.LandArea, 1000);
+        this.addResourceInLocation(location, ResourceType.LandArea, 2000);
         this.addResourceInLocation(location, ResourceType.Wood, 250);
         this.addResourceInLocation(location, ResourceType.RawWood, 5000);
         this.addResourceInLocation(location, ResourceType.RawIron, 1500);
@@ -229,16 +237,20 @@ var SaveFile = (function () {
             EventDuration: getDurationForRaidLevel(raidLevel)
         });
     };
-    SaveFile.prototype.createOneTimeResourceEvent = function (type, count) {
+    SaveFile.prototype.createOneTimeResourceEvent = function (type, count, startTime, duration) {
     };
     SaveFile.prototype.createPersistantResourceProductionEvent = function (inputType, inputCount, outputType, outputCount, startTime, duration) {
         this.PendingEventList.push({
             EventType: EventType.PersistantResourceProductionEvent,
             EventDetails: {
-                InputType: inputType,
-                InputCount: inputCount,
-                OutputType: outputType,
-                OutputCount: outputCount
+                Input: {
+                    Type: inputType,
+                    Count: inputCount
+                },
+                Output: {
+                    Type: outputType,
+                    Count: outputCount
+                }
             },
             EventStartTime: startTime,
             EventDuration: duration
@@ -259,9 +271,9 @@ var SaveFile = (function () {
             var details = event.EventDetails;
             return "Level = " + details.RaidLevel.toString(10) + " | Required Resources = " + details.ResourcesRequired.toString(10) + " Supplies";
         }
-        else if (event.EventType == EventType.OneTimeResourceEvent) {
+        else if (event.EventType == EventType.OneTimeResourceEvent || event.EventType == EventType.PersistantResourceEvent) {
             var details = event.EventDetails;
-            return ResourceType[details.Type] + " X " + details.Count.toString(10);
+            return ResourceType[details.Output.Type] + " X " + details.Output.Count.toString(10);
         }
     };
     SaveFile.prototype.getRenderTable = function () {

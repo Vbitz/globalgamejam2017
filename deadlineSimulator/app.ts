@@ -27,8 +27,10 @@ function deleteSaveFile(): boolean {
 
 enum EventType {
     PrimaryRaid,
+
     OneTimeResourceProductionEvent,
     PersistantResourceProductionEvent,
+
     OneTimeResourceEvent,
     PersistantResourceEvent,
 };
@@ -51,16 +53,18 @@ enum ResourceType {
     Iron,
 };
 
-type GetResourceEvent = {
+type ResourcePair = {
     Type: ResourceType;
     Count: number;
 };
 
+type GetResourceEvent = {
+    Output: ResourcePair;
+};
+
 type ResourceProductionEvent = {
-    InputType: ResourceType,
-    InputCount: number,
-    OutputType: ResourceType,
-    OutputCount: number
+    Output: ResourcePair;
+    Input: ResourcePair;
 };
 
 type EventData = {
@@ -117,7 +121,16 @@ buildingCreationFunctions[BuildingType.Sawmill] = (save, location, level, curren
     save.createPersistantResourceProductionEvent(ResourceType.RawWood, 10, ResourceType.Wood, 25, currentTime, 30);
 };
 
-buildingCreationFunctions[BuildingType.IronMine]
+buildingCreationFunctions[BuildingType.IronMine] = (save, location, level, currentTime) => {
+    save.removeResourceInLocation(location, ResourceType.Wood, 100);
+    save.removeResourceInLocation(location, ResourceType.LandArea, 200);
+    save.createPersistantResourceProductionEvent(ResourceType.RawIron, 10, ResourceType.Iron, 5, currentTime, 60);
+};
+
+buildingCreationFunctions[BuildingType.Barracks] = (save, location, level, currentTime) => {
+    save.removeResourceInLocation(location, ResourceType.Wood, 150);
+    save.removeResourceInLocation(location, ResourceType.LandArea, 100);
+};
 
 type LocationData = {
     Type: LocationType;
@@ -286,7 +299,7 @@ class SaveFile {
 
         var location = this.getLocation(locationName);
 
-        this.addResourceInLocation(location, ResourceType.LandArea, 1000);
+        this.addResourceInLocation(location, ResourceType.LandArea, 2000);
         this.addResourceInLocation(location, ResourceType.Wood, 250);
         this.addResourceInLocation(location, ResourceType.RawWood, 5000);
         this.addResourceInLocation(location, ResourceType.RawIron, 1500);
@@ -338,7 +351,7 @@ class SaveFile {
         })
     }
 
-    public createOneTimeResourceEvent(type: ResourceType, count: number) {
+    public createOneTimeResourceEvent(type: ResourceType, count: number, startTime: number, duration: number) {
 
     }
 
@@ -348,10 +361,14 @@ class SaveFile {
         this.PendingEventList.push({
             EventType: EventType.PersistantResourceProductionEvent,
             EventDetails: <ResourceProductionEvent> {
-                InputType: inputType,
-                InputCount: inputCount,
-                OutputType: outputType,
-                OutputCount: outputCount
+                Input: {
+                    Type: inputType,
+                    Count: inputCount,
+                },
+                Output: {
+                    Type: outputType,
+                    Count: outputCount
+                }
             },
             EventStartTime: startTime,
             EventDuration: duration
@@ -374,9 +391,12 @@ class SaveFile {
         if (event.EventType == EventType.PrimaryRaid) {
             let details = <PrimaryRaidEvent> event.EventDetails;
             return "Level = " + details.RaidLevel.toString(10) + " | Required Resources = " + details.ResourcesRequired.toString(10) + " Supplies";
-        } else if (event.EventType == EventType.OneTimeResourceEvent) {
+        } else if (event.EventType == EventType.OneTimeResourceEvent || event.EventType == EventType.PersistantResourceEvent) {
             let details = <GetResourceEvent> event.EventDetails;
-            return ResourceType[details.Type] + " X " + details.Count.toString(10);
+            return ResourceType[details.Output.Type] + " X " + details.Output.Count.toString(10);
+        } else if (event.EventType == EventType.OneTimeResourceEvent || event.EventType == EventType.PersistantResourceEvent) {
+            let details = <GetResourceEvent> event.EventDetails;
+            return ResourceType[details.Output.Type] + " X " + details.Output.Count.toString(10);
         }
     }
 
