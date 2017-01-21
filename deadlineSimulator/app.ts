@@ -38,8 +38,10 @@ type PrimaryRaidEvent = {
 enum ResourceType {
     Population,
     LandArea,
+    RawWood,
     Wood,
     IronSword,
+    RawIron,
     Iron,
 };
 
@@ -97,6 +99,7 @@ type BuildingData = {
 var buildingCreationFunctions: {[key: number]: (save: SaveFile, location: LocationData, level: number) => void} = {};
 
 buildingCreationFunctions[BuildingType.Sawmill] = (save, location, level) => {
+    save.addResourceToLocation
 };
 
 type LocationData = {
@@ -200,6 +203,11 @@ function printTime(valueInMs: number): string {
     return ret;
 }
 
+class NotEnoughResourcesError implements Error {
+    public name: string = "NotEnoughResourcesError";
+    public message: string = "Not Enough Resources";
+}
+
 class SaveFile {
     private Data: SaveFileData;
     private PendingEventList: EventData[] = [];
@@ -227,7 +235,7 @@ class SaveFile {
         return this.Data.LocationList.filter((locationData: LocationData) => locationData.Name == locationName)[0];
     }
 
-    public addResourceToLocation(locationName: string, type: ResourceType, count: number) {
+    public addResourceInLocation(locationName: string, type: ResourceType, count: number) {
         var location: LocationData = this.getLocation(locationName);
         if (location.ResourceAmounts[type] !== undefined) {
             location.ResourceAmounts[type] = 0;
@@ -235,9 +243,11 @@ class SaveFile {
         if (location.ResourceAmounts[type] + count >= 0) {
         location.ResourceAmounts[type] += count;
         } else {
-            throw NotEnoughResourcesError();
+            throw new NotEnoughResourcesError();
         }
     }
+
+    public removeResourceInLocation
 
     public addBuildingInLocation(locationName: string, buildingType: BuildingType, buildingLevel: number) {
         var location: LocationData = this.getLocation(locationName);
@@ -246,6 +256,7 @@ class SaveFile {
 
     public createRandomVillageLocation() {
         var locationName = "Testing Location";
+        
         this.Data.LocationList.push({
             Type: LocationType.Village,
             Name: locationName,
@@ -255,11 +266,15 @@ class SaveFile {
             Buildings: [],
             LocationData: <VillageLocationData> {}
         });
-        this.addResourceToLocation(locationName, ResourceType.LandArea, 1000);
-        this.addResourceToLocation(locationName, ResourceType.Wood, 50);
-        this.addResourceToLocation(locationName, ResourceType.RawWood, 5000);
-        this.addResourceToLocation(locationName, ResourceType.RawIron, 1000);
+
+        this.addResourceInLocation(locationName, ResourceType.LandArea, 1000);
+        this.addResourceInLocation(locationName, ResourceType.Wood, 250);
+        this.addResourceInLocation(locationName, ResourceType.RawWood, 5000);
+        this.addResourceInLocation(locationName, ResourceType.RawIron, 1500);
         this.addBuildingInLocation(locationName, BuildingType.House, 1); // 50 wood
+        
+        // 50 wood should be spare
+
         return locationName;
     }
 

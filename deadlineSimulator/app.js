@@ -32,9 +32,11 @@ var ResourceType;
 (function (ResourceType) {
     ResourceType[ResourceType["Population"] = 0] = "Population";
     ResourceType[ResourceType["LandArea"] = 1] = "LandArea";
-    ResourceType[ResourceType["Wood"] = 2] = "Wood";
-    ResourceType[ResourceType["IronSword"] = 3] = "IronSword";
-    ResourceType[ResourceType["Iron"] = 4] = "Iron";
+    ResourceType[ResourceType["RawWood"] = 2] = "RawWood";
+    ResourceType[ResourceType["Wood"] = 3] = "Wood";
+    ResourceType[ResourceType["IronSword"] = 4] = "IronSword";
+    ResourceType[ResourceType["RawIron"] = 5] = "RawIron";
+    ResourceType[ResourceType["Iron"] = 6] = "Iron";
 })(ResourceType || (ResourceType = {}));
 ;
 var LocationType;
@@ -59,6 +61,7 @@ var BuildingType;
 ;
 var buildingCreationFunctions = {};
 buildingCreationFunctions[BuildingType.Sawmill] = function (save, location, level) {
+    save.addResourceToLocation;
 };
 var UnitType;
 (function (UnitType) {
@@ -123,6 +126,13 @@ function printTime(valueInMs) {
     }
     return ret;
 }
+var NotEnoughResourcesError = (function () {
+    function NotEnoughResourcesError() {
+        this.name = "NotEnoughResourcesError";
+        this.message = "Not Enough Resources";
+    }
+    return NotEnoughResourcesError;
+}());
 var SaveFile = (function () {
     function SaveFile() {
         this.PendingEventList = [];
@@ -143,7 +153,7 @@ var SaveFile = (function () {
     SaveFile.prototype.getLocation = function (locationName) {
         return this.Data.LocationList.filter(function (locationData) { return locationData.Name == locationName; })[0];
     };
-    SaveFile.prototype.addResourceToLocation = function (locationName, type, count) {
+    SaveFile.prototype.addResourceInLocation = function (locationName, type, count) {
         var location = this.getLocation(locationName);
         if (location.ResourceAmounts[type] !== undefined) {
             location.ResourceAmounts[type] = 0;
@@ -152,7 +162,7 @@ var SaveFile = (function () {
             location.ResourceAmounts[type] += count;
         }
         else {
-            throw NotEnoughResourcesError();
+            throw new NotEnoughResourcesError();
         }
     };
     SaveFile.prototype.addBuildingInLocation = function (locationName, buildingType, buildingLevel) {
@@ -169,11 +179,12 @@ var SaveFile = (function () {
             Buildings: [],
             LocationData: {}
         });
-        this.addResourceToLocation(locationName, ResourceType.LandArea, 1000);
-        this.addResourceToLocation(locationName, ResourceType.Wood, 50);
-        this.addResourceToLocation(locationName, ResourceType.RawWood, 5000);
-        this.addResourceToLocation(locationName, ResourceType.RawIron, 1000);
+        this.addResourceInLocation(locationName, ResourceType.LandArea, 1000);
+        this.addResourceInLocation(locationName, ResourceType.Wood, 250);
+        this.addResourceInLocation(locationName, ResourceType.RawWood, 5000);
+        this.addResourceInLocation(locationName, ResourceType.RawIron, 1500);
         this.addBuildingInLocation(locationName, BuildingType.House, 1); // 50 wood
+        // 50 wood should be spare
         return locationName;
     };
     SaveFile.prototype.createRandomHeroInLocation = function (locationName) {
