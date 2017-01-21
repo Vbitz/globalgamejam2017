@@ -111,7 +111,13 @@ function getResourcesForRaidLevel(isPrimary: boolean, raidLevel: number): number
 }
 
 function getDurationForRaidLevel(isPrimary: boolean, raidLevel: number): number {
-    return ((isPrimary ? 60 : 15) * Math.pow(1.02, raidLevel)) * 1000;
+    return Math.round(((isPrimary ? 60 : 15) * Math.pow(1.02, raidLevel)) * 1000);
+}
+
+function dumpRaidProgression() {
+    for (var i: number = 0; i < 100; i++) {
+        console.log(getResourcesForRaidLevel(true, i), printTime(getDurationForRaidLevel(true, i)));
+    }
 }
 
 function time(): number {

@@ -49,7 +49,12 @@ function getResourcesForRaidLevel(isPrimary, raidLevel) {
     return Math.round((isPrimary ? 50 : 25) * Math.pow(1.05, raidLevel));
 }
 function getDurationForRaidLevel(isPrimary, raidLevel) {
-    return ((isPrimary ? 60 : 15) * Math.pow(1.02, raidLevel)) * 1000;
+    return Math.round(((isPrimary ? 60 : 15) * Math.pow(1.02, raidLevel)) * 1000);
+}
+function dumpRaidProgression() {
+    for (var i = 0; i < 100; i++) {
+        console.log(getResourcesForRaidLevel(true, i), printTime(getDurationForRaidLevel(true, i)));
+    }
 }
 function time() {
     return +(new Date());
