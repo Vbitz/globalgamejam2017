@@ -8,12 +8,14 @@
     
     Savegame Storage is stored in
 */
+// TODO; Resource Generation
+// TODO: Add Lose Condition
 // TODO: Day/Night System
 // TODO: Unit System
 // TODO: World Generation
-// TODO: Add Lose Condition
 // TODO: Time Skips
 // TODO: Hidden Units
+// TODO: Better Mobile Display
 function deleteSaveFile() {
     localStorage.clear();
     document.location.reload();
@@ -121,6 +123,8 @@ var SaveFile = (function () {
         this.generateBasicData();
     };
     SaveFile.prototype.generateBasicData = function () {
+        this.createRandomVillageLocation();
+        this.createPrimaryRaidEvent(1, time());
     };
     SaveFile.prototype.load = function () {
         this.Data = JSON.parse(localStorage.getItem("saveData"));
@@ -224,7 +228,6 @@ function main() {
     window["save"] = save;
     if (save.isNewGame()) {
         save.createNewGame();
-        save.createPrimaryRaidEvent(1, time());
         save.save();
     }
     else {
