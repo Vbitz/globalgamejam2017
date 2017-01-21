@@ -14,12 +14,47 @@ function deleteSaveFile(): boolean {
     return false;
 }
 
-type SaveFileData = {};
+enum EventType {
+    GetResource,
+    PrimaryRaid
+};
+
+type PrimaryRaidEvent = {
+    RaidLevel: number;
+    ResourcesRequired: number;
+};
+
+type GetResourceEvent = {
+    
+}
+
+type EventData = {
+    EventType: EventType;
+    EventDetails: (GetResourceEvent | PrimaryRaidEvent);
+    EventStartTime: number;
+    EventDuration: number;
+};
+
+type SaveFileData = {
+    EventList: EventData[];
+};
 
 class SaveFile {
-    public loadSaveFile() {
-        
+    private Data: SaveFileData;
+
+    public load() {
+        this.Data = JSON.parse(localStorage.getItem("saveData"));
     }
+
+    public save() {
+        localStorage.setItem("saveData", JSON.stringify(this.Data));
+    }
+
+    public getEventList(): EventData[] {
+        return this.Data.EventList;
+    }
+
+    public createEvent(EventType )
 }
 
 function main() {
