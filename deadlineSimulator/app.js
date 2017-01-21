@@ -61,9 +61,11 @@ function printTime(valueInMs) {
     }
     var valueInSeconds = valueInMs / 1000;
     ret = Math.round(valueInSeconds % 60).toString(10) + " Minutes";
+    valueInSeconds -= (valueInSeconds % 60);
     if (valueInSeconds / 60 > 0) {
         ret = Math.round((valueInSeconds / 60) % 60).toString(10) + " Hours " + ret;
     }
+    valueInSeconds -= (valueInSeconds / 60) % 60;
     if (valueInSeconds / 60 / 24 > 0) {
         ret = Math.round(valueInSeconds / 60 / 60).toString(10) + " Days " + ret;
     }
@@ -74,6 +76,7 @@ function printTime(valueInMs) {
 }
 var SaveFile = (function () {
     function SaveFile() {
+        this.PendingEventList = [];
         this.createNewGame();
     }
     SaveFile.prototype.isNewGame = function () {
@@ -100,7 +103,7 @@ var SaveFile = (function () {
         return this.Data.EventList;
     };
     SaveFile.prototype.createPrimaryRaidEvent = function (raidLevel, startTime) {
-        this.Data.EventList.push({
+        this.PendingEventList.push({
             EventType: EventType.PrimaryRaid,
             EventDetails: {
                 RaidLevel: raidLevel,
@@ -152,6 +155,8 @@ var SaveFile = (function () {
                 return false;
             }
         }).bind(this));
+        this.PendingEventList.forEach(function (event) { return _this.Data.EventList.push(event); });
+        this.PendingEventList = [];
     };
     return SaveFile;
 }());
@@ -171,6 +176,9 @@ function e(type, attrs, value) {
 function renderTable(tableElement, data) {
     // Clear Content
     tableElement.innerHTML = "";
+    if (data.length == 0) {
+        return;
+    }
     tableElement.appendChild(e("thead", {}, [
         e("tr", {}, Object.keys(data[0]).map(function (heading) { return e("th", {}, heading); }))
     ]));
@@ -195,6 +203,7 @@ function main() {
     }
     setInterval(function () {
         save.update();
+        save.save();
         var rTable = save.getRenderTable();
         renderTable(document.querySelector("#currentDeadlineList"), rTable);
     }, 1000);

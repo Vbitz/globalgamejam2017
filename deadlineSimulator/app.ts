@@ -129,9 +129,11 @@ function printTime(valueInMs: number): string {
     var valueInSeconds = valueInMs / 1000;
 
     ret = Math.round(valueInSeconds % 60).toString(10) + " Minutes";
+    valueInSeconds -= (valueInSeconds % 60);
     if (valueInSeconds / 60 > 0) {
         ret = Math.round((valueInSeconds / 60) % 60).toString(10) + " Hours " + ret;
     }
+    valueInSeconds -= (valueInSeconds / 60) % 60;
     if (valueInSeconds / 60 / 24 > 0) {
         ret = Math.round(valueInSeconds / 60 / 60).toString(10) + " Days " + ret;
     }
@@ -145,6 +147,7 @@ function printTime(valueInMs: number): string {
 
 class SaveFile {
     private Data: SaveFileData;
+    private PendingEventList: EventData[] = [];
 
     constructor() {
         this.createNewGame();
@@ -182,7 +185,7 @@ class SaveFile {
     }
 
     public createPrimaryRaidEvent(raidLevel: number, startTime: number) {
-        this.Data.EventList.push({
+        this.PendingEventList.push({
             EventType: EventType.PrimaryRaid,
             EventDetails: <PrimaryRaidEvent> {
                 RaidLevel: raidLevel,
@@ -235,6 +238,8 @@ class SaveFile {
                 return false;
             }
         }).bind(this));
+        this.PendingEventList.forEach((event: EventData) => this.Data.EventList.push(event));
+        this.PendingEventList = [];
     }
 }
 
@@ -257,6 +262,10 @@ function e(type: string, attrs: {[k: string]: string}, value: string | Element[]
 function renderTable(tableElement: Element, data: {}[]) {
     // Clear Content
     tableElement.innerHTML = "";
+
+    if (data.length == 0) {
+        return;
+    }
 
     tableElement.appendChild(e("thead", {}, [
         e("tr", {}, Object.keys(data[0]).map((heading: string) => e("th", {}, heading)))
@@ -285,6 +294,7 @@ function main() {
 
     setInterval(function () {
         save.update();
+        save.save();
 
         var rTable = save.getRenderTable();
 
