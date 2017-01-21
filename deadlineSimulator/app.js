@@ -33,6 +33,11 @@ function getDurationForRaidLevel(isPrimary, raidLevel) {
 function time() {
     return +(new Date());
 }
+function printTime(valueInMs) {
+    var ret = "";
+    valueInMs = valueInMs / 1000;
+    return ret;
+}
 var SaveFile = (function () {
     function SaveFile() {
     }
@@ -65,11 +70,26 @@ var SaveFile = (function () {
             EventDuration: getDurationForRaidLevel(true, raidLevel)
         });
     };
+    SaveFile.prototype.getRenderTable = function () {
+        return this.Data.EventList.map(function (eventInfo) {
+            return {
+                "Event Type": EventType[eventInfo.EventType],
+                "Time Remaining": printTime((eventInfo.EventStartTime + eventInfo.EventDuration) - time())
+            };
+        });
+    };
     return SaveFile;
 }());
 function main() {
     var save = new SaveFile();
+    if (save.isNewGame()) {
+        save.createNewGame();
+        save.createPrimaryRaidEvent(1, time());
+        save.save();
+    }
     setInterval(function () {
+        var rTable = save.getRenderTable();
+        renderTable(document.querySelector("#currentDeadlineList"), rTable);
     }, 1000);
 }
 document.addEventListener("DOMContentLoaded", main);
