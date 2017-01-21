@@ -42,6 +42,12 @@ var ResourceType;
     ResourceType[ResourceType["Iron"] = 6] = "Iron";
 })(ResourceType || (ResourceType = {}));
 ;
+function resourcePair(type, count) {
+    return {
+        Type: type,
+        Count: count
+    };
+}
 var LocationType;
 (function (LocationType) {
     LocationType[LocationType["Town"] = 0] = "Town";
@@ -66,16 +72,22 @@ var buildingCreationFunctions = {};
 buildingCreationFunctions[BuildingType.Sawmill] = function (save, location, level, currentTime) {
     save.removeResourceInLocation(location, ResourceType.Wood, 50);
     save.removeResourceInLocation(location, ResourceType.LandArea, 100);
-    save.createPersistantResourceProductionEvent(ResourceType.RawWood, 10, ResourceType.Wood, 25, currentTime, 30);
+    save.createPersistantResourceProductionEvent([resourcePair(ResourceType.RawWood, 10)], [resourcePair(ResourceType.Wood, 25)], currentTime, 30);
 };
 buildingCreationFunctions[BuildingType.IronMine] = function (save, location, level, currentTime) {
     save.removeResourceInLocation(location, ResourceType.Wood, 100);
     save.removeResourceInLocation(location, ResourceType.LandArea, 200);
-    save.createPersistantResourceProductionEvent(ResourceType.RawIron, 10, ResourceType.Iron, 5, currentTime, 60);
+    save.createPersistantResourceProductionEvent([resourcePair(ResourceType.RawIron, 10)], [resourcePair(ResourceType.Iron, 5)], currentTime, 60);
 };
 buildingCreationFunctions[BuildingType.Barracks] = function (save, location, level, currentTime) {
     save.removeResourceInLocation(location, ResourceType.Wood, 150);
     save.removeResourceInLocation(location, ResourceType.LandArea, 100);
+    save.createPersistantResourceProductionEvent([
+        resourcePair(ResourceType.Population, 1),
+        resourcePair(ResourceType.IronSword, 1)
+    ], [
+        resourcePair(ResourceType.BasicSwordsman)
+    ], currentTime, 120);
 };
 var UnitType;
 (function (UnitType) {
@@ -237,9 +249,9 @@ var SaveFile = (function () {
             EventDuration: getDurationForRaidLevel(raidLevel)
         });
     };
-    SaveFile.prototype.createOneTimeResourceEvent = function (type, count, startTime, duration) {
+    SaveFile.prototype.createOneTimeResourceEvent = function (pair, startTime, duration) {
     };
-    SaveFile.prototype.createPersistantResourceProductionEvent = function (inputType, inputCount, outputType, outputCount, startTime, duration) {
+    SaveFile.prototype.createPersistantResourceProductionEvent = function (input, output, outputCount, startTime, duration) {
         this.PendingEventList.push({
             EventType: EventType.PersistantResourceProductionEvent,
             EventDetails: {
@@ -274,6 +286,15 @@ var SaveFile = (function () {
         else if (event.EventType == EventType.OneTimeResourceEvent || event.EventType == EventType.PersistantResourceEvent) {
             var details = event.EventDetails;
             return ResourceType[details.Output.Type] + " X " + details.Output.Count.toString(10);
+        }
+        else if (event.EventType == EventType.OneTimeResourceProductionEvent || event.EventType == EventType.PersistantResourceProductionEvent) {
+            var details = event.EventDetails;
+            var ret = "";
+            ret += "Turns ";
+            ret += ResourceType[details.Input.Type] + " X " + details.Input.Count.toString(10);
+            ret += " Into ";
+            ret += ResourceType[details.Output.Type] + " X " + details.Output.Count.toString(10);
+            return ret;
         }
     };
     SaveFile.prototype.getRenderTable = function () {

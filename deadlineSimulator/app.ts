@@ -58,18 +58,21 @@ type ResourcePair = {
     Count: number;
 };
 
-type GetResourceEvent = {
-    Output: ResourcePair;
-};
+function resourcePair(type: ResourceType, count: number): ResourcePair {
+    return {
+        Type: type,
+        Count: count
+    };
+}
 
 type ResourceProductionEvent = {
-    Output: ResourcePair;
-    Input: ResourcePair;
+    Outputs: ResourcePair[];
+    Inputs: ResourcePair[];
 };
 
 type EventData = {
     EventType: EventType;
-    EventDetails: (GetResourceEvent | ResourceProductionEvent | PrimaryRaidEvent);
+    EventDetails: (ResourceProductionEvent | PrimaryRaidEvent);
     EventStartTime: number;
     EventDuration: number;
 };
@@ -118,18 +121,24 @@ var buildingCreationFunctions: {[key: number]: (save: SaveFile, location: Locati
 buildingCreationFunctions[BuildingType.Sawmill] = (save, location, level, currentTime) => {
     save.removeResourceInLocation(location, ResourceType.Wood, 50);
     save.removeResourceInLocation(location, ResourceType.LandArea, 100);
-    save.createPersistantResourceProductionEvent(ResourceType.RawWood, 10, ResourceType.Wood, 25, currentTime, 30);
+    save.createPersistantResourceProductionEvent([resourcePair(ResourceType.RawWood, 10)], [resourcePair(ResourceType.Wood, 25)], currentTime, 30);
 };
 
 buildingCreationFunctions[BuildingType.IronMine] = (save, location, level, currentTime) => {
     save.removeResourceInLocation(location, ResourceType.Wood, 100);
     save.removeResourceInLocation(location, ResourceType.LandArea, 200);
-    save.createPersistantResourceProductionEvent(ResourceType.RawIron, 10, ResourceType.Iron, 5, currentTime, 60);
+    save.createPersistantResourceProductionEvent([resourcePair(ResourceType.RawIron, 10], [resourcePair(ResourceType.Iron, 5)], currentTime, 60);
 };
 
 buildingCreationFunctions[BuildingType.Barracks] = (save, location, level, currentTime) => {
     save.removeResourceInLocation(location, ResourceType.Wood, 150);
     save.removeResourceInLocation(location, ResourceType.LandArea, 100);
+    save.createPersistantResourceProductionEvent([
+        resourcePair(ResourceType.Population, 1),
+        resourcePair(ResourceType.IronSword, 1)
+    ], [
+        resourcePair(ResourceType.BasicSwordsman)
+    ], currentTime, 120);
 };
 
 type LocationData = {
@@ -351,12 +360,12 @@ class SaveFile {
         })
     }
 
-    public createOneTimeResourceEvent(type: ResourceType, count: number, startTime: number, duration: number) {
+    public createOneTimeResourceEvent(pair: ResourcePair, startTime: number, duration: number) {
 
     }
 
-    public createPersistantResourceProductionEvent(inputType: ResourceType, inputCount: number,
-        outputType: ResourceType, outputCount: number,
+    public createPersistantResourceProductionEvent(input: ResourcePair,
+        output: ResourcePair, outputCount: number,
         startTime: number, duration: number) {
         this.PendingEventList.push({
             EventType: EventType.PersistantResourceProductionEvent,
@@ -394,9 +403,14 @@ class SaveFile {
         } else if (event.EventType == EventType.OneTimeResourceEvent || event.EventType == EventType.PersistantResourceEvent) {
             let details = <GetResourceEvent> event.EventDetails;
             return ResourceType[details.Output.Type] + " X " + details.Output.Count.toString(10);
-        } else if (event.EventType == EventType.OneTimeResourceEvent || event.EventType == EventType.PersistantResourceEvent) {
-            let details = <GetResourceEvent> event.EventDetails;
-            return ResourceType[details.Output.Type] + " X " + details.Output.Count.toString(10);
+        } else if (event.EventType == EventType.OneTimeResourceProductionEvent || event.EventType == EventType.PersistantResourceProductionEvent) {
+            let details = <ResourceProductionEvent> event.EventDetails;
+            var ret = "";
+            ret += "Turns ";
+            ret += ResourceType[details.Input.Type] + " X " + details.Input.Count.toString(10);
+            ret += " Into ";
+            ret += ResourceType[details.Output.Type] + " X " + details.Output.Count.toString(10);
+            return ret;
         }
     }
 
