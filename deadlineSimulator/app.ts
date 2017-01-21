@@ -51,7 +51,7 @@ function getResourcesForRaidLevel(isPrimary: boolean, raidLevel: number): number
 }
 
 function getDurationForRaidLevel(isPrimary: boolean, raidLevel: number): number {
-    return (isPrimary ? 60 : 15) * raidLevel;
+    return ((isPrimary ? 60 : 15) * raidLevel * 1000);
 }
 
 function time(): number {
@@ -82,7 +82,7 @@ class SaveFile {
     }
 
     public isNewGame(): boolean {
-        return localStorage.getItem("saveData") != null;
+        return localStorage.getItem("saveData") == null;
     }
 
     public createNewGame() {
@@ -153,7 +153,7 @@ function renderTable(tableElement: Element, data: {}[]) {
     tableElement.appendChild(e("tbody", {}, data.map((dataRow: {}) => {
         var arr: Element[] = [];
         for (var k in dataRow) {
-            arr.push(e("td"))
+            arr.push(e("td", {}, dataRow[k]));
         }
         return e("tr", {}, arr);
     })));
@@ -167,6 +167,8 @@ function main() {
         save.createNewGame();
         save.createPrimaryRaidEvent(1, time());
         save.save();
+    } else {
+        save.load();
     }
 
     setInterval(function () {

@@ -28,7 +28,7 @@ function getResourcesForRaidLevel(isPrimary, raidLevel) {
     return (isPrimary ? 50 : 25) * raidLevel;
 }
 function getDurationForRaidLevel(isPrimary, raidLevel) {
-    return (isPrimary ? 60 : 15) * raidLevel;
+    return ((isPrimary ? 60 : 15) * raidLevel * 1000);
 }
 function time() {
     return +(new Date());
@@ -50,7 +50,7 @@ var SaveFile = (function () {
         this.createNewGame();
     }
     SaveFile.prototype.isNewGame = function () {
-        return localStorage.getItem("saveData") != null;
+        return localStorage.getItem("saveData") == null;
     };
     SaveFile.prototype.createNewGame = function () {
         this.Data = {
@@ -110,7 +110,7 @@ function renderTable(tableElement, data) {
     tableElement.appendChild(e("tbody", {}, data.map(function (dataRow) {
         var arr = [];
         for (var k in dataRow) {
-            arr.push(e("td"));
+            arr.push(e("td", {}, dataRow[k]));
         }
         return e("tr", {}, arr);
     })));
@@ -122,6 +122,9 @@ function main() {
         save.createNewGame();
         save.createPrimaryRaidEvent(1, time());
         save.save();
+    }
+    else {
+        save.load();
     }
     setInterval(function () {
         var rTable = save.getRenderTable();
