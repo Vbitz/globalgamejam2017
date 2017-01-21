@@ -11,6 +11,7 @@
 
 function deleteSaveFile(): boolean {
     localStorage.clear();
+    document.location.reload();
     return false;
 }
 
@@ -24,9 +25,14 @@ type PrimaryRaidEvent = {
     ResourcesRequired: number;
 };
 
+enum ResourceType {
+    Troops
+};
+
 type GetResourceEvent = {
-    
-}
+    Type: ResourceType;
+    Count: number;
+};
 
 type EventData = {
     EventType: EventType;
@@ -42,6 +48,16 @@ type SaveFileData = {
 class SaveFile {
     private Data: SaveFileData;
 
+    public isNewGame(): boolean {
+        return localStorage.getItem("saveData") != null;
+    }
+
+    public createNewGame() {
+        this.Data = {
+            EventList: []
+        };
+    }
+
     public load() {
         this.Data = JSON.parse(localStorage.getItem("saveData"));
     }
@@ -54,11 +70,15 @@ class SaveFile {
         return this.Data.EventList;
     }
 
-    public createEvent(EventType )
+    public createPrimaryRaidEvent(raidLevel: number) {
+        this.Data.EventList.push(new )
+    }
 }
 
 function main() {
-
+    setInterval(function () {
+        
+    }, 1000);
 }
 
 document.addEventListener("DOMContentLoaded", main);

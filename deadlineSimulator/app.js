@@ -10,6 +10,7 @@
 */
 function deleteSaveFile() {
     localStorage.clear();
+    document.location.reload();
     return false;
 }
 var EventType;
@@ -18,9 +19,22 @@ var EventType;
     EventType[EventType["PrimaryRaid"] = 1] = "PrimaryRaid";
 })(EventType || (EventType = {}));
 ;
+var ResourceType;
+(function (ResourceType) {
+    ResourceType[ResourceType["Troops"] = 0] = "Troops";
+})(ResourceType || (ResourceType = {}));
+;
 var SaveFile = (function () {
     function SaveFile() {
     }
+    SaveFile.prototype.isNewGame = function () {
+        return localStorage.getItem("saveData") != null;
+    };
+    SaveFile.prototype.createNewGame = function () {
+        this.Data = {
+            EventList: []
+        };
+    };
     SaveFile.prototype.load = function () {
         this.Data = JSON.parse(localStorage.getItem("saveData"));
     };
@@ -30,8 +44,13 @@ var SaveFile = (function () {
     SaveFile.prototype.getEventList = function () {
         return this.Data.EventList;
     };
+    SaveFile.prototype.createPrimaryRaidEvent = function (raidLevel) {
+        this.Data.EventList.push(new );
+    };
     return SaveFile;
 }());
 function main() {
+    setInterval(function () {
+    }, 1000);
 }
 document.addEventListener("DOMContentLoaded", main);
