@@ -421,6 +421,7 @@ class SaveFile {
         this.addResourceInLocation(location, ResourceType.LandArea, 1000);
         this.addResourceInLocation(location, ResourceType.Wood, 500);
         this.addResourceInLocation(location, ResourceType.RawIron, 1500);
+        this.addResourceInLocation(location, ResourceType.RawStone, 4000);
         this.addBuildingInLocation(location, BuildingType.House, 1, true, currentTime); // 50 wood
         this.addBuildingInLocation(location, BuildingType.House, 1, true, currentTime); // 50 wood
         this.addBuildingInLocation(location, BuildingType.House, 1, true, currentTime); // 50 wood
