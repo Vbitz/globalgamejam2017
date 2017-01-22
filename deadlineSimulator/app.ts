@@ -11,8 +11,8 @@
 
 // TODO; [x] Resource Generation
 // TODO: [x] Add Lose Condition
-// TODO: New Buildings
 // TODO: Building Upgrades
+// TODO: New Buildings
 // TODO: Unit System
 // TODO: Day/Night System
 // TODO: Time Skips
@@ -100,7 +100,7 @@ type BuildingEvent = {
 type EventData = {
     Type: EventType;
     Location: string;
-    Details: (ResourceProductionEvent | PrimaryRaidEvent);
+    Details: (ResourceProductionEvent | PrimaryRaidEvent | BuildingEvent);
     StartTime: number;
     Duration: number;
 };
@@ -358,8 +358,8 @@ buildingCreationFunctions[BuildingType.House] = (level) => {
         Outputs: [resourcePair(ResourceType.Population, 10 * level)],
         ProductionEvents: [],
         BuildTime: 100000,
-        UpgradeResources: [resourcePair(ResourceType.Wood, 100 * level)],
-        UpgradeTime: 200000 * level
+        UpgradeResources: [resourcePair(ResourceType.Wood, 10 * level)],
+        UpgradeTime: 60000 * level
     };
 };
 
@@ -520,13 +520,15 @@ class SaveFile {
         return this.addResourceInLocation(location, type, -count);
     }
 
-    public addBuildingInLocation(location: LocationData, buildingType: BuildingType, buildingLevel: number, currentTime: number) {
+    public addBuildingInLocation(location: LocationData, buildingType: BuildingType, buildingLevel: number, useResources: boolean, currentTime: number) {
         location.Buildings.push({
             Type: buildingType,
             Level: buildingLevel
         });
         var buildingCreateInfo: BuildingCreateInfo = buildingCreationFunctions[buildingType](buildingLevel);
-        buildingCreateInfo.Inputs.forEach(((pair: ResourcePair) => this.removeResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+        if (useResources) {
+            buildingCreateInfo.Inputs.forEach(((pair: ResourcePair) => this.removeResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+        }
         buildingCreateInfo.Outputs.forEach(((pair: ResourcePair) => this.addResourceInLocation(location, pair.Type, pair.Count)).bind(this));
         buildingCreateInfo.ProductionEvents.forEach(((prodEvent: BuildCreateProductionEvent) => {
             this.createResourceProductionEvent(location.Name, prodEvent.Inputs, prodEvent.Outputs, prodEvent.Repeat, currentTime, prodEvent.Duration);
@@ -552,7 +554,7 @@ class SaveFile {
         this.addResourceInLocation(location, ResourceType.LandArea, 1000);
         this.addResourceInLocation(location, ResourceType.Wood, 500);
         this.addResourceInLocation(location, ResourceType.RawIron, 1500);
-        this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
+        this.addBuildingInLocation(location, BuildingType.House, 1, true, currentTime); // 50 wood
         this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
         this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
         this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
@@ -617,6 +619,18 @@ class SaveFile {
         });
     }
 
+    public createBuildingUpgradeEvent(locationName: string, buildingId: string, startTime: number) {
+
+    }
+
+    public doBuildingUpgrade(location: LocationData, buildingId: string) {
+        
+    }
+
+    public startBuildingUpgrade() {
+
+    }
+
     public hasEventPassed(event: EventData): boolean {
         return (event.StartTime + event.Duration) < time();
     }
@@ -639,6 +653,7 @@ class SaveFile {
         var location = this.getLocation(event.Location);
         if (event.Type == EventType.PrimaryRaid) {
             let details = <PrimaryRaidEvent> event.Details;
+            
             if (details.ResourcesRequired > this.getForceAmountInLocation(location)) {
                 this.lose();
             } else {
@@ -654,6 +669,8 @@ class SaveFile {
                 this.createResourceProductionEvent(event.Location, details.Inputs, details.Outputs,
                     true, event.StartTime + event.Duration, event.Duration);
             }
+        } else if (event.Type == EventType.BuildingCompleteEvent) {
+            this.addBuildingInLocation()
         }
     }
 
@@ -665,14 +682,17 @@ class SaveFile {
         } else if (event.Type == EventType.OneTimeResourceProductionEvent || event.Type == EventType.PersistantResourceProductionEvent) {
             let details = <ResourceProductionEvent> event.Details;
             var ret = "";
+
             ret += "Turns {";
             details.Inputs.forEach((pair: ResourcePair) => {
                 ret += ResourceType[pair.Type] + " X " + pair.Count.toString(10) + ", ";
             });
+            
             ret += "} Into {";
             details.Outputs.forEach((pair: ResourcePair) => {
                 ret += ResourceType[pair.Type] + " X " + pair.Count.toString(10) + ", ";
             });
+            
             ret += "}"
             return ret;
         }

@@ -10,8 +10,8 @@
 */
 // TODO; [x] Resource Generation
 // TODO: [x] Add Lose Condition
-// TODO: New Buildings
 // TODO: Building Upgrades
+// TODO: New Buildings
 // TODO: Unit System
 // TODO: Day/Night System
 // TODO: Time Skips
@@ -268,8 +268,8 @@ buildingCreationFunctions[BuildingType.House] = (level) => {
         Outputs: [resourcePair(ResourceType.Population, 10 * level)],
         ProductionEvents: [],
         BuildTime: 100000,
-        UpgradeResources: [resourcePair(ResourceType.Wood, 100 * level)],
-        UpgradeTime: 200000 * level
+        UpgradeResources: [resourcePair(ResourceType.Wood, 10 * level)],
+        UpgradeTime: 60000 * level
     };
 };
 var UnitType;
@@ -384,13 +384,15 @@ class SaveFile {
     removeResourceInLocation(location, type, count) {
         return this.addResourceInLocation(location, type, -count);
     }
-    addBuildingInLocation(location, buildingType, buildingLevel, currentTime) {
+    addBuildingInLocation(location, buildingType, buildingLevel, useResources, currentTime) {
         location.Buildings.push({
             Type: buildingType,
             Level: buildingLevel
         });
         var buildingCreateInfo = buildingCreationFunctions[buildingType](buildingLevel);
-        buildingCreateInfo.Inputs.forEach(((pair) => this.removeResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+        if (useResources) {
+            buildingCreateInfo.Inputs.forEach(((pair) => this.removeResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+        }
         buildingCreateInfo.Outputs.forEach(((pair) => this.addResourceInLocation(location, pair.Type, pair.Count)).bind(this));
         buildingCreateInfo.ProductionEvents.forEach(((prodEvent) => {
             this.createResourceProductionEvent(location.Name, prodEvent.Inputs, prodEvent.Outputs, prodEvent.Repeat, currentTime, prodEvent.Duration);
@@ -412,7 +414,7 @@ class SaveFile {
         this.addResourceInLocation(location, ResourceType.LandArea, 1000);
         this.addResourceInLocation(location, ResourceType.Wood, 500);
         this.addResourceInLocation(location, ResourceType.RawIron, 1500);
-        this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
+        this.addBuildingInLocation(location, BuildingType.House, 1, true, currentTime); // 50 wood
         this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
         this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
         this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
@@ -466,6 +468,12 @@ class SaveFile {
             Duration: duration
         });
     }
+    createBuildingUpgradeEvent(locationName, buildingId, startTime) {
+    }
+    doBuildingUpgrade(location, buildingId) {
+    }
+    startBuildingUpgrade() {
+    }
     hasEventPassed(event) {
         return (event.StartTime + event.Duration) < time();
     }
@@ -499,6 +507,9 @@ class SaveFile {
             if (event.Type == EventType.PersistantResourceProductionEvent) {
                 this.createResourceProductionEvent(event.Location, details.Inputs, details.Outputs, true, event.StartTime + event.Duration, event.Duration);
             }
+        }
+        else if (event.Type == EventType.BuildingCompleteEvent) {
+            this.addBuildingInLocation();
         }
     }
     getEventDetails(event) {
