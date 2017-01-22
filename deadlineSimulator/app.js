@@ -10,7 +10,6 @@
 */
 // TODO; [x] Resource Generation
 // TODO: [x] Add Lose Condition
-// TODO: Message Display System
 // TODO: Building Upgrades
 // TODO: New Buildings
 // TODO: Unit System
@@ -19,6 +18,8 @@
 // TODO: Hidden Events
 // TODO: Better Mobile Display
 // TODO: World Generation
+// TODO: Message Display System
+// TODO: Fix real time time skip
 function deleteSaveFile() {
     localStorage.clear();
     document.location.reload();
@@ -354,7 +355,7 @@ var SaveFile = (function () {
         // TODO: Make this return a Element with nice styling
         if (event.EventType == EventType.PrimaryRaid) {
             var details = event.EventDetails;
-            return "Level = " + details.RaidLevel.toString(10) + " | Required Resources = " + details.ResourcesRequired.toString(10) + " Supplies";
+            return "Level = " + details.RaidLevel.toString(10) + " | Required Force Amount = " + details.ResourcesRequired.toString(10);
         }
         else if (event.EventType == EventType.OneTimeResourceProductionEvent || event.EventType == EventType.PersistantResourceProductionEvent) {
             var details = event.EventDetails;
