@@ -155,8 +155,8 @@ buildingCreationFunctions[BuildingType.IronSwordsmith] = (level) => {
         Inputs: [resourcePair(ResourceType.Wood, 100), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
         ProductionEvents: [{
-                Inputs: [resourcePair(ResourceType.Iron, (5 * level)), resourcePair(ResourceType.Wood, 5)],
-                Outputs: [resourcePair(ResourceType.IronSword, (5 * level))],
+                Inputs: [resourcePair(ResourceType.Iron, (2 * level)), resourcePair(ResourceType.Wood, 5)],
+                Outputs: [resourcePair(ResourceType.IronSword, (2 * level))],
                 Duration: 60000,
                 Repeat: true
             }],
@@ -170,8 +170,8 @@ buildingCreationFunctions[BuildingType.SteelSwordsmith] = (level) => {
         Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.Iron, 25), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
         ProductionEvents: [{
-                Inputs: [resourcePair(ResourceType.Steel, (5 * level)), resourcePair(ResourceType.Wood, 5)],
-                Outputs: [resourcePair(ResourceType.SteelSword, (5 * level))],
+                Inputs: [resourcePair(ResourceType.Steel, level), resourcePair(ResourceType.Wood, level * 2)],
+                Outputs: [resourcePair(ResourceType.SteelSword, level)],
                 Duration: 120000,
                 Repeat: true
             }],
@@ -236,16 +236,18 @@ buildingCreationFunctions[BuildingType.ArcheryRange] = (level) => {
 };
 buildingCreationFunctions[BuildingType.Castle] = (level) => {
     return {
-        Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 50),
+        Inputs: [resourcePair(ResourceType.Stone, 150), resourcePair(ResourceType.LandArea, 50),
             resourcePair(ResourceType.Archer, 10), resourcePair(ResourceType.Arrow, 1000)],
-        Outputs: [],
+        Outputs: [resourcePair(ResourceType.Castle, level)],
         ProductionEvents: [{
-                Inputs: [resourcePair(ResourceType.Population, 1), resourcePair(ResourceType.IronSword, 1)],
-                Outputs: [resourcePair(ResourceType.IronSwordsman, 1)],
-                Duration: 100000,
+                Inputs: [resourcePair(ResourceType.Population, level), resourcePair(ResourceType.SteelSword, level)],
+                Outputs: [resourcePair(ResourceType.Knight, 1)],
+                Duration: 200000,
                 Repeat: true
             }],
-        BuildTime: 200000
+        BuildTime: 600000,
+        UpgradeResources: [resourcePair(ResourceType.Stone, 100 * level), resourcePair(ResourceType.Archer, level * 5), resourcePair(ResourceType.Arrow, 200 * level)],
+        UpgradeTime: 200000 * level
     };
 };
 buildingCreationFunctions[BuildingType.WatchTower] = (level) => {
@@ -253,17 +255,21 @@ buildingCreationFunctions[BuildingType.WatchTower] = (level) => {
         Inputs: [resourcePair(ResourceType.Wood, 100), resourcePair(ResourceType.Iron, 25),
             resourcePair(ResourceType.LandArea, 20), resourcePair(ResourceType.Archer, 5),
             resourcePair(ResourceType.Arrow, 100)],
-        Outputs: [resourcePair(ResourceType.WatchTower, 1)],
+        Outputs: [resourcePair(ResourceType.WatchTower, level)],
         ProductionEvents: [],
-        BuildTime: 400000
+        BuildTime: 400000,
+        UpgradeResources: [resourcePair(ResourceType.Wood, 100 * level)],
+        UpgradeTime: 200000 * level
     };
 };
 buildingCreationFunctions[BuildingType.House] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.LandArea, 20)],
-        Outputs: [resourcePair(ResourceType.Population, 10)],
+        Outputs: [resourcePair(ResourceType.Population, 10 * level)],
         ProductionEvents: [],
-        BuildTime: 100000
+        BuildTime: 100000,
+        UpgradeResources: [resourcePair(ResourceType.Wood, 100 * level)],
+        UpgradeTime: 200000 * level
     };
 };
 var UnitType;
@@ -517,7 +523,11 @@ class SaveFile {
         }
     }
     getBuildingUpgradeRequirements(type, newLevel) {
-        return "";
+        var ret = "";
+        buildingCreationFunctions[type](newLevel).UpgradeResources.forEach((pair) => {
+            ret += ResourceType[pair.Type] + " X " + pair.Count.toString(10) + ", ";
+        });
+        return ret;
     }
     getEventTable() {
         return this.Data.EventList.map(((event) => {
