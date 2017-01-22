@@ -110,8 +110,8 @@ buildingCreationFunctions[BuildingType.IronMine] = (level) => {
         Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.LandArea, 150)],
         Outputs: [],
         ProductionEvents: [{
-                Inputs: [resourcePair(ResourceType.RawIron, 10)],
-                Outputs: [resourcePair(ResourceType.Iron, 10)],
+                Inputs: [resourcePair(ResourceType.RawIron, 10 * level)],
+                Outputs: [resourcePair(ResourceType.Iron, 10 * (level * 2))],
                 Duration: 30000,
                 Repeat: true
             }],
@@ -126,7 +126,7 @@ buildingCreationFunctions[BuildingType.StoneQuarry] = (level) => {
         Outputs: [],
         ProductionEvents: [{
                 Inputs: [resourcePair(ResourceType.RawStone, 10)],
-                Outputs: [resourcePair(ResourceType.Stone, 10)],
+                Outputs: [resourcePair(ResourceType.Stone, (10 * level))],
                 Duration: 30000,
                 Repeat: true
             }],
@@ -140,8 +140,8 @@ buildingCreationFunctions[BuildingType.Foundry] = (level) => {
         Inputs: [resourcePair(ResourceType.Wood, 100), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
         ProductionEvents: [{
-                Inputs: [resourcePair(ResourceType.Iron, 5), resourcePair(ResourceType.Wood, 20)],
-                Outputs: [resourcePair(ResourceType.Steel, 5)],
+                Inputs: [resourcePair(ResourceType.Iron, (5 * level)), resourcePair(ResourceType.Wood, 20)],
+                Outputs: [resourcePair(ResourceType.Steel, (5 * level))],
                 Duration: 60000,
                 Repeat: true
             }],
@@ -155,12 +155,14 @@ buildingCreationFunctions[BuildingType.IronSwordsmith] = (level) => {
         Inputs: [resourcePair(ResourceType.Wood, 100), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
         ProductionEvents: [{
-                Inputs: [resourcePair(ResourceType.Iron, 5), resourcePair(ResourceType.Wood, 5)],
-                Outputs: [resourcePair(ResourceType.IronSword, 5)],
+                Inputs: [resourcePair(ResourceType.Iron, (5 * level)), resourcePair(ResourceType.Wood, 5)],
+                Outputs: [resourcePair(ResourceType.IronSword, (5 * level))],
                 Duration: 60000,
                 Repeat: true
             }],
-        BuildTime: 200000
+        BuildTime: 200000,
+        UpgradeResources: [resourcePair(ResourceType.Wood, 50 * level)],
+        UpgradeTime: 100000 * level
     };
 };
 buildingCreationFunctions[BuildingType.SteelSwordsmith] = (level) => {
@@ -168,12 +170,14 @@ buildingCreationFunctions[BuildingType.SteelSwordsmith] = (level) => {
         Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.Iron, 25), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
         ProductionEvents: [{
-                Inputs: [resourcePair(ResourceType.Steel, 5), resourcePair(ResourceType.Wood, 5)],
-                Outputs: [resourcePair(ResourceType.IronSword, 5)],
+                Inputs: [resourcePair(ResourceType.Steel, (5 * level)), resourcePair(ResourceType.Wood, 5)],
+                Outputs: [resourcePair(ResourceType.SteelSword, (5 * level))],
                 Duration: 120000,
                 Repeat: true
             }],
-        BuildTime: 400000
+        BuildTime: 400000,
+        UpgradeResources: [resourcePair(ResourceType.Wood, 50 * level), resourcePair(ResourceType.Iron, 5)],
+        UpgradeTime: 200000 * level
     };
 };
 buildingCreationFunctions[BuildingType.BowMaker] = (level) => {
@@ -181,17 +185,19 @@ buildingCreationFunctions[BuildingType.BowMaker] = (level) => {
         Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.Iron, 25), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
         ProductionEvents: [{
-                Inputs: [resourcePair(ResourceType.Steel, 5), resourcePair(ResourceType.Wood, 5)],
-                Outputs: [resourcePair(ResourceType.Longbow, 5)],
+                Inputs: [resourcePair(ResourceType.Iron, (5 * level)), resourcePair(ResourceType.Wood, 5)],
+                Outputs: [resourcePair(ResourceType.Longbow, (5 * level))],
                 Duration: 100000,
                 Repeat: true
             }, {
-                Inputs: [resourcePair(ResourceType.Wood, 5)],
-                Outputs: [resourcePair(ResourceType.Arrow, 10)],
+                Inputs: [resourcePair(ResourceType.Wood, 5 * level)],
+                Outputs: [resourcePair(ResourceType.Arrow, 10 * (level * 2))],
                 Duration: 20000,
                 Repeat: true
             }],
-        BuildTime: 240000
+        BuildTime: 240000,
+        UpgradeResources: [resourcePair(ResourceType.Wood, 50 * level), resourcePair(ResourceType.Iron, 5)],
+        UpgradeTime: 150000 * level
     };
 };
 buildingCreationFunctions[BuildingType.Barracks] = (level) => {
@@ -199,25 +205,33 @@ buildingCreationFunctions[BuildingType.Barracks] = (level) => {
         Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
         ProductionEvents: [{
-                Inputs: [resourcePair(ResourceType.Population, 1), resourcePair(ResourceType.IronSword, 1)],
-                Outputs: [resourcePair(ResourceType.IronSwordsman, 1)],
+                Inputs: [resourcePair(ResourceType.Population, level), resourcePair(ResourceType.IronSword, level)],
+                Outputs: [resourcePair(ResourceType.IronSwordsman, level)],
                 Duration: 100000,
                 Repeat: true
             }],
-        BuildTime: 200000
+        BuildTime: 200000,
+        UpgradeResources: [resourcePair(ResourceType.Wood, 50 * level)],
+        UpgradeTime: 100000 * level
     };
 };
 buildingCreationFunctions[BuildingType.ArcheryRange] = (level) => {
     return {
-        Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 50)],
+        Inputs: [resourcePair(ResourceType.Wood, 200), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
         ProductionEvents: [{
-                Inputs: [resourcePair(ResourceType.Population, 1), resourcePair(ResourceType.Longbow, 1), resourcePair(ResourceType.Arrow, 25)],
-                Outputs: [resourcePair(ResourceType.IronSwordsman, 1)],
+                Inputs: [
+                    resourcePair(ResourceType.Population, level),
+                    resourcePair(ResourceType.Longbow, level),
+                    resourcePair(ResourceType.Arrow, 25 * level)
+                ],
+                Outputs: [resourcePair(ResourceType.Archer, level)],
                 Duration: 100000,
                 Repeat: true
             }],
-        BuildTime: 200000
+        BuildTime: 300000,
+        UpgradeResources: [resourcePair(ResourceType.Wood, 100 * level)],
+        UpgradeTime: 150000 * level
     };
 };
 buildingCreationFunctions[BuildingType.Castle] = (level) => {
