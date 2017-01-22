@@ -159,9 +159,9 @@ type BuildingCreateInfo = {
     ProductionEvents: BuildCreateProductionEvent[];
 };
 
-var buildingCreationFunctions: {[key: number]: (save: SaveFile, location: LocationData, level: number, currentTime: number) => BuildingCreateInfo} = {};
+var buildingCreationFunctions: {[key: number]: (level: number) => BuildingCreateInfo} = {};
 
-buildingCreationFunctions[BuildingType.Sawmill] = (save, location, level, currentTime) => {
+buildingCreationFunctions[BuildingType.Sawmill] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.Forest, 1000)],
         Outputs: [resourcePair(ResourceType.RawWood, 1000)],
@@ -174,7 +174,7 @@ buildingCreationFunctions[BuildingType.Sawmill] = (save, location, level, curren
     };
 };
 
-buildingCreationFunctions[BuildingType.IronMine] = (save, location, level, currentTime) => {
+buildingCreationFunctions[BuildingType.IronMine] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.LandArea, 150)],
         Outputs: [],
@@ -187,7 +187,7 @@ buildingCreationFunctions[BuildingType.IronMine] = (save, location, level, curre
     }
 };
 
-buildingCreationFunctions[BuildingType.Barracks] = (save, location, level, currentTime) => {
+buildingCreationFunctions[BuildingType.Barracks] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 100)],
         Outputs: [],
@@ -200,7 +200,7 @@ buildingCreationFunctions[BuildingType.Barracks] = (save, location, level, curre
     };
 };
 
-buildingCreationFunctions[BuildingType.IronSwordsmith] = (save, location, level, currentTime) => {
+buildingCreationFunctions[BuildingType.IronSwordsmith] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 100)],
         Outputs: [],
@@ -213,7 +213,7 @@ buildingCreationFunctions[BuildingType.IronSwordsmith] = (save, location, level,
     };
 };
 
-buildingCreationFunctions[BuildingType.WatchTower] = (save, location, level, currentTime) => {
+buildingCreationFunctions[BuildingType.WatchTower] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 100), resourcePair(ResourceType.Iron, 25),
             resourcePair(ResourceType.LandArea, 20), resourcePair(ResourceType.Population, 10)],
@@ -222,7 +222,7 @@ buildingCreationFunctions[BuildingType.WatchTower] = (save, location, level, cur
     };
 };
 
-buildingCreationFunctions[BuildingType.House] = (save, location, level, currentTime) => {
+buildingCreationFunctions[BuildingType.House] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.LandArea, 20)],
         Outputs: [resourcePair(ResourceType.Population, 25)],
@@ -392,7 +392,12 @@ class SaveFile {
             Type: buildingType,
             Level: buildingLevel
         });
-        buildingCreationFunctions[buildingType](this, location, buildingLevel, currentTime);
+        var buildingCreateInfo: BuildingCreateInfo = buildingCreationFunctions[buildingType](buildingLevel);
+        buildingCreateInfo.Inputs.forEach(((pair: ResourcePair) => this.removeResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+        buildingCreateInfo.Outputs.forEach(((pair: ResourcePair) => this.addResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+        buildingCreateInfo.ProductionEvents.forEach(((prodEvent: BuildCreateProductionEvent) => {
+            this.createResourceProductionEvent(location.Name, prodEvent.Inputs, prodEvent.Outputs, prodEvent.Repeat, currentTime, prodEvent.Duration);
+        }).bind(this));
     }
 
     public createRandomVillageLocation(currentTime: number) {
@@ -413,7 +418,6 @@ class SaveFile {
         this.addResourceInLocation(location, ResourceType.Forest, 5000);
         this.addResourceInLocation(location, ResourceType.LandArea, 1000);
         this.addResourceInLocation(location, ResourceType.Wood, 500);
-        this.addResourceInLocation(location, ResourceType.RawWood, 5000);
         this.addResourceInLocation(location, ResourceType.RawIron, 1500);
         this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
         this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
