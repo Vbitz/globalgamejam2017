@@ -388,9 +388,10 @@ class SaveFile {
         location.Buildings.push({
             Id: Math.random(),
             Type: buildingType,
-            Level: buildingLevel
+            Level: buildingLevel,
+            IsUpgrading: false
         });
-        var buildingCreateInfo = buildingCreationFunctions[buildingType](buildingLevel);
+        var buildingCreateInfo = this.getBuildingData(buildingType, buildingLevel);
         if (useResources) {
             buildingCreateInfo.Inputs.forEach(((pair) => this.removeResourceInLocation(location, pair.Type, pair.Count)).bind(this));
         }
@@ -427,8 +428,6 @@ class SaveFile {
         // 50 wood should be spare
         return locationName;
     }
-    createRandomHeroInLocation(locationName) {
-    }
     generateBasicData() {
         var currentTime = time();
         var baseLocationId = this.createRandomVillageLocation(currentTime);
@@ -438,7 +437,6 @@ class SaveFile {
         this.addBuildingInLocation(baseLocation, BuildingType.Sawmill, 1, true, currentTime); // 50 wood
         this.addBuildingInLocation(baseLocation, BuildingType.IronSwordsmith, 1, true, currentTime); // 150 wood
         this.addBuildingInLocation(baseLocation, BuildingType.Barracks, 1, true, currentTime); // 200 wood
-        this.createRandomHeroInLocation(baseLocationId);
         this.createPrimaryRaidEvent(baseLocationId, 1, currentTime);
     }
     load() {
@@ -503,6 +501,11 @@ class SaveFile {
         });
     }
     doBuildingUpgrade(location, buildingId, newLevel) {
+        var buildingCreateInfo = this.getBuildingData(this.getBuildingInLocation(location, buildingId), newLevel);
+        buildingCreateInfo.Outputs.forEach(((pair) => this.addResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+        buildingCreateInfo.ProductionEvents.forEach(((prodEvent) => {
+            this.createResourceProductionEvent(location.Name, prodEvent.Inputs, prodEvent.Outputs, prodEvent.Repeat, currentTime, prodEvent.Duration);
+        }).bind(this));
     }
     startBuildingUpgrade(location) {
         return false;
@@ -582,7 +585,14 @@ class SaveFile {
     }
     getBuildingUpgradeRequirements(type, newLevel) {
         var ret = "";
-        buildingCreationFunctions[type](newLevel).UpgradeResources.forEach((pair) => {
+        this.getBuildingData(type, newLevel).UpgradeResources.forEach((pair) => {
+            ret += ResourceType[pair.Type] + " X " + pair.Count.toString(10) + ", ";
+        });
+        return ret;
+    }
+    getBuildingCreateRequirements(type, level) {
+        var ret = "";
+        this.getBuildingData(type, level).Inputs.forEach((pair) => {
             ret += ResourceType[pair.Type] + " X " + pair.Count.toString(10) + ", ";
         });
         return ret;
@@ -621,7 +631,7 @@ class SaveFile {
                 "Building Type": BuildingType[building.Type],
                 "Building Level": building.Level.toString(10),
                 "Upgrade Requirements": this.getBuildingUpgradeRequirements(building.Type, building.Level + 1),
-                "Upgrade": [upgradeButton]
+                "Upgrade": building.IsUpgrading ? "Already Upgrading" : [upgradeButton]
             };
         }).bind(this));
     }
@@ -636,7 +646,7 @@ class SaveFile {
             var createButton = document.createElement("a");
             createButton.className = "btn btn-primary";
             createButton.addEventListener("click", (() => {
-                this.startNewBuilding(this.getCurrentLocation(location), type);
+                this.startNewBuilding(location, type);
                 event.preventDefault();
             }).bind(this));
             createButton.textContent = "Create";

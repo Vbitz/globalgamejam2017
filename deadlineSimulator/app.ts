@@ -149,9 +149,10 @@ enum BuildingType {
 };
 
 type BuildingData = {
-    Id: number,
+    Id: number;
     Type: BuildingType;
     Level: number;
+    IsUpgrading: boolean;
 };
 
 type BuildCreateProductionEvent = {
@@ -526,9 +527,10 @@ class SaveFile {
         location.Buildings.push({
             Id: Math.random(),
             Type: buildingType,
-            Level: buildingLevel
+            Level: buildingLevel,
+            IsUpgrading: false
         });
-        var buildingCreateInfo: BuildingCreateInfo = buildingCreationFunctions[buildingType](buildingLevel);
+        var buildingCreateInfo: BuildingCreateInfo = this.getBuildingData(buildingType, buildingLevel);
         if (useResources) {
             buildingCreateInfo.Inputs.forEach(((pair: ResourcePair) => this.removeResourceInLocation(location, pair.Type, pair.Count)).bind(this));
         }
@@ -574,10 +576,6 @@ class SaveFile {
         return locationName;
     }
 
-    public createRandomHeroInLocation(locationName: string) {
-
-    }
-
     public generateBasicData() {
         var currentTime = time();
         
@@ -591,8 +589,6 @@ class SaveFile {
         this.addBuildingInLocation(baseLocation, BuildingType.Sawmill,          1, true, currentTime);  // 50 wood
         this.addBuildingInLocation(baseLocation, BuildingType.IronSwordsmith,   1, true, currentTime);  // 150 wood
         this.addBuildingInLocation(baseLocation, BuildingType.Barracks,         1, true, currentTime);  // 200 wood
-        
-        this.createRandomHeroInLocation(baseLocationId);
         
         this.createPrimaryRaidEvent(baseLocationId, 1, currentTime);
     }
@@ -666,7 +662,11 @@ class SaveFile {
     }
 
     public doBuildingUpgrade(location: LocationData, buildingId: number, newLevel: number) {
-        
+        var buildingCreateInfo: BuildingCreateInfo = this.getBuildingData(this.getBuildingInLocation(location, buildingId), newLevel);
+        buildingCreateInfo.Outputs.forEach(((pair: ResourcePair) => this.addResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+        buildingCreateInfo.ProductionEvents.forEach(((prodEvent: BuildCreateProductionEvent) => {
+            this.createResourceProductionEvent(location.Name, prodEvent.Inputs, prodEvent.Outputs, prodEvent.Repeat, currentTime, prodEvent.Duration);
+        }).bind(this));
     }
 
     public startBuildingUpgrade(location: LocationData): boolean {
@@ -762,7 +762,15 @@ class SaveFile {
 
     public getBuildingUpgradeRequirements(type: BuildingType, newLevel: number): string {
         var ret = "";
-        buildingCreationFunctions[type](newLevel).UpgradeResources.forEach((pair: ResourcePair) => {
+        this.getBuildingData(type, newLevel).UpgradeResources.forEach((pair: ResourcePair) => {
+            ret += ResourceType[pair.Type] + " X " + pair.Count.toString(10) + ", ";
+        });
+        return ret;
+    }
+
+    public getBuildingCreateRequirements(type: BuildingType, level: number): string {
+        var ret = "";
+        this.getBuildingData(type, level).Inputs.forEach((pair: ResourcePair) => {
             ret += ResourceType[pair.Type] + " X " + pair.Count.toString(10) + ", ";
         });
         return ret;
@@ -806,7 +814,7 @@ class SaveFile {
                 "Building Type": BuildingType[building.Type],
                 "Building Level": building.Level.toString(10),
                 "Upgrade Requirements": this.getBuildingUpgradeRequirements(building.Type, building.Level + 1),
-                "Upgrade": [upgradeButton]
+                "Upgrade": building.IsUpgrading ? "Already Upgrading" : [upgradeButton]
             };
         }).bind(this));
     }
@@ -822,7 +830,7 @@ class SaveFile {
                 var createButton: HTMLAnchorElement = document.createElement("a");
                 createButton.className = "btn btn-primary";
                 createButton.addEventListener("click", (() => {
-                    this.startNewBuilding(this.getCurrentLocation(location), type);
+                    this.startNewBuilding(location, type);
                     event.preventDefault();
                 }).bind(this));
                 createButton.textContent = "Create";
