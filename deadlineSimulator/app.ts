@@ -118,7 +118,7 @@ enum BuildingType {
     SteelSwordsmith,
 
     Barracks,
-    ArcharyRange,
+    ArcheryRange,
     Castle,
 
     WatchTower,
@@ -149,11 +149,11 @@ var buildingCreationFunctions: {[key: number]: (save: SaveFile, location: Locati
 
 buildingCreationFunctions[BuildingType.Sawmill] = (save, location, level, currentTime) => {
     return {
-        Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.Forest, 100)],
+        Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.Forest, 1000)],
         Outputs: [resourcePair(ResourceType.RawWood, 1000)],
         ProductionEvents: [{
             Inputs: [resourcePair(ResourceType.RawWood, 10)],
-            Outputs: [resourcePair(ResourceType.Wood, 25), resourcePair(ResourceType.LandArea, 100)],
+            Outputs: [resourcePair(ResourceType.Wood, 25), resourcePair(ResourceType.LandArea, 10)],
             Duration: 60000,
             Repeat: true
         }]

@@ -71,7 +71,7 @@ var BuildingType;
     BuildingType[BuildingType["IronSwordsmith"] = 3] = "IronSwordsmith";
     BuildingType[BuildingType["SteelSwordsmith"] = 4] = "SteelSwordsmith";
     BuildingType[BuildingType["Barracks"] = 5] = "Barracks";
-    BuildingType[BuildingType["ArcharyRange"] = 6] = "ArcharyRange";
+    BuildingType[BuildingType["ArcheryRange"] = 6] = "ArcheryRange";
     BuildingType[BuildingType["Castle"] = 7] = "Castle";
     BuildingType[BuildingType["WatchTower"] = 8] = "WatchTower";
     BuildingType[BuildingType["House"] = 9] = "House";
@@ -80,11 +80,11 @@ var BuildingType;
 var buildingCreationFunctions = {};
 buildingCreationFunctions[BuildingType.Sawmill] = function (save, location, level, currentTime) {
     return {
-        Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.Forest, 100)],
+        Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.Forest, 1000)],
         Outputs: [resourcePair(ResourceType.RawWood, 1000)],
         ProductionEvents: [{
                 Inputs: [resourcePair(ResourceType.RawWood, 10)],
-                Outputs: [resourcePair(ResourceType.Wood, 25), resourcePair(ResourceType.LandArea, 100)],
+                Outputs: [resourcePair(ResourceType.Wood, 25), resourcePair(ResourceType.LandArea, 10)],
                 Duration: 60000,
                 Repeat: true
             }]
