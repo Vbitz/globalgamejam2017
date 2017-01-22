@@ -93,6 +93,7 @@ type ResourceProductionEvent = {
 };
 
 type BuildingEvent = {
+    Id: number,
     Type: BuildingType,
     NewLevel: number
 };
@@ -148,6 +149,7 @@ enum BuildingType {
 };
 
 type BuildingData = {
+    Id: number,
     Type: BuildingType;
     Level: number;
 };
@@ -522,6 +524,7 @@ class SaveFile {
 
     public addBuildingInLocation(location: LocationData, buildingType: BuildingType, buildingLevel: number, useResources: boolean, currentTime: number) {
         location.Buildings.push({
+            Id: Math.random(),
             Type: buildingType,
             Level: buildingLevel
         });
@@ -533,6 +536,12 @@ class SaveFile {
         buildingCreateInfo.ProductionEvents.forEach(((prodEvent: BuildCreateProductionEvent) => {
             this.createResourceProductionEvent(location.Name, prodEvent.Inputs, prodEvent.Outputs, prodEvent.Repeat, currentTime, prodEvent.Duration);
         }).bind(this));
+    }
+
+    public getBuildingInLocation(location: LocationData, buildingId: number) {
+        return location.Buildings.filter((building: BuildingData) => {
+            return building.Id == buildingId;
+        })[0];
     }
 
     public createRandomVillageLocation(currentTime: number) {
@@ -640,11 +649,23 @@ class SaveFile {
         });
     }
 
-    public createBuildingUpgradeEvent(locationName: string, buildingId: string, startTime: number) {
-
+    public createBuildingUpgradeEvent(locationName: string, buildingId: number, startTime: number) {
+        var buildingInfo = this.getBuildingInLocation(this.getLocation(locationName), buildingId);
+        var buildingType = .Type;
+        this.PendingEventList.push({
+            Location: locationName,
+            Type: EventType.BuildingCompleteEvent,
+            Details: <BuildingEvent> {
+                Id: buildingId,
+                Type: buildingType,
+                NewLevel: 1
+            },
+            StartTime: startTime,
+            Duration: this.getBuildingData(buildingType, 1).UpgradeTime
+        });
     }
 
-    public doBuildingUpgrade(location: LocationData, buildingId: string, newLevel: number) {
+    public doBuildingUpgrade(location: LocationData, buildingId: number, newLevel: number) {
         
     }
 
@@ -705,9 +726,11 @@ class SaveFile {
         // TODO: Make this return a Element with nice styling
         if (event.Type == EventType.PrimaryRaid) {
             let details = <PrimaryRaidEvent> event.Details;
+
             return "Level = " + details.RaidLevel.toString(10) + " | Required Force Amount = " + details.ResourcesRequired.toString(10);
         } else if (event.Type == EventType.OneTimeResourceProductionEvent || event.Type == EventType.PersistantResourceProductionEvent) {
             let details = <ResourceProductionEvent> event.Details;
+            
             var ret = "";
 
             ret += "Turns {";
@@ -722,7 +745,13 @@ class SaveFile {
             
             ret += "}"
             return ret;
+        } else if (event.Type == EventType.BuildingCompleteEvent || event.Type == EventType.BuildingUpgradeCompleteEvent) {
+            let details = <PrimaryRaidEvent> event.Details;
         }
+    }
+
+    public getBuildingData(type: BuildingType, level: number): BuildingCreateInfo {
+        return buildingCreationFunctions[type](level);
     }
 
     public getBuildingUpgradeRequirements(type: BuildingType, newLevel: number): string {

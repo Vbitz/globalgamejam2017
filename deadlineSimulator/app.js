@@ -386,6 +386,7 @@ class SaveFile {
     }
     addBuildingInLocation(location, buildingType, buildingLevel, useResources, currentTime) {
         location.Buildings.push({
+            Id: Math.random(),
             Type: buildingType,
             Level: buildingLevel
         });
@@ -397,6 +398,11 @@ class SaveFile {
         buildingCreateInfo.ProductionEvents.forEach(((prodEvent) => {
             this.createResourceProductionEvent(location.Name, prodEvent.Inputs, prodEvent.Outputs, prodEvent.Repeat, currentTime, prodEvent.Duration);
         }).bind(this));
+    }
+    getBuildingInLocation(location, buildingId) {
+        return location.Buildings.filter((building) => {
+            return building.Id == buildingId;
+        })[0];
     }
     createRandomVillageLocation(currentTime) {
         var locationName = "Testing Location";
@@ -482,6 +488,19 @@ class SaveFile {
         });
     }
     createBuildingUpgradeEvent(locationName, buildingId, startTime) {
+        var buildingInfo = this.getBuildingInLocation(this.getLocation(locationName), buildingId);
+        var buildingType = .Type;
+        this.PendingEventList.push({
+            Location: locationName,
+            Type: EventType.BuildingCompleteEvent,
+            Details: {
+                Id: buildingId,
+                Type: buildingType,
+                NewLevel: 1
+            },
+            StartTime: startTime,
+            Duration: this.getBuildingData(buildingType, 1).UpgradeTime
+        });
     }
     doBuildingUpgrade(location, buildingId, newLevel) {
     }
@@ -550,6 +569,12 @@ class SaveFile {
             ret += "}";
             return ret;
         }
+        else if (event.Type == EventType.BuildingCompleteEvent || event.Type == EventType.BuildingUpgradeCompleteEvent) {
+            let details = event.Details;
+        }
+    }
+    getBuildingData(type, level) {
+        return buildingCreationFunctions[type](level);
     }
     getBuildingUpgradeRequirements(type, newLevel) {
         var ret = "";
