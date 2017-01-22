@@ -204,7 +204,7 @@ buildingCreationFunctions[BuildingType.ArcheryRange] = function (level) {
         Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
         ProductionEvents: [{
-                Inputs: [resourcePair(ResourceType.Population, 1), resourcePair(ResourceType.IronSword, 1)],
+                Inputs: [resourcePair(ResourceType.Population, 1), resourcePair(ResourceType.Longbow, 1), resourcePair(ResourceType.Arrow, 25)],
                 Outputs: [resourcePair(ResourceType.IronSwordsman, 1)],
                 Duration: 100000,
                 Repeat: true
