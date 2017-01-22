@@ -9,7 +9,7 @@
     Savegame Storage is stored in
 */
 // TODO; [x] Resource Generation
-// TODO: Add Lose Condition
+// TODO: [x] Add Lose Condition
 // TODO: Message Display System
 // TODO: Building Upgrades
 // TODO: New Buildings
@@ -114,7 +114,7 @@ buildingCreationFunctions[BuildingType.WatchTower] = function (save, location, l
         save.removeResourceInLocation(location, ResourceType.Wood, 100);
         save.removeResourceInLocation(location, ResourceType.Iron, 25);
         save.removeResourceInLocation(location, ResourceType.LandArea, 20);
-        save.removeResourceInLocation(location, ResourceType.Population, 3);
+        save.removeResourceInLocation(location, ResourceType.Population, 10);
     }
     save.addResourceInLocation(location, ResourceType.WatchTower, 1);
 };
@@ -123,7 +123,7 @@ buildingCreationFunctions[BuildingType.House] = function (save, location, level,
         save.removeResourceInLocation(location, ResourceType.Wood, 50);
         save.removeResourceInLocation(location, ResourceType.LandArea, 20);
     }
-    save.addResourceInLocation(location, ResourceType.Population, 4);
+    save.addResourceInLocation(location, ResourceType.Population, 25);
 };
 var UnitType;
 (function (UnitType) {
@@ -326,8 +326,8 @@ var SaveFile = (function () {
         alert("You have been overrun.");
     };
     SaveFile.prototype.getForceAmountInLocation = function (location) {
-        return this.getResourcesInLocation(location, ResourceType.BasicSwordsman) * 100 +
-            this.getResourcesInLocation(location, ResourceType.WatchTower) * 500;
+        return (this.getResourcesInLocation(location, ResourceType.BasicSwordsman) * 25) +
+            (this.getResourcesInLocation(location, ResourceType.WatchTower) * 100) + 100;
     };
     SaveFile.prototype.complateEvent = function (event) {
         var _this = this;

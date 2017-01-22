@@ -10,7 +10,7 @@
 */
 
 // TODO; [x] Resource Generation
-// TODO: Add Lose Condition
+// TODO: [x] Add Lose Condition
 // TODO: Message Display System
 // TODO: Building Upgrades
 // TODO: New Buildings
@@ -173,7 +173,7 @@ buildingCreationFunctions[BuildingType.WatchTower] = (save, location, level, cur
         save.removeResourceInLocation(location, ResourceType.Wood, 100);
         save.removeResourceInLocation(location, ResourceType.Iron, 25);
         save.removeResourceInLocation(location, ResourceType.LandArea, 20);
-        save.removeResourceInLocation(location, ResourceType.Population, 3);
+        save.removeResourceInLocation(location, ResourceType.Population, 10);
     }
     
     save.addResourceInLocation(location, ResourceType.WatchTower, 1);
@@ -185,7 +185,7 @@ buildingCreationFunctions[BuildingType.House] = (save, location, level, currentT
         save.removeResourceInLocation(location, ResourceType.LandArea, 20);
     }
     
-    save.addResourceInLocation(location, ResourceType.Population, 4);
+    save.addResourceInLocation(location, ResourceType.Population, 25);
 };
 
 type LocationData = {
@@ -450,8 +450,8 @@ class SaveFile {
     }
 
     public getForceAmountInLocation(location: LocationData): number {
-        return this.getResourcesInLocation(location, ResourceType.BasicSwordsman) * 100 +
-                this.getResourcesInLocation(location, ResourceType.WatchTower) * 500;
+        return (this.getResourcesInLocation(location, ResourceType.BasicSwordsman) * 25) +
+                (this.getResourcesInLocation(location, ResourceType.WatchTower) * 100) + 100;
     }
 
     public complateEvent(event: EventData) {
