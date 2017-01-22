@@ -58,6 +58,9 @@ enum ResourceType {
     RawIron,
     Iron,
 
+    RawStone,
+    Stone,
+
     SteelSword,
     Steel,
 
@@ -128,6 +131,7 @@ type ResourceStockpile = {[key: number]: number};
 enum BuildingType {
     Sawmill,
     IronMine,
+    StoneQuarry,
     
     Foundry,
 
@@ -159,6 +163,7 @@ type BuildingCreateInfo = {
     Inputs: ResourcePair[];
     Outputs: ResourcePair[];
     ProductionEvents: BuildCreateProductionEvent[];
+    BuildTime: number;
 };
 
 var buildingCreationFunctions: {[key: number]: (level: number) => BuildingCreateInfo} = {};
@@ -172,7 +177,8 @@ buildingCreationFunctions[BuildingType.Sawmill] = (level) => {
             Outputs: [resourcePair(ResourceType.Wood, 25), resourcePair(ResourceType.LandArea, 10)],
             Duration: 60000,
             Repeat: true
-        }]
+        }],
+        BuildTime: 240000
     };
 };
 
@@ -185,7 +191,22 @@ buildingCreationFunctions[BuildingType.IronMine] = (level) => {
             Outputs: [resourcePair(ResourceType.Iron, 10)],
             Duration: 30000,
             Repeat: true
-        }]
+        }],
+        BuildTime: 240000
+    };
+};
+
+buildingCreationFunctions[BuildingType.StoneQuarry] = (level) => {
+    return {
+        Inputs: [resourcePair(ResourceType.Wood, 25), resourcePair(ResourceType.LandArea, 400)],
+        Outputs: [],
+        ProductionEvents: [{
+            Inputs: [resourcePair(ResourceType.RawStone, 10)],
+            Outputs: [resourcePair(ResourceType.Stone, 10)],
+            Duration: 30000,
+            Repeat: true
+        }],
+        BuildTime: 200000
     };
 };
 
@@ -198,7 +219,8 @@ buildingCreationFunctions[BuildingType.Foundry] = (level) => {
             Outputs: [resourcePair(ResourceType.Steel, 5)],
             Duration: 60000,
             Repeat: true
-        }]
+        }],
+        BuildTime: 300000
     };
 };
 
@@ -211,7 +233,8 @@ buildingCreationFunctions[BuildingType.IronSwordsmith] = (level) => {
             Outputs: [resourcePair(ResourceType.IronSword, 5)],
             Duration: 60000,
             Repeat: true
-        }]
+        }],
+        BuildTime: 200000
     };
 };
 
@@ -224,7 +247,8 @@ buildingCreationFunctions[BuildingType.SteelSwordsmith] = (level) => {
             Outputs: [resourcePair(ResourceType.IronSword, 5)],
             Duration: 120000,
             Repeat: true
-        }]
+        }],
+        BuildTime: 400000
     };
 };
 
@@ -235,14 +259,15 @@ buildingCreationFunctions[BuildingType.BowMaker] = (level) => {
         ProductionEvents: [{
             Inputs: [resourcePair(ResourceType.Steel, 5), resourcePair(ResourceType.Wood, 5)],
             Outputs: [resourcePair(ResourceType.Longbow, 5)],
-            Duration: 120000,
+            Duration: 100000,
             Repeat: true
         },{
             Inputs: [resourcePair(ResourceType.Wood, 5)],
             Outputs: [resourcePair(ResourceType.Arrow, 10)],
             Duration: 20000,
             Repeat: true
-        }]
+        }],
+        BuildTime: 240000
     };
 };
 
@@ -255,24 +280,56 @@ buildingCreationFunctions[BuildingType.Barracks] = (level) => {
             Outputs: [resourcePair(ResourceType.IronSwordsman, 1)],
             Duration: 100000,
             Repeat: true
-        }]
+        }],
+        BuildTime: 200000
+    };
+};
+
+buildingCreationFunctions[BuildingType.ArcheryRange] = (level) => {
+    return {
+        Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 50)],
+        Outputs: [],
+        ProductionEvents: [{
+            Inputs: [resourcePair(ResourceType.Population, 1), resourcePair(ResourceType.IronSword, 1)],
+            Outputs: [resourcePair(ResourceType.IronSwordsman, 1)],
+            Duration: 100000,
+            Repeat: true
+        }],
+        BuildTime: 200000
+    };
+};
+
+buildingCreationFunctions[BuildingType.Castle] = (level) => {
+    return {
+        Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 50)],
+        Outputs: [],
+        ProductionEvents: [{
+            Inputs: [resourcePair(ResourceType.Population, 1), resourcePair(ResourceType.IronSword, 1)],
+            Outputs: [resourcePair(ResourceType.IronSwordsman, 1)],
+            Duration: 100000,
+            Repeat: true
+        }],
+        BuildTime: 200000
     };
 };
 
 buildingCreationFunctions[BuildingType.WatchTower] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 100), resourcePair(ResourceType.Iron, 25),
-            resourcePair(ResourceType.LandArea, 20), resourcePair(ResourceType.Population, 10)],
+            resourcePair(ResourceType.LandArea, 20), resourcePair(ResourceType.Archer, 5),
+            resourcePair(ResourceType.Arrow, 100)],
         Outputs: [resourcePair(ResourceType.WatchTower, 1)],
-        ProductionEvents: []
+        ProductionEvents: [],
+        BuildTime: 400000
     };
 };
 
 buildingCreationFunctions[BuildingType.House] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.LandArea, 20)],
-        Outputs: [resourcePair(ResourceType.Population, 25)],
-        ProductionEvents: []
+        Outputs: [resourcePair(ResourceType.Population, 10)],
+        ProductionEvents: [],
+        BuildTime: 100000
     };
 };
 
@@ -541,10 +598,11 @@ class SaveFile {
     }
 
     public getForceAmountInLocation(location: LocationData): number {
-        return (this.getResourcesInLocation(location, ResourceType.IronSwordsman) * 25) +
+        return (this.getResourcesInLocation(location, ResourceType.IronSwordsman) * 20) +
                 (this.getResourcesInLocation(location, ResourceType.Knight) * 50) +
-                (this.getResourcesInLocation(location, ResourceType.Archer) * 40) +
-                (this.getResourcesInLocation(location, ResourceType.WatchTower) * 200) + 100;
+                (this.getResourcesInLocation(location, ResourceType.Archer) * 30) +
+                (this.getResourcesInLocation(location, ResourceType.WatchTower) * 200) +
+                (this.getResourcesInLocation(location, ResourceType.Castle) * 500) + 100;
     }
 
     public complateEvent(event: EventData) {

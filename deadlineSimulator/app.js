@@ -44,15 +44,17 @@ var ResourceType;
     ResourceType[ResourceType["IronSword"] = 5] = "IronSword";
     ResourceType[ResourceType["RawIron"] = 6] = "RawIron";
     ResourceType[ResourceType["Iron"] = 7] = "Iron";
-    ResourceType[ResourceType["SteelSword"] = 8] = "SteelSword";
-    ResourceType[ResourceType["Steel"] = 9] = "Steel";
-    ResourceType[ResourceType["Longbow"] = 10] = "Longbow";
-    ResourceType[ResourceType["Arrow"] = 11] = "Arrow";
-    ResourceType[ResourceType["IronSwordsman"] = 12] = "IronSwordsman";
-    ResourceType[ResourceType["Knight"] = 13] = "Knight";
-    ResourceType[ResourceType["Archer"] = 14] = "Archer";
-    ResourceType[ResourceType["WatchTower"] = 15] = "WatchTower";
-    ResourceType[ResourceType["Castle"] = 16] = "Castle";
+    ResourceType[ResourceType["RawStone"] = 8] = "RawStone";
+    ResourceType[ResourceType["Stone"] = 9] = "Stone";
+    ResourceType[ResourceType["SteelSword"] = 10] = "SteelSword";
+    ResourceType[ResourceType["Steel"] = 11] = "Steel";
+    ResourceType[ResourceType["Longbow"] = 12] = "Longbow";
+    ResourceType[ResourceType["Arrow"] = 13] = "Arrow";
+    ResourceType[ResourceType["IronSwordsman"] = 14] = "IronSwordsman";
+    ResourceType[ResourceType["Knight"] = 15] = "Knight";
+    ResourceType[ResourceType["Archer"] = 16] = "Archer";
+    ResourceType[ResourceType["WatchTower"] = 17] = "WatchTower";
+    ResourceType[ResourceType["Castle"] = 18] = "Castle";
 })(ResourceType || (ResourceType = {}));
 ;
 function resourcePair(type, count) {
@@ -75,15 +77,16 @@ var BuildingType;
 (function (BuildingType) {
     BuildingType[BuildingType["Sawmill"] = 0] = "Sawmill";
     BuildingType[BuildingType["IronMine"] = 1] = "IronMine";
-    BuildingType[BuildingType["Foundry"] = 2] = "Foundry";
-    BuildingType[BuildingType["IronSwordsmith"] = 3] = "IronSwordsmith";
-    BuildingType[BuildingType["SteelSwordsmith"] = 4] = "SteelSwordsmith";
-    BuildingType[BuildingType["BowMaker"] = 5] = "BowMaker";
-    BuildingType[BuildingType["Barracks"] = 6] = "Barracks";
-    BuildingType[BuildingType["ArcheryRange"] = 7] = "ArcheryRange";
-    BuildingType[BuildingType["Castle"] = 8] = "Castle";
-    BuildingType[BuildingType["WatchTower"] = 9] = "WatchTower";
-    BuildingType[BuildingType["House"] = 10] = "House";
+    BuildingType[BuildingType["StoneQuarry"] = 2] = "StoneQuarry";
+    BuildingType[BuildingType["Foundry"] = 3] = "Foundry";
+    BuildingType[BuildingType["IronSwordsmith"] = 4] = "IronSwordsmith";
+    BuildingType[BuildingType["SteelSwordsmith"] = 5] = "SteelSwordsmith";
+    BuildingType[BuildingType["BowMaker"] = 6] = "BowMaker";
+    BuildingType[BuildingType["Barracks"] = 7] = "Barracks";
+    BuildingType[BuildingType["ArcheryRange"] = 8] = "ArcheryRange";
+    BuildingType[BuildingType["Castle"] = 9] = "Castle";
+    BuildingType[BuildingType["WatchTower"] = 10] = "WatchTower";
+    BuildingType[BuildingType["House"] = 11] = "House";
 })(BuildingType || (BuildingType = {}));
 ;
 var buildingCreationFunctions = {};
@@ -96,7 +99,8 @@ buildingCreationFunctions[BuildingType.Sawmill] = function (level) {
                 Outputs: [resourcePair(ResourceType.Wood, 25), resourcePair(ResourceType.LandArea, 10)],
                 Duration: 60000,
                 Repeat: true
-            }]
+            }],
+        BuildTime: 240000
     };
 };
 buildingCreationFunctions[BuildingType.IronMine] = function (level) {
@@ -108,7 +112,21 @@ buildingCreationFunctions[BuildingType.IronMine] = function (level) {
                 Outputs: [resourcePair(ResourceType.Iron, 10)],
                 Duration: 30000,
                 Repeat: true
-            }]
+            }],
+        BuildTime: 240000
+    };
+};
+buildingCreationFunctions[BuildingType.StoneQuarry] = function (level) {
+    return {
+        Inputs: [resourcePair(ResourceType.Wood, 25), resourcePair(ResourceType.LandArea, 400)],
+        Outputs: [],
+        ProductionEvents: [{
+                Inputs: [resourcePair(ResourceType.RawStone, 10)],
+                Outputs: [resourcePair(ResourceType.Stone, 10)],
+                Duration: 30000,
+                Repeat: true
+            }],
+        BuildTime: 200000
     };
 };
 buildingCreationFunctions[BuildingType.Foundry] = function (level) {
@@ -120,7 +138,8 @@ buildingCreationFunctions[BuildingType.Foundry] = function (level) {
                 Outputs: [resourcePair(ResourceType.Steel, 5)],
                 Duration: 60000,
                 Repeat: true
-            }]
+            }],
+        BuildTime: 300000
     };
 };
 buildingCreationFunctions[BuildingType.IronSwordsmith] = function (level) {
@@ -132,7 +151,8 @@ buildingCreationFunctions[BuildingType.IronSwordsmith] = function (level) {
                 Outputs: [resourcePair(ResourceType.IronSword, 5)],
                 Duration: 60000,
                 Repeat: true
-            }]
+            }],
+        BuildTime: 200000
     };
 };
 buildingCreationFunctions[BuildingType.SteelSwordsmith] = function (level) {
@@ -144,7 +164,8 @@ buildingCreationFunctions[BuildingType.SteelSwordsmith] = function (level) {
                 Outputs: [resourcePair(ResourceType.IronSword, 5)],
                 Duration: 120000,
                 Repeat: true
-            }]
+            }],
+        BuildTime: 400000
     };
 };
 buildingCreationFunctions[BuildingType.BowMaker] = function (level) {
@@ -154,14 +175,15 @@ buildingCreationFunctions[BuildingType.BowMaker] = function (level) {
         ProductionEvents: [{
                 Inputs: [resourcePair(ResourceType.Steel, 5), resourcePair(ResourceType.Wood, 5)],
                 Outputs: [resourcePair(ResourceType.Longbow, 5)],
-                Duration: 120000,
+                Duration: 100000,
                 Repeat: true
             }, {
                 Inputs: [resourcePair(ResourceType.Wood, 5)],
                 Outputs: [resourcePair(ResourceType.Arrow, 10)],
                 Duration: 20000,
                 Repeat: true
-            }]
+            }],
+        BuildTime: 240000
     };
 };
 buildingCreationFunctions[BuildingType.Barracks] = function (level) {
@@ -173,22 +195,52 @@ buildingCreationFunctions[BuildingType.Barracks] = function (level) {
                 Outputs: [resourcePair(ResourceType.IronSwordsman, 1)],
                 Duration: 100000,
                 Repeat: true
-            }]
+            }],
+        BuildTime: 200000
+    };
+};
+buildingCreationFunctions[BuildingType.ArcheryRange] = function (level) {
+    return {
+        Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 50)],
+        Outputs: [],
+        ProductionEvents: [{
+                Inputs: [resourcePair(ResourceType.Population, 1), resourcePair(ResourceType.IronSword, 1)],
+                Outputs: [resourcePair(ResourceType.IronSwordsman, 1)],
+                Duration: 100000,
+                Repeat: true
+            }],
+        BuildTime: 200000
+    };
+};
+buildingCreationFunctions[BuildingType.Castle] = function (level) {
+    return {
+        Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 50)],
+        Outputs: [],
+        ProductionEvents: [{
+                Inputs: [resourcePair(ResourceType.Population, 1), resourcePair(ResourceType.IronSword, 1)],
+                Outputs: [resourcePair(ResourceType.IronSwordsman, 1)],
+                Duration: 100000,
+                Repeat: true
+            }],
+        BuildTime: 200000
     };
 };
 buildingCreationFunctions[BuildingType.WatchTower] = function (level) {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 100), resourcePair(ResourceType.Iron, 25),
-            resourcePair(ResourceType.LandArea, 20), resourcePair(ResourceType.Population, 10)],
+            resourcePair(ResourceType.LandArea, 20), resourcePair(ResourceType.Archer, 5),
+            resourcePair(ResourceType.Arrow, 100)],
         Outputs: [resourcePair(ResourceType.WatchTower, 1)],
-        ProductionEvents: []
+        ProductionEvents: [],
+        BuildTime: 400000
     };
 };
 buildingCreationFunctions[BuildingType.House] = function (level) {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.LandArea, 20)],
-        Outputs: [resourcePair(ResourceType.Population, 25)],
-        ProductionEvents: []
+        Outputs: [resourcePair(ResourceType.Population, 10)],
+        ProductionEvents: [],
+        BuildTime: 100000
     };
 };
 var UnitType;
@@ -396,10 +448,11 @@ var SaveFile = (function () {
         alert("You have been overrun.");
     };
     SaveFile.prototype.getForceAmountInLocation = function (location) {
-        return (this.getResourcesInLocation(location, ResourceType.IronSwordsman) * 25) +
+        return (this.getResourcesInLocation(location, ResourceType.IronSwordsman) * 20) +
             (this.getResourcesInLocation(location, ResourceType.Knight) * 50) +
-            (this.getResourcesInLocation(location, ResourceType.Archer) * 40) +
-            (this.getResourcesInLocation(location, ResourceType.WatchTower) * 200) + 100;
+            (this.getResourcesInLocation(location, ResourceType.Archer) * 30) +
+            (this.getResourcesInLocation(location, ResourceType.WatchTower) * 200) +
+            (this.getResourcesInLocation(location, ResourceType.Castle) * 500) + 100;
     };
     SaveFile.prototype.complateEvent = function (event) {
         var _this = this;
