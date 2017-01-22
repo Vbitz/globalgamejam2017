@@ -164,6 +164,8 @@ type BuildingCreateInfo = {
     Outputs: ResourcePair[];
     ProductionEvents: BuildCreateProductionEvent[];
     BuildTime: number;
+    UpgradeResources: ResourcePair[];
+    UpgradeTime: number;
 };
 
 var buildingCreationFunctions: {[key: number]: (level: number) => BuildingCreateInfo} = {};
@@ -171,14 +173,16 @@ var buildingCreationFunctions: {[key: number]: (level: number) => BuildingCreate
 buildingCreationFunctions[BuildingType.Sawmill] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.Forest, 1000)],
-        Outputs: [resourcePair(ResourceType.RawWood, 1000)],
+        Outputs: [resourcePair(ResourceType.RawWood, 500 * level)],
         ProductionEvents: [{
-            Inputs: [resourcePair(ResourceType.RawWood, 10)],
-            Outputs: [resourcePair(ResourceType.Wood, 25), resourcePair(ResourceType.LandArea, 10)],
+            Inputs: [resourcePair(ResourceType.RawWood, 10 * level)],
+            Outputs: [resourcePair(ResourceType.Wood, 25 * (level * 5)), resourcePair(ResourceType.LandArea, 10 * level)],
             Duration: 60000,
             Repeat: true
         }],
-        BuildTime: 240000
+        BuildTime: 240000,
+        UpgradeResources: [resourcePair(ResourceType.Forest, 500 * level)],
+        UpgradeTime: 60000 * level
     };
 };
 
@@ -192,7 +196,9 @@ buildingCreationFunctions[BuildingType.IronMine] = (level) => {
             Duration: 30000,
             Repeat: true
         }],
-        BuildTime: 240000
+        BuildTime: 240000,
+        UpgradeResources: [resourcePair(ResourceType.Wood, 100 * level)],
+        UpgradeTime: 100000 * level
     };
 };
 
@@ -206,7 +212,9 @@ buildingCreationFunctions[BuildingType.StoneQuarry] = (level) => {
             Duration: 30000,
             Repeat: true
         }],
-        BuildTime: 200000
+        BuildTime: 200000,
+        UpgradeResources: [resourcePair(ResourceType.LandArea, 200 * level)],
+        UpgradeTime: 100000 * level
     };
 };
 
@@ -220,7 +228,9 @@ buildingCreationFunctions[BuildingType.Foundry] = (level) => {
             Duration: 60000,
             Repeat: true
         }],
-        BuildTime: 300000
+        BuildTime: 300000,
+        UpgradeResources: [resourcePair(ResourceType.Wood, 100 * level)],
+        UpgradeTime: 100000 * level
     };
 };
 
