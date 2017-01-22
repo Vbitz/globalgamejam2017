@@ -517,7 +517,7 @@ class SaveFile {
             return this.getResourcesInLocation(location, pair.Type) < pair.Count;
         }).bind(this));
         if (missingResources.length == 0) {
-            buildingCreateInfo.Inputs.forEach(((pair) => this.removeResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+            buildingCreateInfo.UpgradeResources.forEach(((pair) => this.removeResourceInLocation(location, pair.Type, pair.Count)).bind(this));
             this.createBuildingUpgradeEvent(location.Name, buildingId, time());
             buildingInfo.IsUpgrading = true;
             return true;
@@ -529,7 +529,7 @@ class SaveFile {
     }
     startNewBuilding(location, buildingType) {
         var buildingCreateInfo = this.getBuildingData(buildingType, 1);
-        var missingResources = buildingCreateInfo.UpgradeResources.filter(((pair) => {
+        var missingResources = buildingCreateInfo.Inputs.filter(((pair) => {
             return this.getResourcesInLocation(location, pair.Type) < pair.Count;
         }).bind(this));
         if (missingResources.length == 0) {
