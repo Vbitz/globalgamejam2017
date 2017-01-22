@@ -90,7 +90,7 @@ var BuildingType;
 })(BuildingType || (BuildingType = {}));
 ;
 var buildingCreationFunctions = {};
-buildingCreationFunctions[BuildingType.Sawmill] = function (level) {
+buildingCreationFunctions[BuildingType.Sawmill] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.Forest, 1000)],
         Outputs: [resourcePair(ResourceType.RawWood, 1000)],
@@ -103,7 +103,7 @@ buildingCreationFunctions[BuildingType.Sawmill] = function (level) {
         BuildTime: 240000
     };
 };
-buildingCreationFunctions[BuildingType.IronMine] = function (level) {
+buildingCreationFunctions[BuildingType.IronMine] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.LandArea, 150)],
         Outputs: [],
@@ -116,7 +116,7 @@ buildingCreationFunctions[BuildingType.IronMine] = function (level) {
         BuildTime: 240000
     };
 };
-buildingCreationFunctions[BuildingType.StoneQuarry] = function (level) {
+buildingCreationFunctions[BuildingType.StoneQuarry] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 25), resourcePair(ResourceType.LandArea, 400)],
         Outputs: [],
@@ -129,7 +129,7 @@ buildingCreationFunctions[BuildingType.StoneQuarry] = function (level) {
         BuildTime: 200000
     };
 };
-buildingCreationFunctions[BuildingType.Foundry] = function (level) {
+buildingCreationFunctions[BuildingType.Foundry] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 100), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
@@ -142,7 +142,7 @@ buildingCreationFunctions[BuildingType.Foundry] = function (level) {
         BuildTime: 300000
     };
 };
-buildingCreationFunctions[BuildingType.IronSwordsmith] = function (level) {
+buildingCreationFunctions[BuildingType.IronSwordsmith] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 100), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
@@ -155,7 +155,7 @@ buildingCreationFunctions[BuildingType.IronSwordsmith] = function (level) {
         BuildTime: 200000
     };
 };
-buildingCreationFunctions[BuildingType.SteelSwordsmith] = function (level) {
+buildingCreationFunctions[BuildingType.SteelSwordsmith] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.Iron, 25), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
@@ -168,7 +168,7 @@ buildingCreationFunctions[BuildingType.SteelSwordsmith] = function (level) {
         BuildTime: 400000
     };
 };
-buildingCreationFunctions[BuildingType.BowMaker] = function (level) {
+buildingCreationFunctions[BuildingType.BowMaker] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.Iron, 25), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
@@ -186,7 +186,7 @@ buildingCreationFunctions[BuildingType.BowMaker] = function (level) {
         BuildTime: 240000
     };
 };
-buildingCreationFunctions[BuildingType.Barracks] = function (level) {
+buildingCreationFunctions[BuildingType.Barracks] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
@@ -199,7 +199,7 @@ buildingCreationFunctions[BuildingType.Barracks] = function (level) {
         BuildTime: 200000
     };
 };
-buildingCreationFunctions[BuildingType.ArcheryRange] = function (level) {
+buildingCreationFunctions[BuildingType.ArcheryRange] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
@@ -212,7 +212,7 @@ buildingCreationFunctions[BuildingType.ArcheryRange] = function (level) {
         BuildTime: 200000
     };
 };
-buildingCreationFunctions[BuildingType.Castle] = function (level) {
+buildingCreationFunctions[BuildingType.Castle] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 50),
             resourcePair(ResourceType.Archer, 10), resourcePair(ResourceType.Arrow, 1000)],
@@ -226,7 +226,7 @@ buildingCreationFunctions[BuildingType.Castle] = function (level) {
         BuildTime: 200000
     };
 };
-buildingCreationFunctions[BuildingType.WatchTower] = function (level) {
+buildingCreationFunctions[BuildingType.WatchTower] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 100), resourcePair(ResourceType.Iron, 25),
             resourcePair(ResourceType.LandArea, 20), resourcePair(ResourceType.Archer, 5),
@@ -236,7 +236,7 @@ buildingCreationFunctions[BuildingType.WatchTower] = function (level) {
         BuildTime: 400000
     };
 };
-buildingCreationFunctions[BuildingType.House] = function (level) {
+buildingCreationFunctions[BuildingType.House] = (level) => {
     return {
         Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.LandArea, 20)],
         Outputs: [resourcePair(ResourceType.Population, 10)],
@@ -274,7 +274,7 @@ function getDurationForRaidLevel(raidLevel) {
 function dumpRaidProgression(maxCount) {
     var arr = new Array(60);
     arr.fill(0);
-    console.table(arr.map(function (v, i) {
+    console.table(arr.map((v, i) => {
         return {
             level: i + 1,
             resources: getResourcesForRaidLevel(i + 1),
@@ -307,42 +307,41 @@ function printTime(valueInMs) {
     }
     return ret;
 }
-var NotEnoughResourcesError = (function () {
-    function NotEnoughResourcesError() {
+class NotEnoughResourcesError {
+    constructor() {
         this.name = "NotEnoughResourcesError";
         this.message = "Not Enough Resources";
     }
-    return NotEnoughResourcesError;
-}());
-var SaveFile = (function () {
-    function SaveFile() {
+}
+class SaveFile {
+    constructor() {
         this.PendingEventList = [];
         // this.createNewGame();
     }
-    SaveFile.prototype.isNewGame = function () {
+    isNewGame() {
         return localStorage.getItem("saveData") == null;
-    };
-    SaveFile.prototype.createNewGame = function () {
+    }
+    createNewGame() {
         this.Data = {
             HasLost: false,
             EventList: [],
             LocationList: [],
-            UnitList: []
+            UnitList: [],
         };
         this.generateBasicData();
-    };
-    SaveFile.prototype.getLocation = function (locationName) {
-        return this.Data.LocationList.filter(function (locationData) { return locationData.Name == locationName; })[0];
-    };
-    SaveFile.prototype.getResourcesInLocation = function (location, type) {
+    }
+    getLocation(locationName) {
+        return this.Data.LocationList.filter((locationData) => locationData.Name == locationName)[0];
+    }
+    getResourcesInLocation(location, type) {
         if (location.ResourceAmounts[type] == undefined) {
             return 0;
         }
         else {
             return location.ResourceAmounts[type];
         }
-    };
-    SaveFile.prototype.addResourceInLocation = function (location, type, count) {
+    }
+    addResourceInLocation(location, type, count) {
         if (location.ResourceAmounts[type] == undefined) {
             location.ResourceAmounts[type] = 0;
         }
@@ -353,24 +352,23 @@ var SaveFile = (function () {
         else {
             throw new NotEnoughResourcesError();
         }
-    };
-    SaveFile.prototype.removeResourceInLocation = function (location, type, count) {
+    }
+    removeResourceInLocation(location, type, count) {
         return this.addResourceInLocation(location, type, -count);
-    };
-    SaveFile.prototype.addBuildingInLocation = function (location, buildingType, buildingLevel, currentTime) {
-        var _this = this;
+    }
+    addBuildingInLocation(location, buildingType, buildingLevel, currentTime) {
         location.Buildings.push({
             Type: buildingType,
             Level: buildingLevel
         });
         var buildingCreateInfo = buildingCreationFunctions[buildingType](buildingLevel);
-        buildingCreateInfo.Inputs.forEach((function (pair) { return _this.removeResourceInLocation(location, pair.Type, pair.Count); }).bind(this));
-        buildingCreateInfo.Outputs.forEach((function (pair) { return _this.addResourceInLocation(location, pair.Type, pair.Count); }).bind(this));
-        buildingCreateInfo.ProductionEvents.forEach((function (prodEvent) {
-            _this.createResourceProductionEvent(location.Name, prodEvent.Inputs, prodEvent.Outputs, prodEvent.Repeat, currentTime, prodEvent.Duration);
+        buildingCreateInfo.Inputs.forEach(((pair) => this.removeResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+        buildingCreateInfo.Outputs.forEach(((pair) => this.addResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+        buildingCreateInfo.ProductionEvents.forEach(((prodEvent) => {
+            this.createResourceProductionEvent(location.Name, prodEvent.Inputs, prodEvent.Outputs, prodEvent.Repeat, currentTime, prodEvent.Duration);
         }).bind(this));
-    };
-    SaveFile.prototype.createRandomVillageLocation = function (currentTime) {
+    }
+    createRandomVillageLocation(currentTime) {
         var locationName = "Testing Location";
         this.Data.LocationList.push({
             Type: LocationType.Village,
@@ -392,10 +390,10 @@ var SaveFile = (function () {
         this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
         // 50 wood should be spare
         return locationName;
-    };
-    SaveFile.prototype.createRandomHeroInLocation = function (locationName) {
-    };
-    SaveFile.prototype.generateBasicData = function () {
+    }
+    createRandomHeroInLocation(locationName) {
+    }
+    generateBasicData() {
         var currentTime = time();
         var baseLocationId = this.createRandomVillageLocation(currentTime);
         var baseLocation = this.getLocation(baseLocationId);
@@ -406,17 +404,17 @@ var SaveFile = (function () {
         this.addBuildingInLocation(baseLocation, BuildingType.Barracks, 1, currentTime); // 200 wood
         this.createRandomHeroInLocation(baseLocationId);
         this.createPrimaryRaidEvent(baseLocationId, 1, currentTime);
-    };
-    SaveFile.prototype.load = function () {
+    }
+    load() {
         this.Data = JSON.parse(localStorage.getItem("saveData"));
-    };
-    SaveFile.prototype.save = function () {
+    }
+    save() {
         localStorage.setItem("saveData", JSON.stringify(this.Data));
-    };
-    SaveFile.prototype.getEventList = function () {
+    }
+    getEventList() {
         return this.Data.EventList;
-    };
-    SaveFile.prototype.createPrimaryRaidEvent = function (locationName, raidLevel, startTime) {
+    }
+    createPrimaryRaidEvent(locationName, raidLevel, startTime) {
         this.PendingEventList.push({
             Location: locationName,
             Type: EventType.PrimaryRaid,
@@ -427,8 +425,8 @@ var SaveFile = (function () {
             StartTime: startTime,
             Duration: getDurationForRaidLevel(raidLevel)
         });
-    };
-    SaveFile.prototype.createResourceProductionEvent = function (locationName, inputs, outputs, repeats, startTime, duration) {
+    }
+    createResourceProductionEvent(locationName, inputs, outputs, repeats, startTime, duration) {
         this.PendingEventList.push({
             Location: locationName,
             Type: repeats ? EventType.PersistantResourceProductionEvent : EventType.OneTimeResourceProductionEvent,
@@ -439,27 +437,26 @@ var SaveFile = (function () {
             StartTime: startTime,
             Duration: duration
         });
-    };
-    SaveFile.prototype.hasEventPassed = function (event) {
+    }
+    hasEventPassed(event) {
         return (event.StartTime + event.Duration) < time();
-    };
-    SaveFile.prototype.lose = function () {
+    }
+    lose() {
         this.Data.HasLost = true;
         this.save();
         alert("You have been overrun.");
-    };
-    SaveFile.prototype.getForceAmountInLocation = function (location) {
+    }
+    getForceAmountInLocation(location) {
         return (this.getResourcesInLocation(location, ResourceType.IronSwordsman) * 20) +
             (this.getResourcesInLocation(location, ResourceType.Knight) * 50) +
             (this.getResourcesInLocation(location, ResourceType.Archer) * 30) +
             (this.getResourcesInLocation(location, ResourceType.WatchTower) * 200) +
             (this.getResourcesInLocation(location, ResourceType.Castle) * 500) + 100;
-    };
-    SaveFile.prototype.complateEvent = function (event) {
-        var _this = this;
+    }
+    complateEvent(event) {
         var location = this.getLocation(event.Location);
         if (event.Type == EventType.PrimaryRaid) {
-            var details = event.Details;
+            let details = event.Details;
             if (details.ResourcesRequired > this.getForceAmountInLocation(location)) {
                 this.lose();
             }
@@ -468,93 +465,90 @@ var SaveFile = (function () {
             }
         }
         else if (event.Type == EventType.PersistantResourceProductionEvent || event.Type == EventType.OneTimeResourceProductionEvent) {
-            var details = event.Details;
-            details.Inputs.forEach((function (pair) { return _this.removeResourceInLocation(location, pair.Type, pair.Count); }).bind(this));
-            details.Outputs.forEach((function (pair) { return _this.addResourceInLocation(location, pair.Type, pair.Count); }).bind(this));
+            let details = event.Details;
+            details.Inputs.forEach(((pair) => this.removeResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+            details.Outputs.forEach(((pair) => this.addResourceInLocation(location, pair.Type, pair.Count)).bind(this));
             if (event.Type == EventType.PersistantResourceProductionEvent) {
                 this.createResourceProductionEvent(event.Location, details.Inputs, details.Outputs, true, event.StartTime + event.Duration, event.Duration);
             }
         }
-    };
-    SaveFile.prototype.getEventDetails = function (event) {
+    }
+    getEventDetails(event) {
         // TODO: Make this return a Element with nice styling
         if (event.Type == EventType.PrimaryRaid) {
-            var details = event.Details;
+            let details = event.Details;
             return "Level = " + details.RaidLevel.toString(10) + " | Required Force Amount = " + details.ResourcesRequired.toString(10);
         }
         else if (event.Type == EventType.OneTimeResourceProductionEvent || event.Type == EventType.PersistantResourceProductionEvent) {
-            var details = event.Details;
+            let details = event.Details;
             var ret = "";
             ret += "Turns {";
-            details.Inputs.forEach(function (pair) {
+            details.Inputs.forEach((pair) => {
                 ret += ResourceType[pair.Type] + " X " + pair.Count.toString(10) + ", ";
             });
             ret += "} Into {";
-            details.Outputs.forEach(function (pair) {
+            details.Outputs.forEach((pair) => {
                 ret += ResourceType[pair.Type] + " X " + pair.Count.toString(10) + ", ";
             });
             ret += "}";
             return ret;
         }
-    };
-    SaveFile.prototype.getEventTable = function () {
-        var _this = this;
-        return this.Data.EventList.map((function (event) {
+    }
+    getEventTable() {
+        return this.Data.EventList.map(((event) => {
             return {
                 "Event Type": EventType[event.Type],
                 "Time Remaining": printTime((event.StartTime + event.Duration) - time()),
-                "Details": _this.getEventDetails(event)
+                "Details": this.getEventDetails(event)
             };
         }).bind(this));
-    };
-    SaveFile.prototype.getCurrentLocation = function () {
+    }
+    getCurrentLocation() {
         return "Testing Location";
-    };
-    SaveFile.prototype.getCurrentLocationResourceTable = function () {
+    }
+    getCurrentLocationResourceTable() {
         var location = this.getLocation(this.getCurrentLocation());
-        return Object.keys(location.ResourceAmounts).map(function (rKey) {
+        return Object.keys(location.ResourceAmounts).map((rKey) => {
             return {
                 "Resource Type": ResourceType[rKey],
                 "Resource Amount": location.ResourceAmounts[rKey].toString(10)
             };
         });
-    };
-    SaveFile.prototype.getCurrentLocationBuildingTable = function () {
+    }
+    getCurrentLocationBuildingTable() {
         var location = this.getLocation(this.getCurrentLocation());
-        return location.Buildings.map(function (building) {
+        return location.Buildings.map((building) => {
             return {
                 "Building Type": BuildingType[building.Type],
-                "Building Level": building.Level.toString(10)
+                "Building Level": building.Level.toString(10),
             };
         });
-    };
-    SaveFile.prototype.update = function () {
-        var _this = this;
+    }
+    update() {
         if (this.Data.HasLost) {
             return;
         }
-        this.Data.EventList = this.Data.EventList.filter((function (event) {
-            if (!_this.hasEventPassed(event)) {
+        this.Data.EventList = this.Data.EventList.filter(((event) => {
+            if (!this.hasEventPassed(event)) {
                 return true;
             }
             else {
                 console.log("Completing: " + event);
-                _this.complateEvent(event);
+                this.complateEvent(event);
                 return false;
             }
         }).bind(this));
-        this.PendingEventList.forEach(function (event) { return _this.Data.EventList.push(event); });
+        this.PendingEventList.forEach((event) => this.Data.EventList.push(event));
         this.PendingEventList = [];
-    };
-    return SaveFile;
-}());
+    }
+}
 function e(type, attrs, value) {
     var newElement = document.createElement(type);
     for (var k in attrs) {
         newElement.setAttribute(k, attrs[k]);
     }
     if (value instanceof Array) {
-        value.forEach(function (ele) { return newElement.appendChild(ele); });
+        value.forEach((ele) => newElement.appendChild(ele));
     }
     else {
         newElement.textContent = value;
@@ -568,9 +562,9 @@ function renderTable(tableElement, data) {
         return;
     }
     tableElement.appendChild(e("thead", {}, [
-        e("tr", {}, Object.keys(data[0]).map(function (heading) { return e("th", {}, heading); }))
+        e("tr", {}, Object.keys(data[0]).map((heading) => e("th", {}, heading)))
     ]));
-    tableElement.appendChild(e("tbody", {}, data.map(function (dataRow) {
+    tableElement.appendChild(e("tbody", {}, data.map((dataRow) => {
         var arr = [];
         for (var k in dataRow) {
             arr.push(e("td", {}, dataRow[k]));
