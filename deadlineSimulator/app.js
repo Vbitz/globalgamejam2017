@@ -415,9 +415,9 @@ class SaveFile {
         this.addResourceInLocation(location, ResourceType.Wood, 500);
         this.addResourceInLocation(location, ResourceType.RawIron, 1500);
         this.addBuildingInLocation(location, BuildingType.House, 1, true, currentTime); // 50 wood
-        this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
-        this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
-        this.addBuildingInLocation(location, BuildingType.House, 1, currentTime); // 50 wood
+        this.addBuildingInLocation(location, BuildingType.House, 1, true, currentTime); // 50 wood
+        this.addBuildingInLocation(location, BuildingType.House, 1, true, currentTime); // 50 wood
+        this.addBuildingInLocation(location, BuildingType.House, 1, true, currentTime); // 50 wood
         // 50 wood should be spare
         return locationName;
     }
@@ -428,10 +428,10 @@ class SaveFile {
         var baseLocationId = this.createRandomVillageLocation(currentTime);
         var baseLocation = this.getLocation(baseLocationId);
         this.addResourceInLocation(baseLocation, ResourceType.Wood, 500);
-        this.addBuildingInLocation(baseLocation, BuildingType.IronMine, 1, currentTime); // 100 wood
-        this.addBuildingInLocation(baseLocation, BuildingType.Sawmill, 1, currentTime); // 50 wood
-        this.addBuildingInLocation(baseLocation, BuildingType.IronSwordsmith, 1, currentTime); // 150 wood
-        this.addBuildingInLocation(baseLocation, BuildingType.Barracks, 1, currentTime); // 200 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.IronMine, 1, true, currentTime); // 100 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.Sawmill, 1, true, currentTime); // 50 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.IronSwordsmith, 1, true, currentTime); // 150 wood
+        this.addBuildingInLocation(baseLocation, BuildingType.Barracks, 1, true, currentTime); // 200 wood
         this.createRandomHeroInLocation(baseLocationId);
         this.createPrimaryRaidEvent(baseLocationId, 1, currentTime);
     }
@@ -468,9 +468,22 @@ class SaveFile {
             Duration: duration
         });
     }
+    createBuildingCompleteEvent(locationName, buildingType, startTime) {
+        this.PendingEventList.push({
+            Location: locationName,
+            Type: EventType.BuildingCompleteEvent,
+            Details: {
+                Id: null,
+                Type: buildingType,
+                NewLevel: 1
+            },
+            StartTime: startTime,
+            Duration: this.getBuildingData(buildingType, 1).BuildTime
+        });
+    }
     createBuildingUpgradeEvent(locationName, buildingId, startTime) {
     }
-    doBuildingUpgrade(location, buildingId) {
+    doBuildingUpgrade(location, buildingId, newLevel) {
     }
     startBuildingUpgrade() {
     }
@@ -509,7 +522,12 @@ class SaveFile {
             }
         }
         else if (event.Type == EventType.BuildingCompleteEvent) {
-            this.addBuildingInLocation();
+            let details = event.Details;
+            this.addBuildingInLocation(location, details.Type, details.NewLevel, false, event.StartTime + event.Duration);
+        }
+        else if (event.Type == EventType.BuildingUpgradeCompleteEvent) {
+            let details = event.Details;
+            this.doBuildingUpgrade(location, details.Id, details.NewLevel);
         }
     }
     getEventDetails(event) {
