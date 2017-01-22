@@ -121,15 +121,30 @@ type BuildingData = {
     BuildingData: {};
 };
 
-var buildingCreationFunctions: {[key: number]: (save: SaveFile, location: LocationData, level: number, currentTime: number) => void} = {};
+type BuildingCreateInfo = {
+    Inputs: ResourcePair[];
+    Outputs: ResourcePair[];
+    ProductionEvents: ResourceProductionEvent[];
+};
+
+var buildingCreationFunctions: {[key: number]: (save: SaveFile, location: LocationData, level: number, currentTime: number) => BuildingCreateInfo} = {};
 
 buildingCreationFunctions[BuildingType.Sawmill] = (save, location, level, currentTime) => {
+    return {
+        Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.LandArea, 100)],
+        Outputs: [],
+        ProductionEvents: [{
+            Inputs: [resourcePair(ResourceType.RawWood, 10)],
+            Outputs: [resourcePair(ResourceType.Wood, 25)],
+            Duration: 60000
+        }]
+    };
     if (level == 1) {
         save.removeResourceInLocation(location, ResourceType.Wood, 50);
         save.removeResourceInLocation(location, ResourceType.LandArea, 100);
     }
     
-    save.createResourceProductionEvent(location.Name, [resourcePair(ResourceType.RawWood, 10)], [resourcePair(ResourceType.Wood, 25)], true, currentTime, 30000);
+    save.createResourceProductionEvent(location.Name,, true, currentTime, 30000);
 };
 
 buildingCreationFunctions[BuildingType.IronMine] = (save, location, level, currentTime) => {
