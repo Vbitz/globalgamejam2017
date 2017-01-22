@@ -661,17 +661,32 @@ class SaveFile {
         });
     }
 
-    public doBuildingUpgrade(location: LocationData, buildingId: number, newLevel: number) {
-        var buildingCreateInfo: BuildingCreateInfo = this.getBuildingData(this.getBuildingInLocation(location, buildingId), newLevel);
+    public doBuildingUpgrade(location: LocationData, buildingId: number, newLevel: number, currentTime: number) {
+        var buildingCreateInfo: BuildingCreateInfo = this.getBuildingData(this.getBuildingInLocation(location, buildingId).Type, newLevel);
+
         buildingCreateInfo.Outputs.forEach(((pair: ResourcePair) => this.addResourceInLocation(location, pair.Type, pair.Count)).bind(this));
         buildingCreateInfo.ProductionEvents.forEach(((prodEvent: BuildCreateProductionEvent) => {
             this.createResourceProductionEvent(location.Name, prodEvent.Inputs, prodEvent.Outputs, prodEvent.Repeat, currentTime, prodEvent.Duration);
         }).bind(this));
+        
+        this.getBuildingInLocation(location, buildingId).Level = newLevel;
+        this.getBuildingInLocation(location, buildingId).IsUpgrading = false;
     }
 
-    public startBuildingUpgrade(location: LocationData): boolean {
+    public startBuildingUpgrade(location: LocationData, buildingId: number): boolean {
+        var buildingInfo: BuildingData = this.getBuildingInLocation(location, buildingId);
+        var buildingCreateInfo: BuildingCreateInfo = this.getBuildingData(buildingInfo.Type, buildingInfo.Level + 1);
+        var missingResources = buildingCreateInfo.UpgradeResources.filter(((pair: ResourcePair) => {
+            return this.getResourcesInLocation(location, pair.Type) >= pair.Count;
+        }).bind(this));
 
-        return false;
+        if (missingResources.length == 0) {
+            
+            return true;
+        } else {
+            
+            return false;
+        }
     }
 
     public startNewBuilding(location: LocationData, buildingType: BuildingType): boolean {
@@ -724,7 +739,7 @@ class SaveFile {
         } else if (event.Type == EventType.BuildingUpgradeCompleteEvent) {
             let details = <BuildingEvent> event.Details;
 
-            this.doBuildingUpgrade(location, details.Id, details.NewLevel);
+            this.doBuildingUpgrade(location, details.Id, details.NewLevel, event.StartTime + event.Duration);
         }
     }
 

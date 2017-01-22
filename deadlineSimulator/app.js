@@ -500,15 +500,27 @@ class SaveFile {
             Duration: this.getBuildingData(buildingType, buildingInfo.Level + 1).UpgradeTime
         });
     }
-    doBuildingUpgrade(location, buildingId, newLevel) {
-        var buildingCreateInfo = this.getBuildingData(this.getBuildingInLocation(location, buildingId), newLevel);
+    doBuildingUpgrade(location, buildingId, newLevel, currentTime) {
+        var buildingCreateInfo = this.getBuildingData(this.getBuildingInLocation(location, buildingId).Type, newLevel);
         buildingCreateInfo.Outputs.forEach(((pair) => this.addResourceInLocation(location, pair.Type, pair.Count)).bind(this));
         buildingCreateInfo.ProductionEvents.forEach(((prodEvent) => {
             this.createResourceProductionEvent(location.Name, prodEvent.Inputs, prodEvent.Outputs, prodEvent.Repeat, currentTime, prodEvent.Duration);
         }).bind(this));
+        this.getBuildingInLocation(location, buildingId).Level = newLevel;
+        this.getBuildingInLocation(location, buildingId).IsUpgrading = false;
     }
-    startBuildingUpgrade(location) {
-        return false;
+    startBuildingUpgrade(location, buildingId) {
+        var buildingInfo = this.getBuildingInLocation(location, buildingId);
+        var buildingCreateInfo = this.getBuildingData(buildingInfo.Type, buildingInfo.Level + 1);
+        var missingResources = buildingCreateInfo.UpgradeResources.filter(((pair) => {
+            return this.getResourcesInLocation(location, pair.Type) >= pair.Count;
+        }).bind(this));
+        if (missingResources.length == 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     startNewBuilding(location, buildingType) {
         return false;
@@ -553,7 +565,7 @@ class SaveFile {
         }
         else if (event.Type == EventType.BuildingUpgradeCompleteEvent) {
             let details = event.Details;
-            this.doBuildingUpgrade(location, details.Id, details.NewLevel);
+            this.doBuildingUpgrade(location, details.Id, details.NewLevel, event.StartTime + event.Duration);
         }
     }
     getEventDetails(event) {
