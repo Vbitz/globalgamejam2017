@@ -104,41 +104,41 @@ buildingCreationFunctions[BuildingType.IronMine] = function (save, location, lev
 };
 buildingCreationFunctions[BuildingType.Barracks] = function (save, location, level, currentTime) {
     return {
-        Inputs: []
+        Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 100)],
+        Outputs: [],
+        ProductionEvents: [{
+                Inputs: [resourcePair(ResourceType.Population, 1), resourcePair(ResourceType.IronSword, 1)],
+                Outputs: [resourcePair(ResourceType.BasicSwordsman, 1)],
+                Duration: 100000,
+                Repeat: true
+            }]
     };
-    if (level == 1) {
-        save.removeResourceInLocation(location, ResourceType.Wood, 150);
-        save.removeResourceInLocation(location, ResourceType.LandArea, 100);
-    }
-    save.createResourceProductionEvent(location.Name, [
-        resourcePair(ResourceType.Population, 1),
-        resourcePair(ResourceType.IronSword, 1)
-    ], [
-        resourcePair(ResourceType.BasicSwordsman, 1)
-    ], true, currentTime, 100000);
 };
-buildingCreationFunctions[BuildingType.Swordsmith] = function (save, location, level, currentTime) {
-    if (level == 1) {
-        save.removeResourceInLocation(location, ResourceType.Wood, 150);
-        save.removeResourceInLocation(location, ResourceType.LandArea, 100);
-    }
-    save.createResourceProductionEvent(location.Name, [
-        resourcePair(ResourceType.Iron, 5),
-        resourcePair(ResourceType.Wood, 5)
-    ], [
-        resourcePair(ResourceType.IronSword, 5)
-    ], true, currentTime, 60000);
+buildingCreationFunctions[BuildingType.IronSwordsmith] = function (save, location, level, currentTime) {
+    return {
+        Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 100)],
+        Outputs: [],
+        ProductionEvents: [{
+                Inputs: [resourcePair(ResourceType.Iron, 5), resourcePair(ResourceType.Wood, 5)],
+                Outputs: [resourcePair(ResourceType.IronSword, 5)],
+                Duration: 60000,
+                Repeat: true
+            }]
+    };
 };
 buildingCreationFunctions[BuildingType.WatchTower] = function (save, location, level, currentTime) {
-    if (level == 1) {
-        save.removeResourceInLocation(location, ResourceType.Wood, 100);
-        save.removeResourceInLocation(location, ResourceType.Iron, 25);
-        save.removeResourceInLocation(location, ResourceType.LandArea, 20);
-        save.removeResourceInLocation(location, ResourceType.Population, 10);
-    }
-    save.addResourceInLocation(location, ResourceType.WatchTower, 1);
+    return {
+        Inputs: [resourcePair(ResourceType.Wood, 100), resourcePair(ResourceType.Iron, 25),
+            resourcePair(ResourceType.LandArea, 20), resourcePair(ResourceType.Population, 10)],
+        Outputs: [resourcePair(ResourceType.WatchTower, 1)],
+        ProductionEvents: []
+    };
 };
 buildingCreationFunctions[BuildingType.House] = function (save, location, level, currentTime) {
+    return {
+        Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.LandArea, 20)],
+        Outputs: [resourcePair(ResourceType.Population, 25)]
+    };
     if (level == 1) {
         save.removeResourceInLocation(location, ResourceType.Wood, 50);
         save.removeResourceInLocation(location, ResourceType.LandArea, 20);
