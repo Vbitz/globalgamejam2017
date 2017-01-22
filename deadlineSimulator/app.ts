@@ -46,12 +46,15 @@ enum ResourceType {
     
     LandArea,
     
+    Forest,
     RawWood,
     Wood,
 
     IronSword,
     RawIron,
     Iron,
+
+    SteelSword,
 
     BasicSwordsman,
     WatchTower,
@@ -108,8 +111,16 @@ type ResourceStockpile = {[key: number]: number};
 enum BuildingType {
     Sawmill,
     IronMine,
+    
+    Foundry,
+
+    IronSwordsmith,
+    SteelSwordsmith,
+
     Barracks,
-    Swordsmith,
+    ArcharyRange,
+    Castle,
+
     WatchTower,
     House
 };
@@ -121,42 +132,51 @@ type BuildingData = {
     BuildingData: {};
 };
 
+type BuildCreateProductionEvent = {
+    Inputs: ResourcePair[];
+    Outputs: ResourcePair[];
+    Duration: number,
+    Repeat: boolean
+};
+
 type BuildingCreateInfo = {
     Inputs: ResourcePair[];
     Outputs: ResourcePair[];
-    ProductionEvents: ResourceProductionEvent[];
+    ProductionEvents: BuildCreateProductionEvent[];
 };
 
 var buildingCreationFunctions: {[key: number]: (save: SaveFile, location: LocationData, level: number, currentTime: number) => BuildingCreateInfo} = {};
 
 buildingCreationFunctions[BuildingType.Sawmill] = (save, location, level, currentTime) => {
     return {
-        Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.LandArea, 100)],
-        Outputs: [],
+        Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.Forest, 100)],
+        Outputs: [resourcePair(ResourceType.RawWood, 1000)],
         ProductionEvents: [{
             Inputs: [resourcePair(ResourceType.RawWood, 10)],
-            Outputs: [resourcePair(ResourceType.Wood, 25)],
-            Duration: 60000
+            Outputs: [resourcePair(ResourceType.Wood, 25), resourcePair(ResourceType.LandArea, 100)],
+            Duration: 60000,
+            Repeat: true
         }]
     };
-    if (level == 1) {
-        save.removeResourceInLocation(location, ResourceType.Wood, 50);
-        save.removeResourceInLocation(location, ResourceType.LandArea, 100);
-    }
-    
-    save.createResourceProductionEvent(location.Name,, true, currentTime, 30000);
 };
 
 buildingCreationFunctions[BuildingType.IronMine] = (save, location, level, currentTime) => {
-    if (level == 1) {
-        save.removeResourceInLocation(location, ResourceType.Wood, 100);
-        save.removeResourceInLocation(location, ResourceType.LandArea, 200);
+    return {
+        Inputs: [resourcePair(ResourceType.Wood, 50), resourcePair(ResourceType.LandArea, 150)],
+        Outputs: [],
+        ProductionEvents: [{
+            Inputs: [resourcePair(ResourceType.RawIron, 10)],
+            Outputs: [resourcePair(ResourceType.Iron, 10)],
+            Duration: 30000,
+            Repeat: true
+        }]
     }
-    
-    save.createResourceProductionEvent(location.Name, [resourcePair(ResourceType.RawIron, 10)], [resourcePair(ResourceType.Iron, 10)], true, currentTime, 30000);
 };
 
 buildingCreationFunctions[BuildingType.Barracks] = (save, location, level, currentTime) => {
+    return {
+        Inputs: []
+    }
     if (level == 1) {
         save.removeResourceInLocation(location, ResourceType.Wood, 150);
         save.removeResourceInLocation(location, ResourceType.LandArea, 100);
