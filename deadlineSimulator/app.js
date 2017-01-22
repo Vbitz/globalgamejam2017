@@ -489,22 +489,26 @@ class SaveFile {
     }
     createBuildingUpgradeEvent(locationName, buildingId, startTime) {
         var buildingInfo = this.getBuildingInLocation(this.getLocation(locationName), buildingId);
-        var buildingType = .Type;
+        var buildingType = buildingInfo.Type;
         this.PendingEventList.push({
             Location: locationName,
             Type: EventType.BuildingCompleteEvent,
             Details: {
                 Id: buildingId,
                 Type: buildingType,
-                NewLevel: 1
+                NewLevel: buildingInfo.Level + 1
             },
             StartTime: startTime,
-            Duration: this.getBuildingData(buildingType, 1).UpgradeTime
+            Duration: this.getBuildingData(buildingType, buildingInfo.Level + 1).UpgradeTime
         });
     }
     doBuildingUpgrade(location, buildingId, newLevel) {
     }
-    startBuildingUpgrade() {
+    startBuildingUpgrade(location) {
+        return false;
+    }
+    startNewBuilding(location, buildingType) {
+        return false;
     }
     hasEventPassed(event) {
         return (event.StartTime + event.Duration) < time();
@@ -621,6 +625,20 @@ class SaveFile {
             };
         }).bind(this));
     }
+    getCurrentLocationBuildingCreateTable() {
+        return [BuildingType.Sawmill,
+            BuildingType.IronMine,
+            BuildingType.StoneQuarry,
+            BuildingType.Foundry,
+            BuildingType.IronSwordsmith,
+            BuildingType.SteelSwordsmith,
+            BuildingType.BowMaker,
+            BuildingType.Barracks,
+            BuildingType.ArcheryRange,
+            BuildingType.Castle,
+            BuildingType.WatchTower,
+            BuildingType.House];
+    }
     update() {
         if (this.Data.HasLost) {
             return;
@@ -686,6 +704,7 @@ function main() {
         renderTable(document.querySelector("#currentDeadlineList"), save.getEventTable());
         renderTable(document.querySelector("#currentLocationResourceList"), save.getCurrentLocationResourceTable());
         renderTable(document.querySelector("#currentLocationBuildingList"), save.getCurrentLocationBuildingTable());
+        renderTable(document.querySelector("#currentLocationBuildingCreateList"), save.getCurrentLocationBuildingCreateTable());
     }, 1000);
 }
 document.addEventListener("DOMContentLoaded", main);
