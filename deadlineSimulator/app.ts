@@ -271,7 +271,7 @@ buildingCreationFunctions[BuildingType.SteelSwordsmith] = (level) => {
 
 buildingCreationFunctions[BuildingType.BowMaker] = (level) => {
     return {
-        Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.Iron, 25), resourcePair(ResourceType.LandArea, 50)],
+        Inputs: [resourcePair(ResourceType.Wood, 75), resourcePair(ResourceType.Iron, 5), resourcePair(ResourceType.LandArea, 50)],
         Outputs: [],
         ProductionEvents: [{
             Inputs: [resourcePair(ResourceType.Iron, (5 * level)), resourcePair(ResourceType.Wood, 5)],
@@ -676,22 +676,37 @@ class SaveFile {
     public startBuildingUpgrade(location: LocationData, buildingId: number): boolean {
         var buildingInfo: BuildingData = this.getBuildingInLocation(location, buildingId);
         var buildingCreateInfo: BuildingCreateInfo = this.getBuildingData(buildingInfo.Type, buildingInfo.Level + 1);
+
         var missingResources = buildingCreateInfo.UpgradeResources.filter(((pair: ResourcePair) => {
             return this.getResourcesInLocation(location, pair.Type) >= pair.Count;
         }).bind(this));
 
         if (missingResources.length == 0) {
-            
+            buildingCreateInfo.Inputs.forEach(((pair: ResourcePair) => this.removeResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+            this.createBuildingUpgradeEvent(location.Name, buildingId, time());
+            buildingInfo.IsUpgrading = true;
             return true;
         } else {
-            
+            alert("Not Enough Resources to Upgrade Building");
             return false;
         }
     }
 
     public startNewBuilding(location: LocationData, buildingType: BuildingType): boolean {
+        var buildingCreateInfo: BuildingCreateInfo = this.getBuildingData(buildingType, 1);
 
-        return false;
+        var missingResources = buildingCreateInfo.UpgradeResources.filter(((pair: ResourcePair) => {
+            return this.getResourcesInLocation(location, pair.Type) >= pair.Count;
+        }).bind(this));
+
+        if (missingResources.length == 0) {
+            buildingCreateInfo.Inputs.forEach(((pair: ResourcePair) => this.removeResourceInLocation(location, pair.Type, pair.Count)).bind(this));
+            this.createBuildingCompleteEvent(location.Name, buildingType, time());
+            return true;
+        } else {
+            alert("Not Enough Resources to Create Building");
+            return false;
+        }
     }
 
     public hasEventPassed(event: EventData): boolean {
@@ -818,12 +833,13 @@ class SaveFile {
     public getCurrentLocationBuildingTable(): {}[] {
         var location = this.getLocation(this.getCurrentLocation());
         return location.Buildings.map(((building: BuildingData) => {
+            var buildingId = building.Id;
             var upgradeButton: HTMLAnchorElement = document.createElement("a");
             upgradeButton.className = "btn btn-primary";
-            upgradeButton.addEventListener("click", () => {
-
+            upgradeButton.addEventListener("click", (() => {
+                this.startBuildingUpgrade(location, buildingId);
                 event.preventDefault();
-            });
+            }).bind(this));
             upgradeButton.textContent = "Upgrade";
             return {
                 "Building Type": BuildingType[building.Type],
