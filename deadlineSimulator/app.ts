@@ -649,6 +649,10 @@ class SaveFile {
         }
     }
 
+    public getBuildingUpgradeRequirements(type: BuildingType, newLevel: number): string {
+        return "";
+    }
+
     public getEventTable(): {}[] {
         return this.Data.EventList.map(((event: EventData) => {
             return {
@@ -675,12 +679,21 @@ class SaveFile {
 
     public getCurrentLocationBuildingTable(): {}[] {
         var location = this.getLocation(this.getCurrentLocation());
-        return location.Buildings.map((building: BuildingData) => {
+        return location.Buildings.map(((building: BuildingData) => {
+            var upgradeButton: HTMLAnchorElement = document.createElement("a");
+            upgradeButton.className = "btn btn-primary";
+            upgradeButton.addEventListener("click", () => {
+
+                event.preventDefault();
+            });
+            upgradeButton.textContent = "Upgrade";
             return {
                 "Building Type": BuildingType[building.Type],
                 "Building Level": building.Level.toString(10),
+                "Upgrade Requirements": this.getBuildingUpgradeRequirements(building.Type, building.Level + 1),
+                "Upgrade": [upgradeButton]
             };
-        });
+        }).bind(this));
     }
 
     public update() {
