@@ -812,22 +812,26 @@ class SaveFile {
     }
 
     public getCurrentLocationBuildingCreateTable(): {}[] {
-        return [BuildingType.Sawmill,
-    BuildingType.IronMine,
-    BuildingType.StoneQuarry,
-    
-    BuildingType.Foundry,
-
-    BuildingType.IronSwordsmith,
-    BuildingType.SteelSwordsmith,
-    BuildingType.BowMaker,
-
-    BuildingType.Barracks,
-    BuildingType.ArcheryRange,
-    BuildingType.Castle,
-
-    BuildingType.WatchTower,
-    BuildingType.House]
+        var location: LocationData = this.getLocation(this.getCurrentLocation());
+        return [BuildingType.Sawmill, BuildingType.IronMine, BuildingType.StoneQuarry,
+                BuildingType.Foundry, BuildingType.IronSwordsmith, BuildingType.SteelSwordsmith,
+                BuildingType.BowMaker, BuildingType.Barracks, BuildingType.ArcheryRange,
+                BuildingType.Castle, BuildingType.WatchTower,BuildingType.House
+            ].map(((buildingType: BuildingType) => {
+                var type: BuildingType = buildingType;
+                var createButton: HTMLAnchorElement = document.createElement("a");
+                createButton.className = "btn btn-primary";
+                createButton.addEventListener("click", (() => {
+                    this.startNewBuilding(this.getCurrentLocation(location), type);
+                    event.preventDefault();
+                }).bind(this));
+                createButton.textContent = "Create";
+                return {
+                    "Building Type": BuildingType[buildingType],
+                    "Create Requirements": this.getBuildingCreateRequirements(buildingType, 1),
+                    "Create": [createButton]
+                };
+            }).bind(this));
     }
 
     public update() {
