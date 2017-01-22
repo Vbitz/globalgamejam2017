@@ -547,7 +547,7 @@ class SaveFile {
     }
 
     public createRandomVillageLocation(currentTime: number) {
-        var locationName = "Testing Location";
+        var locationName = "Epic Location";
         
         this.Data.LocationList.push({
             Type: LocationType.Village,
@@ -784,7 +784,7 @@ class SaveFile {
         } else if (event.Type == EventType.BuildingCompleteEvent || event.Type == EventType.BuildingUpgradeCompleteEvent) {
             let details = <BuildingEvent> event.Details;
 
-            return "Type = " + BuildingType[details.Id] + " | New Level = " + details.NewLevel.toString(10);
+            return "Type = " + BuildingType[details.Type] + " | New Level = " + details.NewLevel.toString(10);
         }
     }
 
@@ -819,7 +819,7 @@ class SaveFile {
     }
 
     public getCurrentLocation(): string {
-        return "Testing Location";
+        return "Epic Location";
     }
 
     public getCurrentLocationResourceTable(): {}[] {
@@ -870,7 +870,7 @@ class SaveFile {
                 }).bind(this));
                 createButton.textContent = "Create";
                 return {
-                    "Building Type": BuildingType[buildingType],
+                    "Building Type": BuildingType[type],
                     "Create Requirements": this.getBuildingCreateRequirements(buildingType, 1),
                     "Create": [createButton]
                 };
@@ -938,6 +938,10 @@ function updateAll () {
     var save = currentSave;
     save.update();
     save.save();
+
+    Array.prototype.forEach.call(document.querySelectorAll(".currentLocation"), (element: Element) => {
+        element.textContent = save.getCurrentLocation();
+    });
 
     document.querySelector("#currentForceAmount").textContent = save.getForceAmountInLocation(save.getLocation(save.getCurrentLocation())).toString(10);
         

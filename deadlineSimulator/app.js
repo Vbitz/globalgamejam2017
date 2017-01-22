@@ -406,7 +406,7 @@ class SaveFile {
         })[0];
     }
     createRandomVillageLocation(currentTime) {
-        var locationName = "Testing Location";
+        var locationName = "Epic Location";
         this.Data.LocationList.push({
             Type: LocationType.Village,
             Name: locationName,
@@ -606,7 +606,7 @@ class SaveFile {
         }
         else if (event.Type == EventType.BuildingCompleteEvent || event.Type == EventType.BuildingUpgradeCompleteEvent) {
             let details = event.Details;
-            return "Type = " + BuildingType[details.Id] + " | New Level = " + details.NewLevel.toString(10);
+            return "Type = " + BuildingType[details.Type] + " | New Level = " + details.NewLevel.toString(10);
         }
     }
     getBuildingData(type, level) {
@@ -636,7 +636,7 @@ class SaveFile {
         }).bind(this));
     }
     getCurrentLocation() {
-        return "Testing Location";
+        return "Epic Location";
     }
     getCurrentLocationResourceTable() {
         var location = this.getLocation(this.getCurrentLocation());
@@ -684,7 +684,7 @@ class SaveFile {
             }).bind(this));
             createButton.textContent = "Create";
             return {
-                "Building Type": BuildingType[buildingType],
+                "Building Type": BuildingType[type],
                 "Create Requirements": this.getBuildingCreateRequirements(buildingType, 1),
                 "Create": [createButton]
             };
@@ -743,6 +743,9 @@ function updateAll() {
     var save = currentSave;
     save.update();
     save.save();
+    Array.prototype.forEach.call(document.querySelectorAll(".currentLocation"), (element) => {
+        element.textContent = save.getCurrentLocation();
+    });
     document.querySelector("#currentForceAmount").textContent = save.getForceAmountInLocation(save.getLocation(save.getCurrentLocation())).toString(10);
     renderTable(document.querySelector("#currentDeadlineList"), save.getEventTable());
     renderTable(document.querySelector("#currentLocationResourceList"), save.getCurrentLocationResourceTable());
