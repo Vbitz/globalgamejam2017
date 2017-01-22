@@ -650,7 +650,7 @@ class SaveFile {
         var buildingType = buildingInfo.Type;
         this.PendingEventList.push({
             Location: locationName,
-            Type: EventType.BuildingCompleteEvent,
+            Type: EventType.BuildingUpgradeCompleteEvent,
             Details: <BuildingEvent> {
                 Id: buildingId,
                 Type: buildingType,
@@ -678,7 +678,7 @@ class SaveFile {
         var buildingCreateInfo: BuildingCreateInfo = this.getBuildingData(buildingInfo.Type, buildingInfo.Level + 1);
 
         var missingResources = buildingCreateInfo.UpgradeResources.filter(((pair: ResourcePair) => {
-            return this.getResourcesInLocation(location, pair.Type) >= pair.Count;
+            return this.getResourcesInLocation(location, pair.Type) < pair.Count;
         }).bind(this));
 
         if (missingResources.length == 0) {
@@ -696,7 +696,7 @@ class SaveFile {
         var buildingCreateInfo: BuildingCreateInfo = this.getBuildingData(buildingType, 1);
 
         var missingResources = buildingCreateInfo.UpgradeResources.filter(((pair: ResourcePair) => {
-            return this.getResourcesInLocation(location, pair.Type) >= pair.Count;
+            return this.getResourcesInLocation(location, pair.Type) < pair.Count;
         }).bind(this));
 
         if (missingResources.length == 0) {
@@ -782,7 +782,9 @@ class SaveFile {
             ret += "}"
             return ret;
         } else if (event.Type == EventType.BuildingCompleteEvent || event.Type == EventType.BuildingUpgradeCompleteEvent) {
-            let details = <PrimaryRaidEvent> event.Details;
+            let details = <BuildingEvent> event.Details;
+
+            return "Type = " + BuildingType[details.Id] + " | New Level = " + details.NewLevel.toString(10);
         }
     }
 
@@ -838,6 +840,7 @@ class SaveFile {
             upgradeButton.className = "btn btn-primary";
             upgradeButton.addEventListener("click", (() => {
                 this.startBuildingUpgrade(location, buildingId);
+                updateAll();
                 event.preventDefault();
             }).bind(this));
             upgradeButton.textContent = "Upgrade";
@@ -862,6 +865,7 @@ class SaveFile {
                 createButton.className = "btn btn-primary";
                 createButton.addEventListener("click", (() => {
                     this.startNewBuilding(location, type);
+                    updateAll();
                     event.preventDefault();
                 }).bind(this));
                 createButton.textContent = "Create";
@@ -928,9 +932,25 @@ function renderTable(tableElement: Element, data: {}[]) {
     })));
 }
 
+var currentSave: SaveFile = null;
+
+function updateAll () {
+    var save = currentSave;
+    save.update();
+    save.save();
+
+    document.querySelector("#currentForceAmount").textContent = save.getForceAmountInLocation(save.getLocation(save.getCurrentLocation())).toString(10);
+        
+    renderTable(document.querySelector("#currentDeadlineList"), save.getEventTable());
+    renderTable(document.querySelector("#currentLocationResourceList"), save.getCurrentLocationResourceTable());
+    renderTable(document.querySelector("#currentLocationBuildingList"), save.getCurrentLocationBuildingTable());
+    renderTable(document.querySelector("#currentLocationBuildingCreateList"), save.getCurrentLocationBuildingCreateTable());
+
+}
+
 function main() {
     var save: SaveFile = new SaveFile();
-    window["save"] = save;
+    currentSave = save;
 
     if (save.isNewGame()) {
         save.createNewGame();
@@ -939,18 +959,7 @@ function main() {
         save.load();
     }
 
-    setInterval(function () {
-        save.update();
-        save.save();
-
-        document.querySelector("#currentForceAmount").textContent = save.getForceAmountInLocation(save.getLocation(save.getCurrentLocation())).toString(10);
-        
-        renderTable(document.querySelector("#currentDeadlineList"), save.getEventTable());
-        renderTable(document.querySelector("#currentLocationResourceList"), save.getCurrentLocationResourceTable());
-        renderTable(document.querySelector("#currentLocationBuildingList"), save.getCurrentLocationBuildingTable());
-        renderTable(document.querySelector("#currentLocationBuildingCreateList"), save.getCurrentLocationBuildingCreateTable());
-
-    }, 1000);
+    setInterval(updateAll, 1000);
 }
 
 document.addEventListener("DOMContentLoaded", main);
