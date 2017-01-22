@@ -11,8 +11,8 @@
 
 // TODO; [x] Resource Generation
 // TODO: [x] Add Lose Condition
-// TODO: Building Upgrades
 // TODO: New Buildings
+// TODO: Building Upgrades
 // TODO: Unit System
 // TODO: Day/Night System
 // TODO: Time Skips
@@ -301,7 +301,8 @@ buildingCreationFunctions[BuildingType.ArcheryRange] = (level) => {
 
 buildingCreationFunctions[BuildingType.Castle] = (level) => {
     return {
-        Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 50)],
+        Inputs: [resourcePair(ResourceType.Wood, 150), resourcePair(ResourceType.LandArea, 50),
+            resourcePair(ResourceType.Archer, 10), resourcePair(ResourceType.Arrow, 1000)],
         Outputs: [],
         ProductionEvents: [{
             Inputs: [resourcePair(ResourceType.Population, 1), resourcePair(ResourceType.IronSword, 1)],
